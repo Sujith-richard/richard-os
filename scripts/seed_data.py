@@ -149,6 +149,98 @@ for title, url, cat in [
     conn.execute("INSERT INTO links (title, url, category) VALUES (?,?,?)", (title, url, cat))
 conn.commit(); conn.close()
 
+# ── social: 60-day deterministic growth series (idempotent) ─────
+conn = sqlite3.connect(DATA / "social.db")
+conn.execute("CREATE TABLE IF NOT EXISTS stats (id INTEGER PRIMARY KEY AUTOINCREMENT, platform TEXT, day TEXT, followers INTEGER, source TEXT DEFAULT 'seed')")
+conn.execute("DELETE FROM stats")
+import math, datetime
+def ramp(start, end, seed, n=60):
+    out = []
+    for i in range(n):
+        t = i / (n - 1)
+        trend = start + (end - start) * (0.7 * t + 0.3 * t * t)
+        wobble = (math.sin(i * 0.7 + seed) * 0.6 + math.sin(i * 0.27 + seed * 2) * 0.4) * (end - start) * 0.012
+        v = max(0, round(trend + wobble))
+        out.append(v if i < n - 1 else end)
+    return out
+TARGETS = [("linkedin", 900, 2600), ("github", 45, 210), ("x", 300, 740), ("youtube", 120, 480)]
+today = datetime.date.today()
+for platform, start, end in TARGETS:
+    series = ramp(start, end, hash(platform) % 100)
+    for i, f in enumerate(series):
+        day = (today - datetime.timedelta(days=59 - i)).isoformat()
+        conn.execute("INSERT INTO stats (platform, day, followers) VALUES (?,?,?)", (platform, day, f))
+conn.commit(); conn.close()
+
+# ── 2. More deals in CRM ─────────────────────────────────────
+conn = reset("crm.db")
+for title, company, value, stage in [
+    ("Website Design Project", "Acme Corp", 25000, "proposal"),
+    ("Software License Agreement", "TechStart Ltd", 40000, "needs-follow-up"),
+    ("Marketing Campaign", "Finnovate", 35000, "negotiation"),
+    ("Mobile App Development", "Acme Corp", 15000, "contract-pending"),
+    ("AI Chatbot MVP", "TechStart Ltd", 18000, "proposal"),
+    ("Data Pipeline Build", "Cloudly", 32000, "negotiation"),
+    ("ML Model Audit", "Finnovate", 12000, "prospect"),
+    ("Dashboard Revamp", "Cloudly", 9500, "needs-follow-up"),
+    ("E-commerce Integration", "ShopWave", 28000, "prospect"),
+    ("CRM Migration", "Acme Corp", 21000, "contract-pending"),
+]:
+    conn.execute("INSERT INTO deals (title, company, value, stage) VALUES (?,?,?,?)", (title, company, value, stage))
+conn.commit(); conn.close()
+
+# ── 3. More transactions over 3 months ───────────────────────
+conn = reset("finance.db")
+for name, type_, balance in [("JP Morgan", "checking", 6200.0), ("City Bank", "checking", 5315.0), ("Paypal", "withdrawal", 846.0), ("Binance", "crypto", 570.0), ("Payoneer", "business", 200.0)]:
+    conn.execute("INSERT INTO accounts (name, type, balance) VALUES (?,?,?)", (name, type_, balance))
+import datetime as dt2
+rows = [
+    ("income", "Payoneer", 4650, "Freelance payout — Acme", -0),
+    ("expense", "Paypal", 25, "HuggingFace subscription", -1),
+    ("expense", "City Bank", 1200, "Rent", -3),
+    ("income", "Paypal", 800, "Consulting", -5),
+    ("expense", "JP Morgan", 540, "Groceries", -7),
+    ("income", "Payoneer", 3200, "Freelance payout — TechStart", -12),
+    ("expense", "City Bank", 220, "Cloud hosting", -14),
+    ("income", "Paypal", 450, "Mentoring session", -18),
+    ("expense", "JP Morgan", 160, "Figma subscription", -21),
+    ("income", "Payoneer", 5100, "Freelance payout — Finnovate", -26),
+    ("expense", "Paypal", 99, "Domain renewals", -30),
+    ("expense", "City Bank", 340, "Electricity", -34),
+    ("income", "Paypal", 600, "Consulting — Cloudly", -38),
+    ("expense", "JP Morgan", 130, "Netflix", -41),
+    ("income", "Payoneer", 2750, "Freelance payout — ShopWave", -45),
+    ("expense", "Paypal", 75, "Canva Pro", -50),
+    ("expense", "City Bank", 260, "Internet", -55),
+    ("income", "Paypal", 900, "Course sale", -59),
+]
+for kind, account, amount, note, days_back in rows:
+    d = (dt2.date.today() - dt2.timedelta(days=days_back)).isoformat()
+    conn.execute("INSERT INTO transactions (kind, account, amount, note, date) VALUES (?,?,?,?,?)", (kind, account, amount, note, d))
+conn.commit(); conn.close()
+
+# ── 4. More content items ─────────────────────────────────────
+conn = reset("creator.db")
+for title, platform, status in [
+    ("Why I built my own AI OS", "LinkedIn", "draft"),
+    ("How agents work: autonomy 1-5", "LinkedIn", "idea"),
+    ("Richard OS demo walkthrough", "YouTube", "idea"),
+    ("My MCP tool bridge in 60s", "X", "draft"),
+    ("Data Science projects showcase", "GitHub", "published"),
+    ("The fake-data-first strategy", "LinkedIn", "scheduled"),
+    ("MCP layer explained in 3 mins", "YouTube", "script"),
+    ("Screenshot tour of the brain graph", "X", "draft"),
+    ("Building an AI OS in public", "LinkedIn", "published"),
+    ("Approval queue: agents act, you approve", "LinkedIn", "idea"),
+    ("Persona rosters: staffed teams", "LinkedIn", "draft"),
+    ("Terminal aesthetics for AI tools", "X", "idea"),
+    ("SQLite vs MySQL for your OS", "Blog", "scheduled"),
+    ("How the scheduler runs my day", "YouTube", "idea"),
+    ("Honest run logs in agents", "LinkedIn", "published"),
+]:
+    conn.execute("INSERT INTO content (title, platform, status) VALUES (?,?,?)", (title, platform, status))
+conn.commit(); conn.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 6 job leads")
 print("  pm:           5 projects, 5 tasks")

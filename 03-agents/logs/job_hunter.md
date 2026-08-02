@@ -10,3 +10,4 @@ For more
 
 | # | Role | Source | Status | Logged |
 |---|------|--------|--------|----
+2026-08-02 13:24:51 | job_hunter | run complete | [LLM unavailable: [Errno 111] Connection refused]

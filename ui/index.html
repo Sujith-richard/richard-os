@@ -66,13 +66,15 @@ const g = svg.append("g");
 fetch("/graph").then(r => r.json()).then(data => {
   const { nodes, edges } = data;
   const sim = d3.forceSimulation(nodes)
-    .force("charge", d3.forceManyBody().strength(-250))
+    .force("charge", d3.forceManyBody().strength(-120))
     .force("center", d3.forceCenter(W/2, H/2 + 26))
-    .force("link", d3.forceLink(edges).id(d => d.id).distance(d => 180 - d.strength * 30))
-    .force("collide", d3.forceCollide(30));
+    .force("link", d3.forceLink(edges).id(d => d.id)
+        .distance(d => d.strength >= 3 ? 90 : 130)
+        .strength(d => d.strength >= 3 ? 0.6 : 0.4))
+    .force("collide", d3.forceCollide(25));
 
   const link = g.append("g").selectAll("line").data(edges).join("line")
-    .attr("stroke", "var(--edge)").attr("stroke-width", d => d.strength * 0.5);
+    .attr("stroke", d => d.strength >= 3 ? "rgba(255,255,255,0.4)" : "rgba(167,139,250,0.55)").attr("stroke-width", d => Math.max(1, d.strength * 0.9));
 
   const node = g.append("g").selectAll("circle").data(nodes).join("circle")
     .attr("r", d => d.type === "core" ? 22 : d.type === "tool" ? 10 : 6)

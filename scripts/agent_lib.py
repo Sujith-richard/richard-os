@@ -4,6 +4,8 @@ import json, os, sqlite3, time
 from datetime import datetime
 from pathlib import Path
 import httpx
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mcp_bridge
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "06-data"
@@ -39,6 +41,13 @@ def call_llm(prompt, model="deepseek-v4-flash-free"):
         return r.json()["choices"][0]["message"]["content"]
     except Exception as e:
         return f"[LLM unavailable: {e}]"
+
+def call_tool(name, params=None):
+    """Agent-facing MCP tool call."""
+    return mcp_bridge.call_tool(name, params)
+
+def list_tools():
+    return mcp_bridge.list_tools()
 
 def log_run(agent, action, detail=""):
     """Append an honest run log line."""

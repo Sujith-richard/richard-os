@@ -1,0 +1,22 @@
+{
+  "email": {
+    "description": "Read inbox and send email (IMAP/SMTP).",
+    "params": ["action", "query"],
+    "auth": "env:EMAIL_APP_PASSWORD"
+  },
+  "github": {
+    "description": "Query GitHub repos, issues, activity.",
+    "params": ["action", "repo"],
+    "auth": "env:GITHUB_TOKEN"
+  },
+  "web": {
+    "description": "Search the web (DuckDuckGo, free, no key).",
+    "params": ["query"],
+    "auth": "none"
+  },
+  "weather": {
+    "description": "Get weather for a city (Open-Meteo, free, no key).",
+    "params": ["city"],
+    "auth": "none"
+  }
+}

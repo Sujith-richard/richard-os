@@ -32,6 +32,16 @@
   .os-act { font-size:11px; max-height:200px; overflow-y:auto; }
   .os-act .r { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--hairline); color:var(--muted); }
   .os-stat { font-size:11px; display:flex; justify-content:space-between; padding:3px 0; color:var(--muted); }
+  .os-detail { position:absolute; top:12px; right:12px; width:260px; background:rgba(16,16,16,.96); border:1px solid var(--hairline2); padding:14px; font-size:11px; z-index:30; display:none; box-shadow:0 16px 48px rgba(0,0,0,.6); }
+  .os-detail .d-title { font-size:14px; font-weight:700; margin-bottom:2px; }
+  .os-detail .d-type { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--core); margin-bottom:10px; }
+  .os-detail .d-row { display:flex; justify-content:space-between; padding:3px 0; color:var(--muted); border-bottom:1px solid var(--hairline); }
+  .os-detail .d-actions { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+  .os-detail .d-actions button { background:none; border:1px solid var(--hairline2); color:var(--text); font-family:var(--font); font-size:10px; padding:4px 8px; cursor:pointer; }
+  .os-detail .d-actions button:hover { background:var(--surface2); }
+  .os-menu { position:fixed; background:rgba(16,16,16,.97); border:1px solid var(--hairline2); padding:4px; min-width:180px; z-index:60; display:none; font-size:11px; }
+  .os-menu div { padding:6px 10px; cursor:pointer; color:var(--muted); }
+  .os-menu div:hover { background:var(--surface2); color:var(--text); }
 </style>
 </head>
 <body>
@@ -45,6 +55,17 @@
         </div>
         <div id="os-graph"></div>
         <div class="os-tooltip" id="os-tooltip"></div>
+        <div class="os-detail" id="os-detail">
+          <div class="d-title" id="os-d-title"></div>
+          <div class="d-type" id="os-d-type"></div>
+          <div id="os-d-meta"></div>
+          <div class="d-actions">
+            <button onclick="focusNode()">FOCUS</button>
+            <button onclick="togglePin()">PIN</button>
+            <button onclick="closeDetail()">CLOSE</button>
+          </div>
+        </div>
+        <div class="os-menu" id="os-menu"></div>
       </div>
       <div class="os-right">
         <div class="os-card"><h3>Legend</h3><div class="os-legend" id="os-legend"></div></div>
@@ -185,10 +206,11 @@
           linkSel.attr("opacity", 1);
         }).on("click", (e, d) => {
           e.stopPropagation();
+          if (e.altKey || e.metaKey) { showDetail(d); return; }
           applyFocus(d, true);
           if (d.type === "persona") loadPersona(d.label);
           if (d.type === "employee" && d.label) loadSpecialistLog(d.label);
-        });
+        }).on("contextmenu", (e, d) => { e.stopPropagation(); showMenu(e, d); });
         sim.on("tick", () => {
           linkSel.attr("x1", l => l.source.x).attr("y1", l => l.source.y).attr("x2", l => l.target.x).attr("y2", l => l.target.y);
           nodeSel.attr("cx", d => d.x).attr("cy", d => d.y);
@@ -280,6 +302,71 @@
         }
       }).catch(() => {});
     }
+
+    // ── Detail card + context menu ──
+    let lastDetail = null, pinned = null;
+    function showDetail(d) {
+      lastDetail = d;
+      document.getElementById("os-d-title").textContent = d.label;
+      document.getElementById("os-d-type").textContent = d.type + (d.color ? " · " + d.color : "");
+      const nbr = neighborsOf(d.id).size;
+      document.getElementById("os-d-meta").innerHTML =
+        '<div class="d-row"><span>id</span><span>' + d.id + '</span></div>' +
+        '<div class="d-row"><span>connected</span><span>' + nbr + '</span></div>' +
+        '<div class="d-row"><span>position</span><span>' + Math.round(d.x) + ', ' + Math.round(d.y) + '</span></div>';
+      document.getElementById("os-detail").style.display = "block";
+    }
+    function closeDetail() { document.getElementById("os-detail").style.display = "none"; lastDetail = null; }
+    function focusNode() { if (lastDetail) applyFocus(lastDetail, true); }
+    function togglePin() { pinned = pinned === lastDetail ? null : lastDetail; }
+    window.focusNode = focusNode; window.togglePin = togglePin; window.closeDetail = closeDetail;
+
+    // Context menu on right-click
+    const menu = document.getElementById("os-menu");
+    function showMenu(e, d) {
+      e.preventDefault();
+      menu.innerHTML =
+        '<div data-a="focus">Focus · zoom</div>' +
+        '<div data-a="pin">' + (pinned === d ? "Unpin" : "Pin") + '</div>' +
+        '<div data-a="copy">Copy id</div>' +
+        '<div data-a="chat">Chat with AI (todo)</div>' +
+        '<div data-a="close">Close</div>';
+      menu.style.display = "block";
+      menu.style.left = e.clientX + "px";
+      menu.style.top = e.clientY + "px";
+      menu._node = d;
+    }
+    menu.addEventListener("click", e => {
+      const a = e.target.dataset && e.target.dataset.a;
+      const d = menu._node;
+      menu.style.display = "none";
+      if (!d) return;
+      if (a === "focus") applyFocus(d, true);
+      else if (a === "pin") { pinned = pinned === d ? null : d; }
+      else if (a === "copy") navigator.clipboard && navigator.clipboard.writeText(d.id);
+      else if (a === "chat") showDetail(d);
+    });
+    document.addEventListener("click", () => { if (!menu.contains(event.target)) menu.style.display = "none"; });
+
+    // ── ⌘K node search (hooks into the shell palette when on brain) ──
+    document.addEventListener("keydown", e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        const el = document.getElementById("os-find");
+        if (el) { el.focus(); el.select(); }
+      }
+    });
+    // semantic-ish: score by label match + type
+    const findEl = document.getElementById("os-find");
+    findEl.addEventListener("input", e => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) { nodeSel.attr("opacity", 1); return; }
+      nodeSel.attr("opacity", d => {
+        const label = (d.label || "").toLowerCase();
+        const type = (d.type || "").toLowerCase();
+        return (label.includes(q) || type.includes(q)) ? 1 : 0.08;
+      });
+    });
 </script>
 </body>
 </html>

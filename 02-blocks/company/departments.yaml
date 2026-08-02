@@ -1,0 +1,16 @@
+# Company OS — department → employee agent tree
+company:
+  hr:
+    - recruiter: "Screens CVs, schedules interviews"
+    - payroll: "Salary calc, attendance"
+    - onboarding: "Docs, equipment requests"
+  development:
+    - backend: "Code reviews, tickets, API work"
+    - frontend: "UI work, components"
+    - tester: "Test cases, bug triage"
+  finance:
+    - invoicing: "Generate + track invoices"
+    - expense: "Log + categorize expenses"
+  operations:
+    - fulfillment: "Delivery work"
+    - support: "Client support tickets"

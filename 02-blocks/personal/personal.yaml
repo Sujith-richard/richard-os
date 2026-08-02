@@ -1,0 +1,12 @@
+# Personal OS — personal assistant tree
+personal:
+  email:
+    - triage: "Read inbox, flag what needs you"
+    - draft: "Draft replies in your voice"
+  calendar:
+    - schedule: "Find free slots, book meetings"
+    - remind: "Upcoming events summary"
+  tasks:
+    - pm: "Break goals into tasks, flag blockers"
+  finance:
+    - money: "Track income, expenses, invoices"

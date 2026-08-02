@@ -1,0 +1,14 @@
+# Home OS — room → device agent tree
+home:
+  living-room:
+    - lights: "On/off, brightness, scenes"
+    - tv: "Power, input, volume"
+    - ac: "Temperature, mode"
+  kitchen:
+    - appliances: "Smart plugs, kettle, oven"
+  bedroom:
+    - lights: "On/off, scenes"
+    - alarm: "Wake-up schedule"
+  security:
+    - cameras: "Streams, events"
+    - door-lock: "Lock/unlock, status"

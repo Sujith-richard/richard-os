@@ -58,7 +58,7 @@ def device_action(room, device, action, params=None):
         DEVICES[room][device] = "armed"
     elif action == "disarm":
         DEVICES[room][device] = "disarmed"
-    elif action == "set-temp" and isinstance(cur, dict):
+    elif action in ("set-temp", "set_ac", "temperature") and isinstance(cur, dict):
         DEVICES[room][device]["power"] = "on"
         DEVICES[room][device]["temp"] = float(params.get("temp", 24))
     else:

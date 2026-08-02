@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Richard OS — Home hierarchy: room-wise agents that control devices."""
-import sys
+import sys, re, json
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
@@ -48,15 +48,14 @@ def main():
         print("   Try: lights, tv, ac, kitchen, bedroom, alarm, camera, lock")
         return
 
-    # find action
-    action = None
-    for kw, a in ACTIONS.items():
-        if kw in low:
-            action = a
-            break
     if "state" in low or "status" in low:
         print(home_bridge.get_state(room))
         return
+    action = None
+    for kw, a in sorted(ACTIONS.items(), key=lambda kv: -len(kv[0])):
+        if re.search(r"\b" + re.escape(kw) + r"\b", low):
+            action = a
+            break
 
     if not action:
         # let the LLM interpret the command
@@ -66,7 +65,15 @@ def main():
                   f"Decide the device action and reply with JSON: {{\"action\": \"...\", \"params\": {{}}}}")
         out = call_llm(prompt, "deepseek-v4-flash-free")
         print(out[:500])
-        log_run(f"home/{room}", "llm-interpreted", out[:120])
+        try:
+            match = re.search(r"\{[^}]*\}", out)
+            if match:
+                parsed = json.loads(match.group(0))
+                result = home_bridge.device_action(room, device, parsed.get("action", "on"), parsed.get("params", {}))
+                print(f"🏠 {room}/{device} → {parsed.get('action')}: {result}")
+                log_run(f"home/{room}", f"{device} {parsed.get('action')}", str(result))
+        except Exception as e:
+            log_run(f"home/{room}", "llm-interpreted", f"parse error: {e}")
         return
 
     result = home_bridge.device_action(room, device, action)

@@ -1,0 +1,2 @@
+2026-08-02 15:02:49 | home/security | door-lock on | {'security': {'door-lock': 'on'}}
+2026-08-02 15:02:49 | home/security | cameras arm | {'security': {'cameras': 'armed'}}

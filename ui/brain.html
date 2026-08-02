@@ -210,6 +210,7 @@
           applyFocus(d, true);
           if (d.type === "persona") loadPersona(d.label);
           if (d.type === "employee" && d.label) loadSpecialistLog(d.label);
+          if (d.type === "agent" && d.label) loadAgentLog(d.label);
         }).on("contextmenu", (e, d) => { e.stopPropagation(); showMenu(e, d); });
         sim.on("tick", () => {
           linkSel.attr("x1", l => l.source.x).attr("y1", l => l.source.y).attr("x2", l => l.target.x).attr("y2", l => l.target.y);
@@ -367,6 +368,18 @@
         return (label.includes(q) || type.includes(q)) ? 1 : 0.08;
       });
     });
+
+    function loadAgentLog(name) {
+      fetch("/agent-log/" + encodeURIComponent(name)).then(r => r.json()).then(d => {
+        const el = document.getElementById("os-persona");
+        if (d.log && d.log.length) {
+          el.innerHTML = '<div class="g">' + name + ' · last run</div>' +
+            d.log.map(l => '<div style="padding:2px 4px;color:var(--muted);font-size:10px;white-space:pre-wrap">' + l + '</div>').join("");
+        } else {
+          el.innerHTML = '<div class="g">' + name + '</div><div style="color:var(--dim)">no runs yet</div>';
+        }
+      }).catch(() => {});
+    }
 </script>
 </body>
 </html>

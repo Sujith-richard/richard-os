@@ -180,6 +180,36 @@ def scheduler_status():
         return {"running": False}
 
 
+@app.get("/scheduler-status")
+def scheduler_status():
+    """Is the scheduler running?"""
+    import subprocess
+    try:
+        r = subprocess.run(["pgrep", "-f", "scheduler.py"], capture_output=True, text=True)
+        return {"running": bool(r.stdout.strip())}
+    except Exception:
+        return {"running": False}
+
+@app.get("/agent-log/{name}")
+def agent_log(name: str):
+    """Return the last lines of an agent's run log."""
+    import glob
+    hits = glob.glob(str(ROOT / "03-agents" / "logs" / "**" / f"{name}.md"), recursive=True)
+    if not hits:
+        return {"name": name, "log": None}
+    lines = [l for l in Path(hits[0]).read_text().splitlines() if l.strip()]
+    return {"name": name, "log": lines[-6:] if lines else None}
+
+@app.get("/scheduler-status")
+def scheduler_status():
+    """Is the scheduler running?"""
+    import subprocess
+    try:
+        r = subprocess.run(["pgrep", "-f", "scheduler.py"], capture_output=True, text=True)
+        return {"running": bool(r.stdout.strip())}
+    except Exception:
+        return {"running": False}
+
 @app.get("/agent-log/{name}")
 def agent_log(name: str):
     """Return the last lines of an agent's run log."""

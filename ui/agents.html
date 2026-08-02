@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Agents</title>
+<script>window.PAGE = { title: "Agents", crumb: ["Operate", "Agents"] };</script>
+<style>
+  .os-agents { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+  .os-agent { background:var(--surface); border:1px solid var(--hairline); padding:16px; display:flex; flex-direction:column; gap:10px; }
+  .os-agent .head { display:flex; align-items:center; gap:10px; }
+  .os-agent .dot { width:8px; height:8px; border-radius:50%; background:var(--ok); }
+  .os-agent .dot.err { background:var(--err); }
+  .os-agent h3 { font-size:13px; }
+  .os-agent .role { font-size:10px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+  .os-agent .meta { font-size:11px; color:var(--dim); display:flex; justify-content:space-between; }
+  .os-agent .run { background:none; border:1px solid var(--hairline2); color:var(--text); font-family:var(--font); font-size:11px; padding:6px 12px; cursor:pointer; }
+  .os-agent .run:hover { background:var(--surface2); }
+  .os-agent .log { font-size:10px; color:var(--dim); max-height:70px; overflow-y:auto; border-top:1px solid var(--hairline); padding-top:8px; white-space:pre-wrap; }
+  .os-statusbar { display:flex; gap:16px; align-items:center; font-size:11px; color:var(--muted); margin-bottom:20px; }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">AGENT ROSTER</h1>
+    <div class="os-statusbar"><span id="st-count">0 agents</span><span id="st-ok" style="color:var(--ok)">0 ok</span><span id="st-err" style="color:var(--err)">0 error</span></div>
+    <div class="os-agents" id="os-agents"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    const AGENTS = {
+      job_hunter: { role: "Job boards, screening, outreach", cmd: "agents_runner.py job_hunter" },
+      content_ops: { role: "LinkedIn/X post drafts", cmd: "agents_runner.py content_ops" },
+      freelance_biz: { role: "Income, expenses, follow-ups", cmd: "agents_runner.py freelance_biz" },
+      pm_assistant: { role: "Tasks, priorities, blockers", cmd: "agents_runner.py pm_assistant" },
+      portfolio_builder: { role: "Portfolio + GitHub suggestions", cmd: "agents_runner.py portfolio_builder" },
+      reading_agent: { role: "Curate saved links by goal", cmd: "agents_runner.py reading_agent" },
+      email: { role: "Email triage + reply drafts", cmd: "personal_agents.py email" },
+      calendar: { role: "Upcoming events + prep", cmd: "personal_agents.py calendar" },
+      reminders: { role: "Due tasks + follow-ups", cmd: "personal_agents.py reminder" },
+      backend: { role: "Dev tickets, code reviews", cmd: "company_agents.py 'summarize open backend tickets'" },
+      invoicing: { role: "Invoice generation + tracking", cmd: "company_agents.py 'check for invoices due'" },
+      living_room: { role: "Room devices (lights, tv, ac)", cmd: "home_agents.py 'status living-room'" },
+      security: { role: "Cameras + door lock", cmd: "home_agents.py 'status security'" }
+    };
+
+    function render(st) {
+      const rows = Object.entries(AGENTS).map(([name, cfg]) => {
+        const info = st[name] || { last_run: null, action: "idle", ok: true };
+        const el = document.createElement("div");
+        el.className = "os-agent";
+        el.innerHTML =
+          '<div class="head"><span class="dot ' + (info.ok ? "" : "err") + '"></span><h3>' + name + '</h3></div>' +
+          '<div class="role">' + cfg.role + '</div>' +
+          '<div class="meta"><span>last: ' + (info.last_run || "—") + '</span><span>' + (info.action || "idle") + '</span></div>' +
+          '<button class="run">RUN</button>' +
+          '<div class="log">cmd: ' + cfg.cmd + '</div>';
+        el.querySelector(".run").addEventListener("click", () => {
+          el.querySelector(".log").textContent = "launching: " + cfg.cmd + " … (see 03-agents/logs for output)";
+          fetch("/api/run?cmd=" + encodeURIComponent(cfg.cmd)).then(r => r.json()).then(d => {
+            el.querySelector(".log").textContent = d.output || d.error || "done";
+            setTimeout(poll, 1000);
+          }).catch(e => el.querySelector(".log").textContent = "error: " + e);
+        });
+        return el;
+      });
+      const box = document.getElementById("os-agents");
+      box.innerHTML = "";
+      rows.forEach(r => box.appendChild(r));
+    }
+
+    function poll() {
+      fetch("/agent-status").then(r => r.json()).then(st => {
+        render(st);
+        const vals = Object.values(st);
+        document.getElementById("st-count").textContent = Object.keys(AGENTS).length + " agents";
+        document.getElementById("st-ok").textContent = vals.filter(v => v.ok).length + " ok";
+        document.getElementById("st-err").textContent = vals.filter(v => !v.ok).length + " error";
+      }).catch(() => {});
+    }
+    poll();
+    setInterval(poll, 8000);
+  </script>
+</body>
+</html>

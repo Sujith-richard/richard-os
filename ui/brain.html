@@ -213,6 +213,37 @@
     fit();
     if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap);
     window.addEventListener("resize", fit);
-  </script>
+  
+    // ── Live data flow: light dots travelling between nodes ──
+    (function startFlow() {
+      const FLOW_N = 24;
+      const pool = [];
+      for (let i = 0; i < FLOW_N; i++) {
+        pool.push({
+          el: g.append("circle").attr("r", 2).attr("fill", "#fff")
+             .attr("opacity", 0.9).attr("display", "none")
+             .style("filter", "drop-shadow(0 0 5px rgba(255,255,255,0.8))"),
+          t: Math.random(), speed: 0.003 + Math.random() * 0.004, edge: null
+        });
+      }
+      setInterval(() => {
+        if (!allEdges.length) return;
+        for (const p of pool) {
+          if (!p.edge) {
+            const cands = allEdges.filter(l => l.source && l.target && l.source.x !== undefined && l.target.x !== undefined);
+            if (!cands.length) continue;
+            p.edge = cands[Math.floor(Math.random() * cands.length)];
+            p.t = 0;
+            p.el.attr("display", null).attr("opacity", 0.9);
+          }
+          const a = p.edge.source, b = p.edge.target;
+          p.t += p.speed;
+          if (p.t >= 1) { p.edge = null; p.el.attr("display", "none"); continue; }
+          p.el.attr("cx", a.x + (b.x - a.x) * p.t)
+             .attr("cy", a.y + (b.y - a.y) * p.t);
+        }
+      }, 50);
+    })();
+</script>
 </body>
 </html>

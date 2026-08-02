@@ -45,3 +45,7 @@ No job leads can be summarized from the provided OS memory. The `CURRENT DATA (c
 | Lead | Status | Next Step |
 |---|---|---|
 | Data Scientist @ Google | App
+2026-08-02 17:40:28 | job_hunter | run complete | ## Current Job Leads (from second_brain DB)
+
+| # | Role | Company | Source | Status |
+|---|------|---------|--------|---

@@ -91,6 +91,21 @@ def graph():
                             ei += 1
     return {"nodes": nodes, "edges": edges}
 
+@app.get("/api/run")
+def run_cmd(cmd: str = ""):
+    """Run an agent command (fake-data safe). Returns output."""
+    import subprocess
+    if not cmd:
+        return {"error": "no cmd"}
+    # only allow our own scripts
+    if ".." in cmd or ";" in cmd or "&" in cmd or "|" in cmd:
+        return {"error": "blocked"}
+    try:
+        r = subprocess.run(["bash", "-c", "cd scripts && python3 " + cmd], capture_output=True, text=True, timeout=120, cwd=ROOT)
+        return {"output": (r.stdout or r.stderr)[-1500:]}
+    except Exception as e:
+        return {"error": str(e)}
+
 @app.get("/agent-status")
 def agent_status():
     """Read agent run logs → return last-run timestamps + status for live pulse."""

@@ -8,12 +8,12 @@ agents:
     role: "Screens job boards, matches roles to skills, drafts applications"
     autonomy: 2
     schedule: "09:00 daily"
-    model: "gemini-3.5-flash"
+    model: "deepseek-v4-flash-free"
   content_ops:
     role: "Drafts LinkedIn/X posts from your work"
     autonomy: 2
     schedule: "mon,wed,fri 18:00"
-    model: "qwen3-32b"
+    model: "deepseek-v4-flash-free"
   freelance_biz:
     role: "Follows leads, tracks income/expenses, drafts invoices"
     autonomy: 2
@@ -23,12 +23,12 @@ agents:
     role: "Breaks goals into tasks, flags blockers"
     autonomy: 3
     schedule: "08:00 daily"
-    model: "gemini-3.5-flash"
+    model: "deepseek-v4-flash-free"
   portfolio_builder:
     role: "Tracks GitHub metrics, suggests portfolio improvements"
     autonomy: 1
     schedule: "weekly"
-    model: "qwen3-32b"
+    model: "deepseek-v4-flash-free"
 
 systems_of_record:
   - second_brain

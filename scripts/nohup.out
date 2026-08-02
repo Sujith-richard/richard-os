@@ -1,0 +1,8 @@
+npm error code ENOENT
+npm error syscall open
+npm error path /home/sujith-richard/richard-os/scripts/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/home/sujith-richard/richard-os/scripts/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /home/sujith-richard/.npm/_logs/2026-08-02T07_30_54_963Z-debug-0.log

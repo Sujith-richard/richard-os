@@ -90,6 +90,30 @@ def graph():
                             ei += 1
     return {"nodes": nodes, "edges": edges}
 
+@app.get("/agent-status")
+def agent_status():
+    """Read agent run logs → return last-run timestamps + status for live pulse."""
+    logs_dir = ROOT / "03-agents" / "logs"
+    out = {}
+    for log_file in logs_dir.rglob("*.md"):
+        agent = log_file.stem
+        try:
+            lines = [l for l in log_file.read_text().splitlines() if l.strip()]
+            if not lines:
+                out[agent] = {"last_run": None, "status": "idle"}
+                continue
+            last = lines[-1]
+            # format: 2026-08-02 13:05:24 | agent | action | detail
+            parts = last.split(" | ")
+            out[agent] = {
+                "last_run": parts[0] if parts else None,
+                "action": parts[2] if len(parts) > 2 else "",
+                "ok": "unavailable" not in last and "error" not in last.lower(),
+            }
+        except Exception:
+            out[agent] = {"last_run": None, "status": "idle"}
+    return out
+
 @app.get("/systems/{name}")
 def system(name: str):
     tables = {

@@ -59,3 +59,12 @@ ui/ knowledge-graph front-end
 ## Autonomy levels
 1 Lookup · 2 Recommend · 3 Act & spot-check · 4 Runs independently · 5 Self-monitoring
 Set per agent in `01-root-spine/company.yaml`.
+## Screenshots
+![Console](docs/screenshots/01-console.png)
+![Brain — Knowledge Graph](docs/screenshots/02-brain.png)
+![Brain — Node Focus](docs/screenshots/03-brain-focus.png)
+![Agents](docs/screenshots/04-agents.png)
+![Finances](docs/screenshots/05-finances.png)
+![Funnel](docs/screenshots/06-funnel.png)
+![Comms](docs/screenshots/07-comms.png)
+![Social](docs/screenshots/08-social.png)

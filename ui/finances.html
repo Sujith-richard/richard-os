@@ -3,28 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Richard OS — Finances</title>
-<script>window.PAGE = { title: "Finances", crumb: ["System", "Finances"] };</script>
+<title>Richard OS — Finance</title>
+<script>window.PAGE = { title: "Finance", crumb: ["System", "Finance"] };</script>
 <style>
-  .os-metrics { display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
-  .os-metric { background:var(--surface); border:1px solid var(--hairline); padding:16px; min-width:150px; }
-  .os-metric .v { font-size:22px; font-weight:700; }
-  .os-metric .l { font-size:9px; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; margin-top:4px; }
-  .os-accounts { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-kpi { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
+  .os-kpi .v { font-size:20px; font-weight:700; }
+  .os-kpi .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
+  .os-kpi .sub { font-size:10px; color:var(--muted); margin-top:2px; }
+  .os-chart { display:flex; align-items:flex-end; gap:8px; height:120px; margin-bottom:20px; }
+  .os-chart .b { flex:1; background:var(--core); opacity:.85; min-height:2px; }
+  .os-chart .b.exp { background:var(--err); opacity:.7; }
+  .os-accounts { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; margin-bottom:20px; }
   .os-acc { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
   .os-acc .n { font-size:12px; }
-  .os-acc .b { font-size:18px; font-weight:700; margin-top:4px; }
+  .os-acc .b { font-size:17px; font-weight:700; margin-top:3px; }
   .os-acc .t { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:.15em; }
   .os-tx { font-size:11px; }
   .os-tx .r { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--hairline); color:var(--muted); }
   .os-tx .r .inc { color:var(--ok); }
   .os-tx .r .exp { color:var(--err); }
+  .os-tx .r .d { color:var(--dim); font-size:10px; }
 </style>
 </head>
 <body>
   <div class="os-page">
-    <h1 class="os-h1">FINANCES</h1>
-    <div class="os-metrics" id="os-metrics"></div>
+    <h1 class="os-h1">FINANCE</h1>
+    <div class="os-kpis" id="os-kpis"></div>
+    <div class="os-card"><h3>Cash Flow (6 months) <span style="color:var(--core)">■ income</span> <span style="color:var(--err)">■ expense</span></h3><div class="os-chart" id="os-cash"></div></div>
     <h3 class="os-h1" style="font-size:12px">ACCOUNTS</h3>
     <div class="os-accounts" id="os-accounts"></div>
     <h3 class="os-h1" style="font-size:12px">TRANSACTIONS</h3>
@@ -38,18 +44,49 @@
         const income = txs.filter(t => t.kind === "income").reduce((s, t) => s + (t.amount || 0), 0);
         const expense = txs.filter(t => t.kind === "expense").reduce((s, t) => s + (t.amount || 0), 0);
         const balance = accs.reduce((s, a) => s + (a.balance || 0), 0);
-        document.getElementById("os-metrics").innerHTML =
-          '<div class="os-metric"><div class="v">$' + balance.toFixed(2) + '</div><div class="l">Total Balance</div></div>' +
-          '<div class="os-metric"><div class="v" style="color:var(--ok)">+$' + income.toFixed(2) + '</div><div class="l">Income (seeded)</div></div>' +
-          '<div class="os-metric"><div class="v" style="color:var(--err)">-$' + expense.toFixed(2) + '</div><div class="l">Expenses (seeded)</div></div>';
+        const mrr = Math.round(income / 3);                       // seeded 3 months
+        const arr = mrr * 12;
+        const runway = expense ? (balance / Math.max(expense / 3, 1)).toFixed(1) : "∞";
+        document.getElementById("os-kpis").innerHTML =
+          kpi("$" + mrr.toLocaleString(), "MRR", "~" + Math.round(income / 3) + "/mo") +
+          kpi("$" + arr.toLocaleString(), "ARR", mrr + " × 12") +
+          kpi(runway + " mo", "Runway", "at current burn") +
+          kpi("$" + balance.toLocaleString(), "Total Cash", accs.length + " accounts") +
+          kpi("$" + expense.toLocaleString(), "Expenses", "3 months") +
+          kpi(txs.length, "Transactions", "seeded");
+        // cash flow chart: income vs expense per month (group by date month)
+        const months = {};
+        txs.forEach(t => {
+          const m = (t.date || "2026-08").slice(0, 7);
+          if (!months[m]) months[m] = { inc: 0, exp: 0 };
+          if (t.kind === "income") months[m].inc += (t.amount || 0);
+          else months[m].exp += (t.amount || 0);
+        });
+        const keys = Object.keys(months).sort();
+        const max = Math.max(...keys.map(k => Math.max(months[k].inc, months[k].exp)), 1);
+        const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        document.getElementById("os-cash").innerHTML = keys.map(k => {
+          const mi = months[k].inc / max * 100;
+          const me = months[k].exp / max * 100;
+          const label = MONTHS[parseInt(k.slice(5), 10) - 1] || k;
+          return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">' +
+            '<div style="width:100%;display:flex;align-items:flex-end;gap:2px;height:120px">' +
+            '<div class="b" style="height:' + mi + '%" title="' + k + ' income $' + months[k].inc + '"></div>' +
+            '<div class="b exp" style="height:' + me + '%" title="' + k + ' expense $' + months[k].exp + '"></div>' +
+            '</div><div style="font-size:9px;color:var(--dim)">' + label + '</div></div>';
+        }).join("");
+        // legend
+        const chart = document.getElementById("os-cash");
+        chart.style.marginBottom = "6px";
         document.getElementById("os-accounts").innerHTML = accs.map(a =>
-          '<div class="os-acc"><div class="n">' + (a.name || "") + '</div><div class="b">$' + (a.balance || 0).toFixed(2) + '</div><div class="t">' + (a.type || "") + '</div></div>'
+          '<div class="os-acc"><div class="n">' + a.name + '</div><div class="b">$' + (a.balance || 0).toFixed(2) + '</div><div class="t">' + (a.type || "") + '</div></div>'
         ).join("");
-        document.getElementById("os-tx").innerHTML = txs.map(t =>
-          '<div class="r"><span>' + (t.note || "") + '</span><span class="' + (t.kind === "income" ? "inc" : "exp") + '">' + (t.kind === "income" ? "+" : "-") + '$' + (t.amount || 0).toFixed(2) + '</span></div>'
+        document.getElementById("os-tx").innerHTML = txs.slice().reverse().map(t =>
+          '<div class="r"><span>' + (t.note || "") + ' <span class="d">' + (t.date || "") + '</span></span><span class="' + (t.kind === "income" ? "inc" : "exp") + '">' + (t.kind === "income" ? "+" : "-") + '$' + (t.amount || 0).toFixed(2) + '</span></div>'
         ).join("") || '<div style="color:var(--dim)">no transactions</div>';
       }).catch(e => console.error(e));
     }
+    function kpi(v, l, sub) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div><div class="sub">' + sub + '</div></div>'; }
     load();
     setInterval(load, 10000);
   </script>

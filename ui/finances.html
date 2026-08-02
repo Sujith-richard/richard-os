@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Finances</title>
+<script>window.PAGE = { title: "Finances", crumb: ["System", "Finances"] };</script>
+<style>
+  .os-metrics { display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+  .os-metric { background:var(--surface); border:1px solid var(--hairline); padding:16px; min-width:150px; }
+  .os-metric .v { font-size:22px; font-weight:700; }
+  .os-metric .l { font-size:9px; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; margin-top:4px; }
+  .os-accounts { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-acc { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-acc .n { font-size:12px; }
+  .os-acc .b { font-size:18px; font-weight:700; margin-top:4px; }
+  .os-acc .t { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:.15em; }
+  .os-tx { font-size:11px; }
+  .os-tx .r { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--hairline); color:var(--muted); }
+  .os-tx .r .inc { color:var(--ok); }
+  .os-tx .r .exp { color:var(--err); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">FINANCES</h1>
+    <div class="os-metrics" id="os-metrics"></div>
+    <h3 class="os-h1" style="font-size:12px">ACCOUNTS</h3>
+    <div class="os-accounts" id="os-accounts"></div>
+    <h3 class="os-h1" style="font-size:12px">TRANSACTIONS</h3>
+    <div class="os-tx" id="os-tx"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    function load() {
+      fetch("/systems/finance").then(r => r.json()).then(d => {
+        const accs = d.accounts || [], txs = d.transactions || [];
+        const income = txs.filter(t => t.kind === "income").reduce((s, t) => s + (t.amount || 0), 0);
+        const expense = txs.filter(t => t.kind === "expense").reduce((s, t) => s + (t.amount || 0), 0);
+        const balance = accs.reduce((s, a) => s + (a.balance || 0), 0);
+        document.getElementById("os-metrics").innerHTML =
+          '<div class="os-metric"><div class="v">$' + balance.toFixed(2) + '</div><div class="l">Total Balance</div></div>' +
+          '<div class="os-metric"><div class="v" style="color:var(--ok)">+$' + income.toFixed(2) + '</div><div class="l">Income (seeded)</div></div>' +
+          '<div class="os-metric"><div class="v" style="color:var(--err)">-$' + expense.toFixed(2) + '</div><div class="l">Expenses (seeded)</div></div>';
+        document.getElementById("os-accounts").innerHTML = accs.map(a =>
+          '<div class="os-acc"><div class="n">' + (a.name || "") + '</div><div class="b">$' + (a.balance || 0).toFixed(2) + '</div><div class="t">' + (a.type || "") + '</div></div>'
+        ).join("");
+        document.getElementById("os-tx").innerHTML = txs.map(t =>
+          '<div class="r"><span>' + (t.note || "") + '</span><span class="' + (t.kind === "income" ? "inc" : "exp") + '">' + (t.kind === "income" ? "+" : "-") + '$' + (t.amount || 0).toFixed(2) + '</span></div>'
+        ).join("") || '<div style="color:var(--dim)">no transactions</div>';
+      }).catch(e => console.error(e));
+    }
+    load();
+    setInterval(load, 10000);
+  </script>
+</body>
+</html>

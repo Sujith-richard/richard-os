@@ -21,6 +21,17 @@ def find_agent(text, domains):
         "home": ["light", "tv", "ac", "temperature", "camera", "lock", "kitchen", "bedroom", "fan", "alarm"],
         "personal": ["email", "mail", "calendar", "schedule", "meeting", "task", "remind", "expense", "money"],
     }
+    # Persona routing: "I run a LinkedIn agency" → that company's roster
+    persona_rules = {
+        "growth-agency": ["growth agency", "growth operator", "agency business"],
+        "linkedin-agency": ["linkedin agency", "linkedin business", "ghostwriting", "ghostwriter"],
+        "youtube-agency": ["youtube agency", "youtube business", "content agency"],
+        "clipping-agency": ["clipping agency", "clipping business", "short form", "shorts agency"],
+    }
+    for pname, kws in persona_rules.items():
+        for kw in kws:
+            if kw in text:
+                return "persona", pname
     for domain, kws in rules.items():
         for kw in kws:
             if kw in text:

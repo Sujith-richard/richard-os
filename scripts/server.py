@@ -89,6 +89,22 @@ def graph():
                             nodes.append({"id": f"{dname}-{subname}-{aname}", "label": aname, "type": "employee", "color": "#10b981", "x": -640, "y": (di - 1) * 180 + ei * 60})
                             edges.append({"source": f"{dname}-{subname}", "target": f"{dname}-{subname}-{aname}", "strength": 1})
                             ei += 1
+    # ── Personas: the staffed companies ──
+    import glob
+    persona_files = sorted(glob.glob(str(ROOT / "02-blocks" / "personas" / "*.yaml")))
+    for fi, pf in enumerate(persona_files):
+        pname = Path(pf).stem
+        try:
+            cfg = yaml.safe_load(Path(pf).read_text()) or {}
+        except Exception:
+            cfg = {}
+        pcolor = "#f472b6"
+        nodes.append({"id": f"persona-{pname}", "label": pname, "type": "persona", "color": pcolor, "x": -820, "y": (fi - 1.5) * 160})
+        edges.append({"source": "core", "target": f"persona-{pname}", "strength": 2})
+        lead = cfg.get("ceo") or cfg.get("director")
+        if lead:
+            nodes.append({"id": f"persona-{pname}-lead", "label": str(lead), "type": "employee", "color": "#10b981", "x": -980, "y": (fi - 1.5) * 160})
+            edges.append({"source": f"persona-{pname}", "target": f"persona-{pname}-lead", "strength": 1.5})
     return {"nodes": nodes, "edges": edges}
 
 @app.get("/api/run")

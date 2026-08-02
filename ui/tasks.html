@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Tasks</title>
+<script>window.PAGE = { title: "Tasks", crumb: ["Operate", "Tasks"] };</script>
+<style>
+  .os-kanban { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .os-col { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-col h3 { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .os-card2 { background:var(--surface2); border:1px solid var(--hairline); padding:10px; font-size:12px; margin-bottom:8px; }
+  .os-card2 .p { font-size:10px; color:var(--muted); margin-top:4px; }
+  .os-stats { display:flex; gap:16px; font-size:11px; color:var(--muted); margin-bottom:20px; }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">TASK BOARD</h1>
+    <div class="os-stats" id="os-stats"></div>
+    <div class="os-kanban" id="os-kanban"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    const COLS = { todo: "To Do", in_progress: "In Progress", done: "Done" };
+    const PRIO = { high: "var(--err)", medium: "var(--warn)", low: "var(--dim)" };
+    function load() {
+      Promise.all([fetch("/systems/pm").then(r => r.json())]).then(([d]) => {
+        const tasks = d.tasks || [];
+        document.getElementById("os-stats").innerHTML =
+          '<span>' + tasks.length + ' total</span>' +
+          '<span>' + tasks.filter(t => t.status === "todo").length + ' todo</span>' +
+          '<span>' + tasks.filter(t => t.status === "in_progress").length + ' in progress</span>' +
+          '<span>' + tasks.filter(t => t.status === "done").length + ' done</span>';
+        const kanban = document.getElementById("os-kanban");
+        kanban.innerHTML = "";
+        Object.keys(COLS).forEach(col => {
+          const colEl = document.createElement("div");
+          colEl.className = "os-col";
+          colEl.innerHTML = "<h3>" + COLS[col] + "</h3>";
+          const cards = tasks.filter(t => (t.status || "todo") === col);
+          cards.forEach(t => {
+            const c = document.createElement("div");
+            c.className = "os-card2";
+            c.innerHTML = '<div>' + (t.title || "") + '</div>' +
+              '<div class="p"><span style="color:' + (PRIO[t.priority] || "var(--muted)") + '">●</span> ' +
+              (t.project || "") + '</div>';
+            colEl.appendChild(c);
+          });
+          if (!cards.length) colEl.innerHTML += '<div style="color:var(--dim);font-size:11px">empty</div>';
+          kanban.appendChild(colEl);
+        });
+      }).catch(e => console.error(e));
+    }
+    load();
+    setInterval(load, 10000);
+  </script>
+</body>
+</html>

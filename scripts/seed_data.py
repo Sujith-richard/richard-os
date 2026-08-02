@@ -44,17 +44,6 @@ for title, note, source, salary, applied in [
     conn.execute("INSERT INTO captures (title, note, source, status, salary, applied_date) VALUES (?,?,?, 'job', ?, ?)",
                  (title, note, source, salary, applied))
 conn.commit(); conn.close()
-for title, note, source in [
-    ("Data Scientist @ Google", "Applied via careers portal", "Google Careers"),
-    ("ML Engineer @ Stripe", "Referred by Priya — follow up", "Referral"),
-    ("AI Engineer @ Microsoft", "Recruiter reached out", "LinkedIn"),
-    ("Data Engineer @ Razorpay", "Screening call scheduled", "Naukri"),
-    ("Data Analyst @ Swiggy", "Application drafted — send", "Company site"),
-    ("Senior DS @ Flipkart", "Applied, waiting response", "LinkedIn"),
-]:
-    conn.execute("INSERT INTO captures (title, note, source, status) VALUES (?,?,?, 'job')",
-                 (title, note, source))
-conn.commit(); conn.close()
 
 # ── pm: projects + tasks ────────────────────────────
 conn = reset("pm.db")
@@ -241,23 +230,6 @@ for kind, account, amount, note, days_back in rows:
     conn.execute("INSERT INTO transactions (kind, account, amount, note, date) VALUES (?,?,?,?,?)", (kind, account, amount, note, d))
 conn.commit(); conn.close()
 
-# ── content performance metrics (for charts) ─────────
-conn = sqlite3.connect(DATA / "creator.db")
-conn.execute("CREATE TABLE IF NOT EXISTS performance (id INTEGER PRIMARY KEY AUTOINCREMENT, content_id INTEGER, views INTEGER, likes INTEGER, comments INTEGER, date TEXT)")
-conn.execute("DELETE FROM performance")
-import random
-random.seed(42)
-today2 = dt2.date.today()
-for cid in range(1, 16):
-    for days_back in (0, 3, 7, 14):
-        views = random.randint(400, 9000)
-        likes = int(views * random.uniform(0.03, 0.09))
-        comments = int(likes * random.uniform(0.05, 0.2))
-        d = (today2 - dt2.timedelta(days=days_back)).isoformat()
-        conn.execute("INSERT INTO performance (content_id, views, likes, comments, date) VALUES (?,?,?,?,?)",
-                     (cid, views, likes, comments, d))
-conn.commit(); conn.close()
-
 # ── 4. More content items ─────────────────────────────────────
 conn = reset("creator.db")
 for title, platform, status in [
@@ -279,6 +251,23 @@ for title, platform, status in [
 ]:
     conn.execute("INSERT INTO content (title, platform, status) VALUES (?,?,?)", (title, platform, status))
 conn.commit(); conn.close()
+# ── content performance metrics (for charts) ─────────
+conn = sqlite3.connect(DATA / "creator.db")
+conn.execute("CREATE TABLE IF NOT EXISTS performance (id INTEGER PRIMARY KEY AUTOINCREMENT, content_id INTEGER, views INTEGER, likes INTEGER, comments INTEGER, date TEXT)")
+conn.execute("DELETE FROM performance")
+import random
+random.seed(42)
+today2 = dt2.date.today()
+for cid in range(1, 16):
+    for days_back in (0, 3, 7, 14):
+        views = random.randint(400, 9000)
+        likes = int(views * random.uniform(0.03, 0.09))
+        comments = int(likes * random.uniform(0.05, 0.2))
+        d = (today2 - dt2.timedelta(days=days_back)).isoformat()
+        conn.execute("INSERT INTO performance (content_id, views, likes, comments, date) VALUES (?,?,?,?,?)",
+                     (cid, views, likes, comments, d))
+conn.commit(); conn.close()
+
 
 # ── reading: your real curated links collection ──────
 conn = sqlite3.connect(DATA / "reading.db")
@@ -314,9 +303,10 @@ for t, u, c in links:
 conn.commit(); conn.close()
 
 print("✓ Seeded fake data into all 5 systems of record:")
-print("  second_brain: 6 job leads")
+print("  second_brain: 10 job leads (salary + applied dates)")
 print("  pm:           5 projects, 5 tasks")
-print("  finance:      5 accounts, 5 transactions")
-print("  crm:          5 contacts, 4 deals")
-print("  creator:      5 content items")
+print("  finance:      5 accounts, 18 transactions")
+print("  crm:          5 contacts, 10 deals")
+print("  creator:      15 content items + 60 performance rows")
+print("  reading:      23 curated links")
 print("\nRun agents now — they'll work against rich fake data.")

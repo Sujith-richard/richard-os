@@ -1,5 +1,3 @@
-cd ~/richard-os
-cat > ui/brain.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,9 +6,11 @@ cat > ui/brain.html << 'EOF'
 <title>Richard OS — Brain</title>
 <script>window.PAGE = { title: "Brain", crumb: ["Operate", "Brain"] };</script>
 <style>
-  .os-brain { display:flex; height:100%; gap:16px; }
-  .os-graph-wrap { flex:1; position:relative; border:1px solid var(--hairline); background:var(--surface); overflow:hidden; }
+  .os-page { height:100%; display:flex; }
+  .os-brain { flex:1; display:flex; height:100%; gap:16px; min-height:0; }
+  .os-graph-wrap { flex:1; min-width:0; position:relative; border:1px solid var(--hairline); background:var(--surface); overflow:hidden; }
   #os-graph { width:100%; height:100%; cursor:grab; }
+  #os-graph svg { display:block; }
   #os-graph:active { cursor:grabbing; }
   .os-right { width:280px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; }
   .os-tooltip { position:absolute; background:rgba(16,16,16,.95); border:1px solid var(--hairline2); padding:10px 12px; font-size:11px; pointer-events:none; opacity:0; transition:opacity .18s; z-index:20; max-width:260px; }
@@ -65,22 +65,18 @@ cat > ui/brain.html << 'EOF'
     let allNodes = [], allEdges = [], nodeSel, linkSel, labelSel, focusStack = [];
     const srcId = l => l.source.id !== undefined ? l.source.id : l.source;
     const tgtId = l => l.target.id !== undefined ? l.target.id : l.target;
-
     const zoom = d3.zoom().scaleExtent([0.15, 5]).on("zoom", e => g.attr("transform", e.transform));
     svg.call(zoom);
-
     function neighborsOf(id) {
       const s = new Set();
       allEdges.forEach(l => { if (srcId(l) === id) s.add(tgtId(l)); if (tgtId(l) === id) s.add(srcId(l)); });
       return s;
     }
-
     function updateCrumb() {
       const names = focusStack.map(id => { const n = allNodes.find(x => x.id === id); return n ? n.label : id; });
       d3.select("#os-crumb").text(focusStack.length ? "ROOT / " + names.join(" / ") : "ROOT");
       d3.select("#os-back").style("display", focusStack.length ? "block" : "none");
     }
-
     function applyFocus(d, push) {
       if (push) focusStack.push(d.id);
       const vis = new Set([d.id, ...neighborsOf(d.id)]);
@@ -99,7 +95,6 @@ cat > ui/brain.html << 'EOF'
       svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
       updateCrumb();
     }
-
     function resetView() {
       nodeSel.style("display", null); labelSel.style("display", null); linkSel.style("display", null);
       nodeSel.attr("opacity", 1).attr("stroke", "rgba(255,255,255,.3)").attr("stroke-width", 1).attr("r", n => n.r || 6);
@@ -114,10 +109,8 @@ cat > ui/brain.html << 'EOF'
       if (d) applyFocus(d, false);
     }
     d3.select("#os-back").on("click", goBack);
-
     const LEGEND = [["Core","var(--core)"],["Systems","var(--tool)"],["Records","var(--data)"],["Agents","var(--agent)"],["Company","var(--company)"],["Home","var(--home)"],["Personal","var(--personal)"]];
     d3.select("#os-legend").html(LEGEND.map(([l, c]) => '<div><span class="sw" style="background:' + c + '"></span>' + l + '</div>').join(""));
-
     function buildDir(data) {
       const groups = {};
       data.nodes.forEach(n => {
@@ -136,14 +129,12 @@ cat > ui/brain.html << 'EOF'
         if (n) applyFocus(n, true);
       });
     }
-
     function buildStats(data) {
       const c = t => data.nodes.filter(n => n.type === t).length;
       const html = [["Nodes", data.nodes.length], ["Edges", data.edges.length], ["Domains", c("domain")], ["Depts", c("dept")], ["Workers", c("employee")], ["Agents", c("agent")], ["Systems", c("tool")], ["Records", c("data")]]
         .map(([k, v]) => '<div class="os-stat"><span>' + k + '</span><span>' + v + '</span></div>').join("");
       d3.select("#os-stats").html(html);
     }
-
     function pollActivity() {
       fetch("/agent-status").then(r => r.json()).then(st => {
         const rows = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || ""));
@@ -154,19 +145,16 @@ cat > ui/brain.html << 'EOF'
     }
     setInterval(pollActivity, 5000);
     pollActivity();
-
     function load() {
       fetch("/graph").then(r => r.json()).then(data => {
         allNodes = data.nodes.map(n => ({ ...n, r: n.type === "core" ? 22 : n.type === "domain" ? 16 : (n.type === "tool" || n.type === "agent") ? 10 : n.type === "dept" ? 9 : 6 }));
         allEdges = data.edges;
         buildDir(data); buildStats(data);
-
         const sim = d3.forceSimulation(allNodes)
           .force("charge", d3.forceManyBody().strength(-120))
           .force("center", d3.forceCenter(W() / 2, H() / 2))
           .force("link", d3.forceLink(allEdges).id(d => d.id).distance(d => d.strength >= 3 ? 90 : 130).strength(d => d.strength >= 3 ? 0.6 : 0.4))
           .force("collide", d3.forceCollide(25));
-
         linkSel = g.append("g").selectAll("line").data(allEdges).join("line")
           .attr("stroke", d => d.strength >= 3 ? "rgba(255,255,255,.4)" : "rgba(167,139,250,.55)")
           .attr("stroke-width", d => Math.max(1, d.strength * 0.9));
@@ -179,7 +167,6 @@ cat > ui/brain.html << 'EOF'
         labelSel = g.append("g").selectAll("text").data(allNodes.filter(d => d.type !== "data" && d.type !== "employee")).join("text")
           .text(d => d.label).attr("fill", "var(--muted)").attr("font-size", 10)
           .attr("text-anchor", "middle").attr("dy", d => d.type === "core" ? -30 : 18);
-
         nodeSel.on("mouseover", (e, d) => {
           if (focusStack.length) return;
           const nbrs = neighborsOf(d.id);
@@ -196,14 +183,11 @@ cat > ui/brain.html << 'EOF'
           nodeSel.attr("opacity", 1).attr("stroke", "rgba(255,255,255,.3)").attr("stroke-width", 1);
           linkSel.attr("opacity", 1);
         }).on("click", (e, d) => { e.stopPropagation(); applyFocus(d, true); });
-
         sim.on("tick", () => {
           linkSel.attr("x1", l => l.source.x).attr("y1", l => l.source.y).attr("x2", l => l.target.x).attr("y2", l => l.target.y);
           nodeSel.attr("cx", d => d.x).attr("cy", d => d.y);
           labelSel.attr("x", d => d.x).attr("y", d => d.y);
         });
-
-        // live pulse
         setInterval(() => {
           fetch("/agent-status").then(r => r.json()).then(st => {
             Object.keys(st).forEach(agent => {
@@ -221,13 +205,14 @@ cat > ui/brain.html << 'EOF'
       });
     }
     load();
-
     d3.select("#os-find").on("input", e => {
       const q = e.target.value.toLowerCase();
       nodeSel.attr("opacity", d => !q || d.label.toLowerCase().includes(q) ? 1 : 0.1);
     });
-    window.addEventListener("resize", () => svg.attr("width", W()).attr("height", H()));
+    function fit() { svg.attr("width", W()).attr("height", H()); }
+    fit();
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap);
+    window.addEventListener("resize", fit);
   </script>
 </body>
 </html>
-EOF

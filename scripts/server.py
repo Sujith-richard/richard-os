@@ -171,6 +171,8 @@ def agent_status():
 def system(name: str):
     tables = {
         "second_brain": ("second_brain.db", ["captures","goals","inbox","calendar"]),
+        "reading": ("reading.db", ["links"]),
+        "creator": ("creator.db", ["content","performance"]),
         "social": ("social.db", ["stats"]),
         "pm": ("pm.db", ["tasks","projects"]),
         "finance": ("finance.db", ["accounts","transactions"]),

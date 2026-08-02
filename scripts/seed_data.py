@@ -20,8 +20,30 @@ def ensure_table(conn, name, ddl):
     conn.execute(ddl)
     conn.commit()
 
-# ── second_brain: job leads ─────────────────────────
+# ── second_brain: job leads (salary + applied date) ──
 conn = reset("second_brain.db")
+# add columns if missing (idempotent)
+for col, ddl in [("salary", "TEXT"), ("applied_date", "TEXT")]:
+    try:
+        conn.execute(f"ALTER TABLE captures ADD COLUMN {col} {ddl}")
+    except Exception:
+        pass
+conn.commit()
+for title, note, source, salary, applied in [
+    ("Data Scientist @ Google", "Applied via careers portal", "Google Careers", "$145K-$175K", "2026-07-25"),
+    ("ML Engineer @ Stripe", "Referred by Priya — follow up", "Referral", "$160K-$200K", "2026-07-22"),
+    ("AI Engineer @ Microsoft", "Recruiter reached out", "LinkedIn", "$150K-$180K", "2026-07-20"),
+    ("Data Engineer @ Razorpay", "Screening call scheduled", "Naukri", "₹28L-₹36L", "2026-07-18"),
+    ("Data Analyst @ Swiggy", "Application drafted — send", "Company site", "₹18L-₹24L", "2026-07-28"),
+    ("Senior DS @ Flipkart", "Applied, waiting response", "LinkedIn", "₹32L-₹42L", "2026-07-15"),
+    ("Applied Scientist @ Amazon", "Recruiter screening next week", "LinkedIn", "$165K-$210K", "2026-07-26"),
+    ("ML Ops Engineer @ Zoho", "Resume shortlisted", "Company site", "₹24L-₹30L", "2026-07-21"),
+    ("Data Scientist @ Salesforce", "Applied via portal", "Careers", "$140K-$170K", "2026-07-19"),
+    ("GenAI Engineer @ NVIDIA", "Portfolio reviewed — stage 2", "Referral", "$170K-$220K", "2026-07-17"),
+]:
+    conn.execute("INSERT INTO captures (title, note, source, status, salary, applied_date) VALUES (?,?,?, 'job', ?, ?)",
+                 (title, note, source, salary, applied))
+conn.commit(); conn.close()
 for title, note, source in [
     ("Data Scientist @ Google", "Applied via careers portal", "Google Careers"),
     ("ML Engineer @ Stripe", "Referred by Priya — follow up", "Referral"),
@@ -219,6 +241,23 @@ for kind, account, amount, note, days_back in rows:
     conn.execute("INSERT INTO transactions (kind, account, amount, note, date) VALUES (?,?,?,?,?)", (kind, account, amount, note, d))
 conn.commit(); conn.close()
 
+# ── content performance metrics (for charts) ─────────
+conn = sqlite3.connect(DATA / "creator.db")
+conn.execute("CREATE TABLE IF NOT EXISTS performance (id INTEGER PRIMARY KEY AUTOINCREMENT, content_id INTEGER, views INTEGER, likes INTEGER, comments INTEGER, date TEXT)")
+conn.execute("DELETE FROM performance")
+import random
+random.seed(42)
+today2 = dt2.date.today()
+for cid in range(1, 16):
+    for days_back in (0, 3, 7, 14):
+        views = random.randint(400, 9000)
+        likes = int(views * random.uniform(0.03, 0.09))
+        comments = int(likes * random.uniform(0.05, 0.2))
+        d = (today2 - dt2.timedelta(days=days_back)).isoformat()
+        conn.execute("INSERT INTO performance (content_id, views, likes, comments, date) VALUES (?,?,?,?,?)",
+                     (cid, views, likes, comments, d))
+conn.commit(); conn.close()
+
 # ── 4. More content items ─────────────────────────────────────
 conn = reset("creator.db")
 for title, platform, status in [
@@ -239,6 +278,39 @@ for title, platform, status in [
     ("Honest run logs in agents", "LinkedIn", "published"),
 ]:
     conn.execute("INSERT INTO content (title, platform, status) VALUES (?,?,?)", (title, platform, status))
+conn.commit(); conn.close()
+
+# ── reading: your real curated links collection ──────
+conn = sqlite3.connect(DATA / "reading.db")
+conn.execute("CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, url TEXT, category TEXT, status TEXT DEFAULT 'unread')")
+conn.execute("DELETE FROM links")
+links = [
+    ("The Founder OS", "https://thefounderos.com", "course"),
+    ("Referral request template", "https://example.com/referral-template", "job-hunt"),
+    ("AI-Workspace v1.1", "https://github.com/Sujith-richard/AI-Workspace", "project"),
+    ("How to Use Claude Code Free", "https://docs.google.com/document/d/1DDnA0hSpdz6ZvWSU3w8NCjiugZHvXGdTbfUx2MBt764", "ai"),
+    ("Auto Edit AI", "https://autoeditai.net", "tool"),
+    ("OpenCode", "https://opencode.ai", "ai"),
+    ("The 100K Job Playbook", "https://wave-pocket-284.notion.site/The-100K-Job-Playbook", "job-hunt"),
+    ("BEST Resources Vault", "https://wave-pocket-284.notion.site/BEST-Resources-Vault", "job-hunt"),
+    ("GitHub custom profile tutorial", "https://github.com/arifhaxn", "profile"),
+    ("Nvidia free AI API", "https://build.nvidia.com", "ai"),
+    ("Learn SQL/Excel/PowerBI free", "https://docs.google.com/document/d/13ARutMpdo0c2sNMcA2B8zLBwZpxiiLclOoJfk4ScLKw", "learning"),
+    ("Automate Money Earn AI", "https://github.com/Conway-Research/automaton", "tool"),
+    ("Auto Edit (Vyra)", "https://usevyra.com", "tool"),
+    ("TreeMap Disk Visualizer", "https://github.com/Prithvi-Web/TreeMap-Disk-Visualizer", "tool"),
+    ("AI job-search on your machine", "https://github.com/MadsLorentzen/ai-job-search", "job-hunt"),
+    ("Download from 1800+ sites", "https://github.com/tonhowtf/omniget", "tool"),
+    ("AI trending repos", "https://gittrend.io", "ai"),
+    ("CuPy GPU NumPy", "https://github.com/cupy/cupy", "ai"),
+    ("Free WhatsApp API", "https://github.com/evolution-foundation/evolution-go", "tool"),
+    ("Build a LinkedIn Profile", "https://docs.google.com/file/d/1BeGXMGXOG0qDt14DwX4N2i4RqYx60f97", "profile"),
+    ("Levels of DevOps", "https://learn.nextwork.org", "learning"),
+    ("FounderOS Demo repo", "https://github.com/Bennettxai/FounderOS-DEMO", "course"),
+    ("The 100K Playbook (Drive)", "https://docs.google.com/document/d/13ARutMpdo0c2sNMcA2B8zLBwZpxiiLclOoJfk4ScLKw", "learning"),
+]
+for t, u, c in links:
+    conn.execute("INSERT INTO links (title, url, category) VALUES (?,?,?)", (t, u, c))
 conn.commit(); conn.close()
 
 print("✓ Seeded fake data into all 5 systems of record:")

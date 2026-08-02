@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""Richard OS — Personal Assistant: email triage, calendar, reminders.
+Fake-data first; real Gmail/calendar swaps in via DATA_MODE later."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from agent_lib import call_llm, log_run, read_memory, call_tool
+
+DATA = Path(__file__).resolve().parent.parent / "06-data"
+import sqlite3
+
+def q(db_name, sql):
+    conn = sqlite3.connect(DATA / db_name)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute(sql).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def triage_email():
+    """Email agent: read inbox, flag what needs you (autonomy 2)."""
+    emails = q("second_brain.db", "SELECT * FROM inbox ORDER BY id LIMIT 10")
+    mem = read_memory()[:1200]
+    prompt = (f"You are the email triage agent. Autonomy 2 (recommend only).\n"
+              f"Classify each email: action-needed / info / newsletter. "
+              f"For action-needed, draft a 1-line reply.\n\nINBOX:\n{emails}\n\nOS MEMORY:\n{mem}")
+    out = call_llm(prompt, "deepseek-v4-flash-free")
+    print(out[:1400])
+    log_run("personal/email", "triage", out[:120])
+    # mark read
+    conn = sqlite3.connect(DATA / "second_brain.db")
+    conn.execute("UPDATE inbox SET status='read'")
+    conn.commit(); conn.close()
+
+def calendar_summary():
+    """Calendar agent: upcoming events + prep (autonomy 2)."""
+    events = q("second_brain.db", "SELECT * FROM calendar WHERE status='upcoming' ORDER BY when_date LIMIT 10")
+    mem = read_memory()[:1000]
+    prompt = (f"You are the calendar agent. Autonomy 2 (recommend only).\n"
+              f"List upcoming events and give prep tips for each.\n\nCALENDAR:\n{events}\n\nOS MEMORY:\n{mem}")
+    out = call_llm(prompt, "deepseek-v4-flash-free")
+    print(out[:1400])
+    log_run("personal/calendar", "summary", out[:120])
+
+def reminder():
+    """Reminder agent: check due tasks + follow-ups (autonomy 3)."""
+    tasks = q("pm.db", "SELECT title, status, priority FROM tasks WHERE status != 'done' LIMIT 10")
+    jobs = q("second_brain.db", "SELECT title, note FROM captures WHERE status='job' LIMIT 10")
+    mem = read_memory()[:1000]
+    prompt = (f"You are the reminder agent. Autonomy 3 (flag blockers, escalate odd ones).\n"
+              f"Find what's due soon and flag anything needing urgent attention.\n\nTASKS:\n{tasks}\n\nJOBS:\n{jobs}\n\nOS MEMORY:\n{mem}")
+    out = call_llm(prompt, "deepseek-v4-flash-free")
+    print(out[:1400])
+    log_run("personal/reminders", "scan", out[:120])
+
+def main():
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "all"
+    actions = {"email": triage_email, "calendar": calendar_summary, "reminder": reminder}
+    if cmd in actions:
+        actions[cmd]()
+    elif cmd == "all":
+        for fn in actions.values():
+            fn(); print("─" * 50)
+    else:
+        print("Usage: python scripts/personal_agents.py [email|calendar|reminder|all]")
+
+if __name__ == "__main__":
+    main()

@@ -105,6 +105,26 @@ for title, platform, status in [
                  (title, platform, status))
 conn.commit(); conn.close()
 
+# ── personal: fake inbox + calendar ────────────────
+conn = reset("second_brain.db")
+conn.execute("CREATE TABLE IF NOT EXISTS inbox (id INTEGER PRIMARY KEY AUTOINCREMENT, from_addr TEXT, subject TEXT, body TEXT, status TEXT DEFAULT 'unread')")
+conn.execute("CREATE TABLE IF NOT EXISTS calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, when_date TEXT, status TEXT DEFAULT 'upcoming')")
+for frm, subj, body in [
+    ("recruiter@stripe.com", "Interview scheduling", "Hi Sujith, can we schedule the technical round for next week?"),
+    ("priya@acme.com", "Re: Freelance Dashboard proposal", "Looks good! When can you start?"),
+    ("alert@github.com", "PR #42: MCP bridge merged", "Your pull request was merged successfully."),
+    ("newsletter@datacamp.com", "Weekly digest", "Here are this week's data science articles."),
+    ("hiring@google.com", "Application status update", "Thank you for applying to Data Scientist @ Google."),
+]:
+    conn.execute("INSERT INTO inbox (from_addr, subject, body) VALUES (?,?,?)", (frm, subj, body))
+for title, when in [
+    ("Razorpay screening call", "2026-08-04"),
+    ("Acme proposal follow-up", "2026-08-03"),
+    ("Portfolio demo", "2026-08-05"),
+]:
+    conn.execute("INSERT INTO calendar (title, when_date) VALUES (?,?)", (title, when))
+conn.commit(); conn.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 6 job leads")
 print("  pm:           5 projects, 5 tasks")

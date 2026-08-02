@@ -25,7 +25,7 @@ def call_tool(name, params=None):
         return {"error": f"Unknown tool: {name}"}
 
     if name == "web":
-        from duckduckgo_search import DDGS
+        from ddgs import DDGS
         results = list(DDGS().text(params.get("query", ""), max_results=5))
         return {"results": [{"title": r["title"], "href": r["href"], "body": r["body"][:200]} for r in results]}
 
@@ -80,5 +80,8 @@ if __name__ == "__main__":
         print("Tools:", json.dumps(list_tools(), indent=2))
         sys.exit(0)
     name = sys.argv[1]
+    if name in ("list", "tools"):
+        print(json.dumps(list_tools(), indent=2))
+        sys.exit(0)
     params = json.loads(sys.argv[2]) if len(sys.argv) > 2 else {}
     print(json.dumps(call_tool(name, params), indent=2, default=str))

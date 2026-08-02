@@ -7,6 +7,7 @@
       { label: "Agents", href: "/ui/agents.html", ic: "\u25CF" },
       { label: "Tasks", href: "/ui/tasks.html", ic: "\u2610" },
       { label: "Skills", href: "/ui/skills.html", ic: "\u2318" },
+      { label: "Approvals", href: "/ui/approvals.html", ic: "\u2713" },
       { label: "Org", href: "/ui/org.html", ic: "\u26DB" },
     ]},
     { group: "SYSTEM", items: [

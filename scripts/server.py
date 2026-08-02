@@ -143,6 +143,53 @@ def persona(name: str):
     cfg = y.safe_load(pf.read_text()) or {}
     return {"name": name, "roster": cfg}
 
+
+@app.get("/approvals")
+def approvals_list():
+    """List pending approval drafts."""
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "scripts"))
+    from approval_queue import list_pending
+    return {"pending": list_pending()}
+
+@app.post("/approvals/{aid}/approve")
+def approvals_approve(aid: int):
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "scripts"))
+    from approval_queue import approve
+    approve(aid)
+    return {"ok": True, "id": aid}
+
+@app.post("/approvals/{aid}/reject")
+def approvals_reject(aid: int):
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "scripts"))
+    from approval_queue import reject
+    reject(aid)
+    return {"ok": True, "id": aid}
+
+
+@app.get("/scheduler-status")
+def scheduler_status():
+    """Is the scheduler running?"""
+    import subprocess
+    try:
+        r = subprocess.run(["pgrep", "-f", "scheduler.py"], capture_output=True, text=True)
+        return {"running": bool(r.stdout.strip())}
+    except Exception:
+        return {"running": False}
+
+
+@app.get("/agent-log/{name}")
+def agent_log(name: str):
+    """Return the last lines of an agent's run log."""
+    import glob
+    hits = glob.glob(str(ROOT / "03-agents" / "logs" / "**" / f"{name}.md"), recursive=True)
+    if not hits:
+        return {"name": name, "log": None}
+    lines = [l for l in Path(hits[0]).read_text().splitlines() if l.strip()]
+    return {"name": name, "log": lines[-6:] if lines else None}
+
 @app.get("/agent-status")
 def agent_status():
     """Read agent run logs → return last-run timestamps + status for live pulse."""

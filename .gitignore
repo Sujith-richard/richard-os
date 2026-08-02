@@ -10,11 +10,11 @@ __pycache__/
 .env.*
 !.env.example
 
-# Data (keep the code, never the local DBs)
+# Data
 *.db
 *.sqlite3
 
-# Node (for the future UI)
+# Node
 node_modules/
 dist/
 

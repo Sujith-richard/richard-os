@@ -6,7 +6,7 @@ version: 0.1.0
 agents:
   job_hunter:
     role: "Screens job boards, matches roles to skills, drafts applications"
-    autonomy: 2        # 1=lookup 2=recommend 3=act & spot-check 4=runs independently 5=self-monitoring
+    autonomy: 2
     schedule: "09:00 daily"
     model: "gemini-3.5-flash"
   content_ops:

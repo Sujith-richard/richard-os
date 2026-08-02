@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Funnel</title>
+<script>window.PAGE = { title: "Funnel", crumb: ["System", "Funnel"] };</script>
+<style>
+  .os-funnel { display:flex; gap:12px; overflow-x:auto; }
+  .os-stage { flex:1; min-width:200px; background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-stage h3 { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .os-deal { background:var(--surface2); border:1px solid var(--hairline); padding:10px; margin-bottom:8px; }
+  .os-deal .n { font-size:12px; }
+  .os-deal .v { font-size:16px; font-weight:700; color:var(--ok); margin-top:4px; }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">FUNNEL · DEAL PIPELINE</h1>
+    <div class="os-funnel" id="os-funnel"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    function load() {
+      fetch("/systems/crm").then(r => r.json()).then(d => {
+        const deals = d.deals || [];
+        const stages = ["prospect", "proposal", "needs-follow-up", "negotiation", "contract-pending", "won"];
+        const stNames = { prospect: "Prospect", proposal: "Proposal", "needs-follow-up": "Needs Follow-Up", negotiation: "Negotiation", "contract-pending": "Contract Pending", won: "Won" };
+        const el = document.getElementById("os-funnel");
+        el.innerHTML = "";
+        stages.forEach(st => {
+          const s = document.createElement("div");
+          s.className = "os-stage";
+          s.innerHTML = "<h3>" + (stNames[st] || st) + "</h3>";
+          const items = deals.filter(x => (x.stage || "prospect") === st);
+          items.forEach(x => {
+            s.innerHTML += '<div class="os-deal"><div class="n">' + (x.title || "") + '</div><div class="v">$' + (x.value || 0).toLocaleString() + '</div></div>';
+          });
+          if (!items.length) s.innerHTML += '<div style="color:var(--dim);font-size:11px">empty</div>';
+          el.appendChild(s);
+        });
+      }).catch(e => console.error(e));
+    }
+    load();
+    setInterval(load, 10000);
+  </script>
+</body>
+</html>

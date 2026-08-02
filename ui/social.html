@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Social</title>
+<script>window.PAGE = { title: "Social", crumb: ["System", "Social"] };</script>
+<style>
+  .os-content { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+  .os-piece { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
+  .os-piece .t { font-size:13px; }
+  .os-piece .m { font-size:10px; color:var(--muted); margin-top:6px; display:flex; justify-content:space-between; }
+  .os-badge { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--hairline2); color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">SOCIAL · CONTENT PIPELINE</h1>
+    <div class="os-content" id="os-content"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    function load() {
+      fetch("/systems/creator").then(r => r.json()).then(d => {
+        const c = d.content || [];
+        document.getElementById("os-content").innerHTML = c.map(x =>
+          '<div class="os-piece"><div class="t">' + (x.title || "") + '</div>' +
+          '<div class="m"><span>' + (x.platform || "") + '</span><span class="os-badge">' + (x.status || "idea") + '</span></div></div>'
+        ).join("") || '<div style="color:var(--dim)">no content</div>';
+      }).catch(e => console.error(e));
+    }
+    load();
+    setInterval(load, 10000);
+  </script>
+</body>
+</html>

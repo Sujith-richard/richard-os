@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Comms</title>
+<script>window.PAGE = { title: "Comms", crumb: ["System", "Comms"] };</script>
+<style>
+  .os-inbox { max-width:760px; }
+  .os-mail { background:var(--surface); border:1px solid var(--hairline); padding:14px; margin-bottom:10px; }
+  .os-mail .f { font-size:12px; color:var(--muted); }
+  .os-mail .s { font-size:13px; margin:4px 0; }
+  .os-mail .b { font-size:11px; color:var(--dim); }
+  .os-badge { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--hairline2); color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">COMMS · UNIFIED INBOX</h1>
+    <div class="os-inbox" id="os-inbox"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    function load() {
+      fetch("/systems/second_brain").then(r => r.json()).then(d => {
+        const inbox = d.inbox || [];
+        document.getElementById("os-inbox").innerHTML = inbox.map(m =>
+          '<div class="os-mail"><div class="f">' + (m.from_addr || "") + ' · <span class="os-badge">' + (m.status || "unread") + '</span></div>' +
+          '<div class="s">' + (m.subject || "") + '</div><div class="b">' + (m.body || "").slice(0, 120) + '</div></div>'
+        ).join("") || '<div style="color:var(--dim)">no mail</div>';
+      }).catch(e => console.error(e));
+    }
+    load();
+    setInterval(load, 10000);
+  </script>
+</body>
+</html>

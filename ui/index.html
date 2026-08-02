@@ -8,7 +8,9 @@
 <style>
   :root {
     --bg: #0D0D0D; --fg: #e5e5e5; --muted: #8a8a8a;
-    --core: #ff8a3d; --tool: #22d3ee; --data: #a78bfa; --agent: #10b981; --company: #60a5fa; --home: #34d399; --personal: #f472b6; --edge: rgba(255,255,255,0.12);
+    --core: #ff8a3d; --tool: #22d3ee; --data: #a78bfa;
+    --agent: #10b981; --company: #60a5fa; --home: #34d399; --personal: #f472b6;
+    --edge: rgba(255,255,255,0.12);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: Inter, system-ui, sans-serif; }
   body { background: var(--bg); color: var(--fg); overflow: hidden; }
@@ -18,7 +20,8 @@
   header .status { display: flex; align-items: center; gap: 8px; }
   header .dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; }
   header .brand { color: var(--fg); font-weight: 600; }
-  #graph { width: 100%; height: calc(100vh - 52px); }
+  #graph { width: 100%; height: calc(100vh - 52px); cursor: grab; }
+  #graph:active { cursor: grabbing; }
   .tooltip { position: absolute; background: rgba(20,20,20,0.92); border: 1px solid rgba(255,255,255,0.12);
              border-radius: 12px; padding: 10px 14px; font-size: 12px; pointer-events: none; opacity: 0;
              transition: opacity 0.18s; backdrop-filter: blur(8px); max-width: 260px; z-index: 10; }
@@ -30,11 +33,18 @@
             padding: 8px 14px; backdrop-filter: blur(10px); font-size: 13px; color: var(--muted); }
   .search input { background: none; border: none; outline: none; color: var(--fg); font-size: 13px; width: 200px; }
   .search kbd { border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 1px 6px; font-size: 10px; }
+  .search button { background: none; border: 1px solid rgba(255,255,255,0.25); color: var(--fg);
+                   border-radius: 6px; padding: 2px 10px; cursor: pointer; font-size: 12px;
+                   font-weight: 600; display: none; }
+  .search button:hover { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.08); }
+  #crumb { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
   .legend { position: absolute; bottom: 20px; left: 20px; display: flex; flex-direction: column; gap: 6px;
             background: rgba(20,20,20,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
             padding: 12px 16px; font-size: 11px; color: var(--muted); backdrop-filter: blur(10px); }
   .legend div { display: flex; align-items: center; gap: 8px; }
   .legend .sw { width: 8px; height: 8px; border-radius: 50%; }
+  .hint { position: absolute; bottom: 20px; right: 20px; font-size: 10px; color: rgba(255,255,255,0.25);
+          letter-spacing: 0.08em; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -44,13 +54,15 @@
 </header>
 
 <div class="search">
+  <button id="back">← BACK</button>
+  <span id="crumb">ROOT</span>
   <span>⌕</span><input id="search" placeholder="Search the graph..." />
   <kbd>⌘K</kbd>
 </div>
 
 <div class="legend">
   <div><span class="sw" style="background:var(--core)"></span> Core</div>
-  <div><span class="sw" style="background:var(--tool)"></span> Systems of record</div>
+  <div><span class="sw" style="background:var(--tool)"></span> Systems</div>
   <div><span class="sw" style="background:var(--data)"></span> Records</div>
   <div><span class="sw" style="background:var(--agent)"></span> Agents</div>
   <div><span class="sw" style="background:var(--company)"></span> Company</div>
@@ -60,6 +72,7 @@
 
 <div id="graph"></div>
 <div class="tooltip" id="tooltip"></div>
+<div class="hint">scroll · zoom &nbsp;|&nbsp; click · focus &nbsp;|&nbsp; ← back</div>
 
 <script>
 const W = window.innerWidth, H = window.innerHeight - 52;
@@ -67,48 +80,141 @@ const svg = d3.select("#graph").append("svg").attr("width", W).attr("height", H)
 const tooltip = d3.select("#tooltip");
 const g = svg.append("g");
 
+let allNodes = [], allEdges = [];
+let focusStack = [];      // stack of focused node ids (empty = full view)
+let nodeSel, linkSel, labelSel;
+
+// ── Zoom (wheel + drag pan) ──
+const zoom = d3.zoom()
+  .scaleExtent([0.15, 5])
+  .on("zoom", e => g.attr("transform", e.transform));
+svg.call(zoom);
+
+// ── Helpers ──
+const srcId = l => l.source.id !== undefined ? l.source.id : l.source;
+const tgtId = l => l.target.id !== undefined ? l.target.id : l.target;
+function neighborsOf(id) {
+  const set = new Set();
+  allEdges.forEach(l => {
+    if (srcId(l) === id) set.add(tgtId(l));
+    if (tgtId(l) === id) set.add(srcId(l));
+  });
+  return set;
+}
+
+// ── Focus / drill / back ──
+function applyFocus(d, push) {
+  if (push) focusStack.push(d.id);
+  const visible = new Set([d.id, ...neighborsOf(d.id)]);
+  nodeSel.style("display", n => visible.has(n.id) ? null : "none");
+  labelSel.style("display", n => visible.has(n.id) ? null : "none");
+  linkSel.style("display", l => visible.has(srcId(l)) && visible.has(tgtId(l)) ? null : "none");
+  // glow: focused node white + bigger, neighbors bright
+  nodeSel.attr("stroke", n => n.id === d.id ? "#fff" : "rgba(255,255,255,0.5)")
+         .attr("stroke-width", n => n.id === d.id ? 2 : 1)
+         .attr("r", n => n.id === d.id ? (n.r || 10) * 1.4 : (n.r || 6));
+  linkSel.attr("opacity", 0.7);
+  // zoom to fit the visible cluster
+  const vis = allNodes.filter(n => visible.has(n.id));
+  const x0 = d3.min(vis, n => n.x), x1 = d3.max(vis, n => n.x);
+  const y0 = d3.min(vis, n => n.y), y1 = d3.max(vis, n => n.y);
+  const dx = (x1 - x0) || 1, dy = (y1 - y0) || 1;
+  const scale = Math.max(0.35, Math.min(1.4, 0.75 / Math.max(dx / W, dy / H)));
+  const tx = W / 2 - scale * (x0 + x1) / 2;
+  const ty = H / 2 - scale * (y0 + y1) / 2;
+  svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  updateCrumb();
+}
+
+function resetView() {
+  nodeSel.style("display", null);
+  labelSel.style("display", null);
+  linkSel.style("display", null);
+  nodeSel.attr("opacity", 1).attr("stroke", "rgba(255,255,255,0.3)").attr("stroke-width", 1)
+         .attr("r", n => n.r || 6);
+  linkSel.attr("opacity", 1);
+  svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity);
+  updateCrumb();
+}
+
+function back() {
+  focusStack.pop();
+  if (!focusStack.length) { resetView(); return; }
+  const d = allNodes.find(n => n.id === focusStack[focusStack.length - 1]);
+  if (d) applyFocus(d, false);
+}
+
+function updateCrumb() {
+  const names = focusStack.map(id => { const n = allNodes.find(x => x.id === id); return n ? n.label : id; });
+  d3.select("#crumb").text(focusStack.length ? "ROOT / " + names.join(" / ") : "ROOT");
+  d3.select("#back").style("display", focusStack.length ? "block" : "none");
+}
+
+d3.select("#back").on("click", back);
+
+// ── Build the graph ──
 fetch("/graph").then(r => r.json()).then(data => {
-  const { nodes, edges } = data;
-  const sim = d3.forceSimulation(nodes)
+  allNodes = data.nodes.map(n => ({ ...n, r: n.type === "core" ? 22 : n.type === "domain" ? 16 : (n.type === "tool" || n.type === "agent") ? 10 : n.type === "dept" ? 9 : 6 }));
+  allEdges = data.edges;
+
+  const sim = d3.forceSimulation(allNodes)
     .force("charge", d3.forceManyBody().strength(-120))
-    .force("center", d3.forceCenter(W/2, H/2 + 26))
-    .force("link", d3.forceLink(edges).id(d => d.id)
-        .distance(d => d.strength >= 3 ? 90 : 130)
-        .strength(d => d.strength >= 3 ? 0.6 : 0.4))
+    .force("center", d3.forceCenter(W / 2, H / 2 + 26))
+    .force("link", d3.forceLink(allEdges).id(d => d.id)
+      .distance(d => d.strength >= 3 ? 90 : 130)
+      .strength(d => d.strength >= 3 ? 0.6 : 0.4))
     .force("collide", d3.forceCollide(25));
 
-  const link = g.append("g").selectAll("line").data(edges).join("line")
-    .attr("stroke", d => d.strength >= 3 ? "rgba(255,255,255,0.4)" : "rgba(167,139,250,0.55)").attr("stroke-width", d => Math.max(1, d.strength * 0.9));
+  linkSel = g.append("g").selectAll("line").data(allEdges).join("line")
+    .attr("stroke", d => d.strength >= 3 ? "rgba(255,255,255,0.4)" : "rgba(167,139,250,0.55)")
+    .attr("stroke-width", d => Math.max(1, d.strength * 0.9));
 
-  const node = g.append("g").selectAll("circle").data(nodes).join("circle")
-    .attr("r", d => d.type === "core" ? 22 : d.type === "domain" ? 16 : (d.type === "tool" || d.type === "agent") ? 10 : d.type === "dept" ? 9 : d.type === "employee" ? 5 : 6)
+  nodeSel = g.append("g").selectAll("circle").data(allNodes).join("circle")
+    .attr("r", d => d.r)
     .attr("fill", d => d.color || (d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : d.type === "agent" ? "var(--agent)" : "var(--data)"))
     .attr("stroke", "rgba(255,255,255,0.3)").attr("stroke-width", 1)
     .style("cursor", "pointer")
     .style("filter", d => d.type === "core" ? "drop-shadow(0 0 12px var(--core))" : "none");
 
-  const label = g.append("g").selectAll("text").data(nodes.filter(d => d.type !== "data" && d.type !== "employee")).join("text")
-    .text(d => d.label).attr("fill", "var(--muted)").attr("font-size", 10).attr("text-anchor", "middle")
-    .attr("dy", d => d.type === "core" ? -30 : 18);
+  labelSel = g.append("g").selectAll("text").data(allNodes.filter(d => d.type !== "data" && d.type !== "employee")).join("text")
+    .text(d => d.label).attr("fill", "var(--muted)").attr("font-size", 10)
+    .attr("text-anchor", "middle").attr("dy", d => d.type === "core" ? -30 : 18);
 
-  node.on("mouseover", (e, d) => {
+  // Hover: glow node + connected neighbours, fade the rest (only in full view)
+  nodeSel.on("mouseover", (e, d) => {
+    if (focusStack.length) return;
+    const nbrs = neighborsOf(d.id);
+    nodeSel.attr("opacity", n => n.id === d.id || nbrs.has(n.id) ? 1 : 0.12)
+           .attr("stroke", n => n.id === d.id ? "#fff" : "rgba(255,255,255,0.3)")
+           .attr("stroke-width", n => n.id === d.id ? 2 : 1);
+    linkSel.attr("opacity", l => srcId(l) === d.id || tgtId(l) === d.id ? 0.95 : 0.06);
     tooltip.style("opacity", 1)
       .html(`<div class="t-title">${d.label}</div><div class="t-type">${d.type}</div>
-             <div class="t-meta">${d.type === "core" ? "All knowledge radiates from here" : "Live record · tap to open"}</div>`)
+             <div class="t-meta">${d.type === "core" ? "All knowledge radiates from here" : "Click to focus · connected: " + neighborsOf(d.id).size}</div>`)
       .style("left", (e.pageX + 14) + "px").style("top", (e.pageY - 10) + "px");
-  }).on("mouseout", () => tooltip.style("opacity", 0));
+  }).on("mouseout", () => {
+    tooltip.style("opacity", 0);
+    if (focusStack.length) return;
+    nodeSel.attr("opacity", 1).attr("stroke", "rgba(255,255,255,0.3)").attr("stroke-width", 1);
+    linkSel.attr("opacity", 1);
+  }).on("click", (e, d) => {
+    e.stopPropagation();
+    applyFocus(d, true);
+  });
 
   sim.on("tick", () => {
-    link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
-    node.attr("cx", d => d.x).attr("cy", d => d.y);
-    label.attr("x", d => d.x).attr("y", d => d.y);
+    linkSel.attr("x1", l => l.source.x).attr("y1", l => l.source.y)
+           .attr("x2", l => l.target.x).attr("y2", l => l.target.y);
+    nodeSel.attr("cx", d => d.x).attr("cy", d => d.y);
+    labelSel.attr("x", d => d.x).attr("y", d => d.y);
   });
 });
 
+// ── Search filter ──
 document.getElementById("search").addEventListener("input", e => {
   const q = e.target.value.toLowerCase();
-  d3.selectAll("circle").attr("opacity", d => !q || d.label.toLowerCase().includes(q) ? 1 : 0.15);
+  if (q) focusStack = [];
+  nodeSel.attr("opacity", d => !q || d.label.toLowerCase().includes(q) ? 1 : 0.1);
 });
 </script>
 </body>

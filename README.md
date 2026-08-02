@@ -44,3 +44,18 @@ python3 scripts/approval_queue.py approve 1
 ```bash
 python3 -m uvicorn scripts.server:app --reload --port 8000
 # open http://localhost:8000/ui/
+## Structure
+01-root-spine/ system, encoding, invariants, config
+02-blocks/ departments (company/home/personal trees)
+03-agents/ named workers + logs
+04-skills/ repeatable moves
+05-systems-of-record/ CRM, finance, PM, content, second brain
+06-data/ SQLite DBs
+07-schedules/ scheduler + briefs
+scripts/ CLI, agents, orchestrator, server
+tools/ MCP bridge + home bridge
+ui/ knowledge-graph front-end
+
+## Autonomy levels
+1 Lookup · 2 Recommend · 3 Act & spot-check · 4 Runs independently · 5 Self-monitoring
+Set per agent in `01-root-spine/company.yaml`.

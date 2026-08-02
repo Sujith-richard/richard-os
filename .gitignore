@@ -1,0 +1,22 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Data (keep the code, never the local DBs)
+*.db
+*.sqlite3
+
+# Node (for the future UI)
+node_modules/
+dist/
+
+# OS junk
+.DS_Store

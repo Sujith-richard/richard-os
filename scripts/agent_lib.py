@@ -49,6 +49,12 @@ def call_tool(name, params=None):
 def list_tools():
     return mcp_bridge.list_tools()
 
+def queue_for_approval(agent, action, payload):
+    """Queue a draft for human approval (autonomy-2 pattern)."""
+    import subprocess, sys
+    subprocess.run([sys.executable, "approval_queue.py", "add", agent, action,
+                    __import__("json").dumps(payload)], cwd=str(Path(__file__).resolve().parent))
+
 def log_run(agent, action, detail=""):
     """Append an honest run log line."""
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

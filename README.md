@@ -1,0 +1,26 @@
+# Richard OS
+
+![CI](https://github.com/Sujith-richard/richard-os/actions/workflows/ci.yml/badge.svg)
+
+A personal AI operating system: memory, tools, agents, and skills in one folder your AI runs.
+Built by Sujith Richard. Free. Files you own outright — no subscription.
+
+## What it is
+- 5 systems of record: second brain, PM, finance, CRM, creator (SQLite)
+- Agents with honest run logs: job_hunter, content_ops, freelance_biz, pm_assistant, portfolio_builder
+- 5 skills: outreach, resume_tailor, invoice, linkedin_post, job_screen
+- Scheduler: agents run on a schedule while you sleep
+- Knowledge-graph UI: a live map of everything your OS knows
+
+## v2.0 — Domains, Approval & Live Graph
+- **Super-Orchestrator**: routes plain-English requests to company/home/personal trees (`scripts/orchestrator.py`)
+- **Company hierarchy**: HR (recruiter/payroll/onboarding), Dev (backend/frontend/tester), Finance (invoicing/expense), Ops (fulfillment/support) — `scripts/company_agents.py`
+- **Home control**: room-wise device agents (simulated, Home Assistant-ready) — `scripts/home_agents.py`
+- **Personal assistant**: email triage, calendar, reminders — `scripts/personal_agents.py`
+- **MCP layer**: web, weather, GitHub, email tools — `tools/mcp_bridge.py`
+- **Approval queue**: autonomy-2 drafts (email, invoices, outreach) queue for one-click approve — `scripts/approval_queue.py`
+- **Fake-data-first**: `DATA_MODE=fake` in `.env`; seed with `python scripts/seed_data.py`
+- **Knowledge graph v2**: zoom/pan, hover-glow of connections, click-to-drill with back button, live agent pulse
+
+## Cross-platform CI
+GitHub Actions verifies boot + DB init + seed + CLI smoke on Linux/Windows/macOS.

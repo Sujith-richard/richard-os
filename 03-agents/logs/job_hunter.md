@@ -12,3 +12,13 @@ For more
 |---|------|--------|--------|----
 2026-08-02 13:24:51 | job_hunter | run complete | [LLM unavailable: [Errno 111] Connection refused]
 2026-08-02 13:51:51 | job_hunter | run complete | [LLM unavailable: [Errno 111] Connection refused]
+2026-08-02 13:56:07 | job_hunter | run complete | [LLM unavailable: [Errno 111] Connection refused]
+2026-08-02 13:57:18 | job_hunter | run complete | ## Current Job Leads (from second_brain DB captures)
+
+| # | Lead | Source | Status / Note | Logged |
+|---|------|-------
+2026-08-02 13:57:35 | job_hunter | run complete | ### Current Job Leads (from second_brain DB)
+
+1. **Data Scientist @ Company X**  
+   - Applied via portal  
+   - Source:

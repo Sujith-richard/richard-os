@@ -1,4 +1,12 @@
 /* Richard OS — premium chrome (FounderOS-inspired, our own build) */
+:root[data-theme="dark"]   { --bg:#0a0a0a; --surface:#101010; --surface2:#151515; --hairline:#1f1f1f; --hairline2:#2c2c2c; --text:#e8e8e8; --muted:#909090; --dim:#555; }
+:root[data-theme="midnight"] { --bg:#0b1020; --surface:#121a30; --surface2:#182240; --hairline:#1e2a4a; --hairline2:#2c3c66; --text:#dfe6ff; --muted:#8a97c0; --dim:#4a5480; }
+:root[data-theme="graphite"] { --bg:#101010; --surface:#181818; --surface2:#202020; --hairline:#262626; --hairline2:#333; --text:#e5e5e5; --muted:#8a8a8a; --dim:#555; }
+:root[data-theme="oled"]    { --bg:#000; --surface:#0a0a0a; --surface2:#111; --hairline:#1a1a1a; --hairline2:#242424; --text:#fff; --muted:#8a8a8a; --dim:#4a4a4a; }
+:root[data-theme="nord"]    { --bg:#101419; --surface:#191e26; --surface2:#212a36; --hairline:#2c3542; --hairline2:#3b4656; --text:#e5e9f0; --muted:#8aa0b8; --dim:#4c5a6b; }
+:root[data-theme="dracula"] { --bg:#0d1117; --surface:#161b26; --surface2:#1e2535; --hairline:#2a3245; --hairline2:#3a4660; --text:#f1f2f6; --muted:#9aa3b5; --dim:#565f72; }
+:root[data-theme="tokyo"]   { --bg:#0f1117; --surface:#171a24; --surface2:#1f2330; --hairline:#2a2e3d; --hairline2:#3a3f52; --text:#dbe0ea; --muted:#8a93a8; --dim:#4a4f63; }
+:root[data-theme="catppuccin"] { --bg:#11111b; --surface:#181825; --surface2:#1e1e2e; --hairline:#2a2a3e; --hairline2:#3a3a52; --text:#cdd6f4; --muted:#9399b2; --dim:#585b70; }
 :root {
   --bg:#0a0a0a; --surface:#101010; --surface2:#151515;
   --hairline:#1f1f1f; --hairline2:#2c2c2c;

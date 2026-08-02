@@ -2,21 +2,26 @@
 (function () {
   const NAV = [
     { group: "OPERATE", items: [
-      { label: "Console", href: "/ui/", ic: "\u25C9" },
+      { label: "Dashboard", href: "/ui/", ic: "\u25C9" },
       { label: "Brain", href: "/ui/brain.html", ic: "\u2B61" },
       { label: "Agents", href: "/ui/agents.html", ic: "\u25CF" },
       { label: "Tasks", href: "/ui/tasks.html", ic: "\u2610" },
       { label: "Skills", href: "/ui/skills.html", ic: "\u2318" },
       { label: "Approvals", href: "/ui/approvals.html", ic: "\u2713" },
-      { label: "Org", href: "/ui/org.html", ic: "\u26DB" },
+      { label: "Workflows", href: "/ui/workflows.html", ic: "\u21BA" },
+      { label: "Organization", href: "/ui/org.html", ic: "\u26DB" },
+      { label: "Personas", href: "/ui/personas.html", ic: "\u263A" },
     ]},
     { group: "SYSTEM", items: [
-      { label: "Comms", href: "/ui/comms.html", ic: "\u2709" },
+      { label: "Communications", href: "/ui/comms.html", ic: "\u2709" },
       { label: "Funnel", href: "/ui/funnel.html", ic: "\u21E2" },
-      { label: "Finances", href: "/ui/finances.html", ic: "\u20BF" },
+      { label: "Finance", href: "/ui/finances.html", ic: "\u20BF" },
       { label: "Social", href: "/ui/social.html", ic: "\u2630" },
+      { label: "Content", href: "/ui/social.html", ic: "\u270D" },
       { label: "Integrations", href: "/ui/integrations.html", ic: "\u21C4" },
       { label: "Analytics", href: "/ui/analytics.html", ic: "\u25A6" },
+      { label: "Roadmap", href: "/ui/roadmap.html", ic: "\u21E3" },
+      { label: "Reference", href: "/ui/reference.html", ic: "\u2630" },
     ]},
   ];
   const PAGE = window.PAGE || { title: "Console", crumb: ["Operate", "Console"] };
@@ -54,6 +59,22 @@
     body.appendChild(sidebar);
     body.appendChild(main);
 
+    // Theme switcher
+    const THEMES = ["dark", "midnight", "graphite", "oled", "nord", "dracula", "tokyo", "catppuccin"];
+    function applyTheme(t) {
+      document.documentElement.setAttribute("data-theme", t);
+      localStorage.setItem("richard-theme", t);
+    }
+    applyTheme(localStorage.getItem("richard-theme") || "dark");
+    const thBtn = document.createElement("button");
+    thBtn.textContent = "THEME";
+    thBtn.style.cssText = "background:none;border:1px solid var(--hairline2);color:var(--muted);font-family:var(--font);font-size:10px;padding:3px 10px;cursor:pointer;letter-spacing:.1em;";
+    thBtn.addEventListener("click", () => {
+      const cur = document.documentElement.getAttribute("data-theme") || "dark";
+      const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+      applyTheme(next);
+    });
+    document.querySelector(".os-sync").prepend(thBtn);
     const pal = document.createElement("div");
     pal.className = "os-palette"; pal.id = "os-palette";
     pal.innerHTML = '<div class="box"><input id="os-pal-input" placeholder="Jump to a view\u2026"><div class="res"></div></div>';

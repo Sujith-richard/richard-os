@@ -1,0 +1,233 @@
+cd ~/richard-os
+cat > ui/brain.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Brain</title>
+<script>window.PAGE = { title: "Brain", crumb: ["Operate", "Brain"] };</script>
+<style>
+  .os-brain { display:flex; height:100%; gap:16px; }
+  .os-graph-wrap { flex:1; position:relative; border:1px solid var(--hairline); background:var(--surface); overflow:hidden; }
+  #os-graph { width:100%; height:100%; cursor:grab; }
+  #os-graph:active { cursor:grabbing; }
+  .os-right { width:280px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; }
+  .os-tooltip { position:absolute; background:rgba(16,16,16,.95); border:1px solid var(--hairline2); padding:10px 12px; font-size:11px; pointer-events:none; opacity:0; transition:opacity .18s; z-index:20; max-width:260px; }
+  .os-tooltip b { font-size:12px; }
+  .os-tooltip .ty { color:var(--core); font-size:9px; letter-spacing:.12em; text-transform:uppercase; }
+  .os-tooltip .mt { color:var(--dim); margin-top:4px; }
+  .os-search { position:absolute; top:12px; left:12px; display:flex; align-items:center; gap:8px; background:rgba(16,16,16,.85); border:1px solid var(--hairline2); padding:6px 10px; z-index:10; }
+  .os-search input { background:none; border:none; outline:none; color:var(--text); font-family:var(--font); font-size:12px; width:160px; }
+  .os-search button { background:none; border:1px solid var(--hairline2); color:var(--text); font-family:var(--font); font-size:11px; padding:2px 8px; cursor:pointer; display:none; }
+  .os-search button:hover { background:var(--surface2); }
+  #os-crumb { font-size:10px; color:var(--dim); letter-spacing:.1em; text-transform:uppercase; }
+  .os-legend { font-size:11px; }
+  .os-legend div { display:flex; align-items:center; gap:8px; padding:3px 0; color:var(--muted); }
+  .os-legend .sw { width:8px; height:8px; border-radius:50%; }
+  .os-dir { font-size:11px; max-height:240px; overflow-y:auto; }
+  .os-dir .g { font-size:9px; letter-spacing:.25em; color:var(--dim); text-transform:uppercase; padding:8px 0 4px; }
+  .os-dir .r { display:flex; justify-content:space-between; padding:3px 4px; color:var(--muted); cursor:pointer; border-radius:3px; }
+  .os-dir .r:hover { background:var(--surface2); color:var(--text); }
+  .os-act { font-size:11px; max-height:200px; overflow-y:auto; }
+  .os-act .r { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--hairline); color:var(--muted); }
+  .os-stat { font-size:11px; display:flex; justify-content:space-between; padding:3px 0; color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="os-page" style="height:100%">
+    <div class="os-brain">
+      <div class="os-graph-wrap">
+        <div class="os-search">
+          <button id="os-back">← BACK</button>
+          <span id="os-crumb">ROOT</span>
+          <span>⌕</span><input id="os-find" placeholder="Search graph..." />
+        </div>
+        <div id="os-graph"></div>
+        <div class="os-tooltip" id="os-tooltip"></div>
+      </div>
+      <div class="os-right">
+        <div class="os-card"><h3>Legend</h3><div class="os-legend" id="os-legend"></div></div>
+        <div class="os-card"><h3>Directory</h3><div class="os-dir" id="os-dir"></div></div>
+        <div class="os-card"><h3>Stats</h3><div id="os-stats"></div></div>
+        <div class="os-card"><h3>Agent Activity</h3><div class="os-act" id="os-act"></div></div>
+      </div>
+    </div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script>
+    const wrap = document.querySelector(".os-graph-wrap");
+    const W = () => wrap.clientWidth, H = () => wrap.clientHeight;
+    const svg = d3.select("#os-graph").append("svg").attr("width", W()).attr("height", H());
+    const tooltip = d3.select("#os-tooltip");
+    const g = svg.append("g");
+    let allNodes = [], allEdges = [], nodeSel, linkSel, labelSel, focusStack = [];
+    const srcId = l => l.source.id !== undefined ? l.source.id : l.source;
+    const tgtId = l => l.target.id !== undefined ? l.target.id : l.target;
+
+    const zoom = d3.zoom().scaleExtent([0.15, 5]).on("zoom", e => g.attr("transform", e.transform));
+    svg.call(zoom);
+
+    function neighborsOf(id) {
+      const s = new Set();
+      allEdges.forEach(l => { if (srcId(l) === id) s.add(tgtId(l)); if (tgtId(l) === id) s.add(srcId(l)); });
+      return s;
+    }
+
+    function updateCrumb() {
+      const names = focusStack.map(id => { const n = allNodes.find(x => x.id === id); return n ? n.label : id; });
+      d3.select("#os-crumb").text(focusStack.length ? "ROOT / " + names.join(" / ") : "ROOT");
+      d3.select("#os-back").style("display", focusStack.length ? "block" : "none");
+    }
+
+    function applyFocus(d, push) {
+      if (push) focusStack.push(d.id);
+      const vis = new Set([d.id, ...neighborsOf(d.id)]);
+      nodeSel.style("display", n => vis.has(n.id) ? null : "none");
+      labelSel.style("display", n => vis.has(n.id) ? null : "none");
+      linkSel.style("display", l => vis.has(srcId(l)) && vis.has(tgtId(l)) ? null : "none");
+      nodeSel.attr("stroke", n => n.id === d.id ? "#fff" : "rgba(255,255,255,.5)")
+             .attr("stroke-width", n => n.id === d.id ? 2 : 1)
+             .attr("r", n => n.id === d.id ? (n.r || 8) * 1.4 : (n.r || 6));
+      const visN = allNodes.filter(n => vis.has(n.id));
+      const x0 = d3.min(visN, n => n.x), x1 = d3.max(visN, n => n.x);
+      const y0 = d3.min(visN, n => n.y), y1 = d3.max(visN, n => n.y);
+      const dx = (x1 - x0) || 1, dy = (y1 - y0) || 1;
+      const scale = Math.max(0.35, Math.min(1.4, 0.75 / Math.max(dx / W(), dy / H())));
+      const tx = W() / 2 - scale * (x0 + x1) / 2, ty = H() / 2 - scale * (y0 + y1) / 2;
+      svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+      updateCrumb();
+    }
+
+    function resetView() {
+      nodeSel.style("display", null); labelSel.style("display", null); linkSel.style("display", null);
+      nodeSel.attr("opacity", 1).attr("stroke", "rgba(255,255,255,.3)").attr("stroke-width", 1).attr("r", n => n.r || 6);
+      linkSel.attr("opacity", 1);
+      svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity);
+      updateCrumb();
+    }
+    function goBack() {
+      focusStack.pop();
+      if (!focusStack.length) return resetView();
+      const d = allNodes.find(n => n.id === focusStack[focusStack.length - 1]);
+      if (d) applyFocus(d, false);
+    }
+    d3.select("#os-back").on("click", goBack);
+
+    const LEGEND = [["Core","var(--core)"],["Systems","var(--tool)"],["Records","var(--data)"],["Agents","var(--agent)"],["Company","var(--company)"],["Home","var(--home)"],["Personal","var(--personal)"]];
+    d3.select("#os-legend").html(LEGEND.map(([l, c]) => '<div><span class="sw" style="background:' + c + '"></span>' + l + '</div>').join(""));
+
+    function buildDir(data) {
+      const groups = {};
+      data.nodes.forEach(n => {
+        if (n.type === "core" || n.type === "domain" || n.type === "dept" || n.type === "employee" || n.type === "agent" || n.type === "tool") {
+          const key = n.type === "employee" ? "Workers" : n.type.charAt(0).toUpperCase() + n.type.slice(1) + "s";
+          (groups[key] = groups[key] || []).push(n);
+        }
+      });
+      const el = d3.select("#os-dir");
+      el.html(Object.keys(groups).map(k => {
+        const rows = groups[k].slice(0, 60).map(n => '<div class="r" data-id="' + n.id + '"><span>' + n.label + '</span><span style="color:var(--dim)">' + n.type + '</span></div>').join("");
+        return '<div class="g">' + k + '</div>' + rows;
+      }).join(""));
+      el.selectAll(".r").on("click", function () {
+        const n = allNodes.find(x => x.id === this.dataset.id);
+        if (n) applyFocus(n, true);
+      });
+    }
+
+    function buildStats(data) {
+      const c = t => data.nodes.filter(n => n.type === t).length;
+      const html = [["Nodes", data.nodes.length], ["Edges", data.edges.length], ["Domains", c("domain")], ["Depts", c("dept")], ["Workers", c("employee")], ["Agents", c("agent")], ["Systems", c("tool")], ["Records", c("data")]]
+        .map(([k, v]) => '<div class="os-stat"><span>' + k + '</span><span>' + v + '</span></div>').join("");
+      d3.select("#os-stats").html(html);
+    }
+
+    function pollActivity() {
+      fetch("/agent-status").then(r => r.json()).then(st => {
+        const rows = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || ""));
+        d3.select("#os-act").html(rows.slice(0, 15).map(([name, info]) =>
+          '<div class="r"><span style="color:' + (info.ok ? "var(--ok)" : "var(--err)") + '">●</span> ' + name + '<span style="color:var(--dim)">' + (info.action || "idle") + '</span></div>'
+        ).join("") || '<div style="color:var(--dim)">no runs yet</div>');
+      }).catch(() => {});
+    }
+    setInterval(pollActivity, 5000);
+    pollActivity();
+
+    function load() {
+      fetch("/graph").then(r => r.json()).then(data => {
+        allNodes = data.nodes.map(n => ({ ...n, r: n.type === "core" ? 22 : n.type === "domain" ? 16 : (n.type === "tool" || n.type === "agent") ? 10 : n.type === "dept" ? 9 : 6 }));
+        allEdges = data.edges;
+        buildDir(data); buildStats(data);
+
+        const sim = d3.forceSimulation(allNodes)
+          .force("charge", d3.forceManyBody().strength(-120))
+          .force("center", d3.forceCenter(W() / 2, H() / 2))
+          .force("link", d3.forceLink(allEdges).id(d => d.id).distance(d => d.strength >= 3 ? 90 : 130).strength(d => d.strength >= 3 ? 0.6 : 0.4))
+          .force("collide", d3.forceCollide(25));
+
+        linkSel = g.append("g").selectAll("line").data(allEdges).join("line")
+          .attr("stroke", d => d.strength >= 3 ? "rgba(255,255,255,.4)" : "rgba(167,139,250,.55)")
+          .attr("stroke-width", d => Math.max(1, d.strength * 0.9));
+        nodeSel = g.append("g").selectAll("circle").data(allNodes).join("circle")
+          .attr("r", d => d.r)
+          .attr("fill", d => d.color || (d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : d.type === "agent" ? "var(--agent)" : "var(--data)"))
+          .attr("stroke", "rgba(255,255,255,.3)").attr("stroke-width", 1)
+          .style("cursor", "pointer")
+          .style("filter", d => d.type === "core" ? "drop-shadow(0 0 12px var(--core))" : "none");
+        labelSel = g.append("g").selectAll("text").data(allNodes.filter(d => d.type !== "data" && d.type !== "employee")).join("text")
+          .text(d => d.label).attr("fill", "var(--muted)").attr("font-size", 10)
+          .attr("text-anchor", "middle").attr("dy", d => d.type === "core" ? -30 : 18);
+
+        nodeSel.on("mouseover", (e, d) => {
+          if (focusStack.length) return;
+          const nbrs = neighborsOf(d.id);
+          nodeSel.attr("opacity", n => n.id === d.id || nbrs.has(n.id) ? 1 : 0.12)
+                 .attr("stroke", n => n.id === d.id ? "#fff" : "rgba(255,255,255,.3)")
+                 .attr("stroke-width", n => n.id === d.id ? 2 : 1);
+          linkSel.attr("opacity", l => srcId(l) === d.id || tgtId(l) === d.id ? 0.95 : 0.06);
+          tooltip.style("opacity", 1)
+            .html('<b>' + d.label + '</b><div class="ty">' + d.type + '</div><div class="mt">' + (d.type === "core" ? "All knowledge radiates from here" : "Click to focus · connected: " + neighborsOf(d.id).size) + '</div>')
+            .style("left", (e.offsetX + 14) + "px").style("top", (e.offsetY - 10) + "px");
+        }).on("mouseout", () => {
+          tooltip.style("opacity", 0);
+          if (focusStack.length) return;
+          nodeSel.attr("opacity", 1).attr("stroke", "rgba(255,255,255,.3)").attr("stroke-width", 1);
+          linkSel.attr("opacity", 1);
+        }).on("click", (e, d) => { e.stopPropagation(); applyFocus(d, true); });
+
+        sim.on("tick", () => {
+          linkSel.attr("x1", l => l.source.x).attr("y1", l => l.source.y).attr("x2", l => l.target.x).attr("y2", l => l.target.y);
+          nodeSel.attr("cx", d => d.x).attr("cy", d => d.y);
+          labelSel.attr("x", d => d.x).attr("y", d => d.y);
+        });
+
+        // live pulse
+        setInterval(() => {
+          fetch("/agent-status").then(r => r.json()).then(st => {
+            Object.keys(st).forEach(agent => {
+              const node = allNodes.find(n => n.id.includes(agent) || n.label === agent);
+              if (!node) return;
+              const info = st[agent];
+              const color = info.ok ? "var(--agent)" : "var(--personal)";
+              d3.selectAll("circle").filter(d => d === node).transition().duration(300).attr("fill", color).attr("r", d => (d.r || 6) * 1.3);
+              const pulse = g.append("circle").attr("cx", node.x).attr("cy", node.y).attr("r", node.r || 10)
+                .attr("fill", "none").attr("stroke", color).attr("stroke-width", 1.5).attr("opacity", .9);
+              pulse.transition().duration(900).attr("r", (node.r || 10) + 14).attr("opacity", 0).remove();
+            });
+          }).catch(() => {});
+        }, 5000);
+      });
+    }
+    load();
+
+    d3.select("#os-find").on("input", e => {
+      const q = e.target.value.toLowerCase();
+      nodeSel.attr("opacity", d => !q || d.label.toLowerCase().includes(q) ? 1 : 0.1);
+    });
+    window.addEventListener("resize", () => svg.attr("width", W()).attr("height", H()));
+  </script>
+</body>
+</html>
+EOF

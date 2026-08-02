@@ -7,12 +7,18 @@ from pathlib import Path
 DATA = Path(__file__).resolve().parent.parent / "06-data"
 
 def reset(name):
+    """Idempotent: clears tables so re-seeding never duplicates, but keeps schema."""
     conn = sqlite3.connect(DATA / name)
     tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
     for t in tables:
         conn.execute(f"DELETE FROM {t}")
     conn.commit()
     return conn
+
+def ensure_table(conn, name, ddl):
+    """Create table if missing (keeps schema stable across re-seeds)."""
+    conn.execute(ddl)
+    conn.commit()
 
 # ── second_brain: job leads ─────────────────────────
 conn = reset("second_brain.db")

@@ -149,7 +149,7 @@ def agent_status():
 @app.get("/systems/{name}")
 def system(name: str):
     tables = {
-        "second_brain": ("second_brain.db", ["captures","goals"]),
+        "second_brain": ("second_brain.db", ["captures","goals","inbox","calendar"]),
         "pm": ("pm.db", ["tasks","projects"]),
         "finance": ("finance.db", ["accounts","transactions"]),
         "crm": ("crm.db", ["contacts","deals"]),

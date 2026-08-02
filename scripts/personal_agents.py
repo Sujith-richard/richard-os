@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Richard OS — Personal Assistant: email triage, calendar, reminders.
 Fake-data first; real Gmail/calendar swaps in via DATA_MODE later."""
-import sys
+import sys, json, re, sqlite3
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from agent_lib import call_llm, log_run, read_memory, call_tool, queue_for_approval
 
 DATA = Path(__file__).resolve().parent.parent / "06-data"
-import sqlite3
 
 def q(db_name, sql):
     conn = sqlite3.connect(DATA / db_name)
@@ -20,15 +19,18 @@ def triage_email():
     """Email agent: read inbox, flag what needs you (autonomy 2)."""
     emails = q("second_brain.db", "SELECT * FROM inbox ORDER BY id LIMIT 10")
     mem = read_memory()[:1200]
-    prompt = (f"You are the email triage agent. Autonomy 2 (recommend only).\n"
-              f"Classify each email: action-needed / info / newsletter. "
-              f"For action-needed, draft a 1-line reply. Reply ONLY with a JSON array: [{\"from\": ..., \"subject\": ..., \"reply\": ...}] for action-needed emails only.\n\nINBOX:\n{emails}\n\nOS MEMORY:\n{mem}")
+    prompt = (
+        "You are the email triage agent. Autonomy 2 (recommend only).\n"
+        "Classify each email: action-needed / info / newsletter. "
+        "For action-needed, draft a 1-line reply. Reply ONLY with a JSON array "
+        'like [{"from": "...", "subject": "...", "reply": "..."}] '
+        "for action-needed emails only.\n\nINBOX:\n" + str(emails) + "\n\nOS MEMORY:\n" + mem[:1200]
+    )
     out = call_llm(prompt, "deepseek-v4-flash-free")
     print(out[:1400])
     log_run("personal/email", "triage", out[:120])
     # Queue action-needed drafts for approval (autonomy 2 -> human approves)
     try:
-        import json, re
         m = re.search(r"\[.*\]", out, re.DOTALL)
         if m:
             for d in json.loads(m.group(0)):
@@ -47,8 +49,10 @@ def calendar_summary():
     """Calendar agent: upcoming events + prep (autonomy 2)."""
     events = q("second_brain.db", "SELECT * FROM calendar WHERE status='upcoming' ORDER BY when_date LIMIT 10")
     mem = read_memory()[:1000]
-    prompt = (f"You are the calendar agent. Autonomy 2 (recommend only).\n"
-              f"List upcoming events and give prep tips for each.\n\nCALENDAR:\n{events}\n\nOS MEMORY:\n{mem}")
+    prompt = (
+        "You are the calendar agent. Autonomy 2 (recommend only).\n"
+        "List upcoming events and give prep tips for each.\n\nCALENDAR:\n" + str(events) + "\n\nOS MEMORY:\n" + mem[:1000]
+    )
     out = call_llm(prompt, "deepseek-v4-flash-free")
     print(out[:1400])
     log_run("personal/calendar", "summary", out[:120])
@@ -58,8 +62,11 @@ def reminder():
     tasks = q("pm.db", "SELECT title, status, priority FROM tasks WHERE status != 'done' LIMIT 10")
     jobs = q("second_brain.db", "SELECT title, note FROM captures WHERE status='job' LIMIT 10")
     mem = read_memory()[:1000]
-    prompt = (f"You are the reminder agent. Autonomy 3 (flag blockers, escalate odd ones).\n"
-              f"Find what's due soon and flag anything needing urgent attention.\n\nTASKS:\n{tasks}\n\nJOBS:\n{jobs}\n\nOS MEMORY:\n{mem}")
+    prompt = (
+        "You are the reminder agent. Autonomy 3 (flag blockers, escalate odd ones).\n"
+        "Find what's due soon and flag anything needing urgent attention.\n\nTASKS:\n" + str(tasks) +
+        "\n\nJOBS:\n" + str(jobs) + "\n\nOS MEMORY:\n" + mem[:1000]
+    )
     out = call_llm(prompt, "deepseek-v4-flash-free")
     print(out[:1400])
     log_run("personal/reminders", "scan", out[:120])

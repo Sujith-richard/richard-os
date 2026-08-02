@@ -3,59 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Richard OS — Console</title>
-<script>window.PAGE = { title: "Console", crumb: ["Operate", "Console"] };</script>
+<title>Richard OS — Dashboard</title>
+<script>window.PAGE = { title: "Dashboard", crumb: ["Operate", "Dashboard"] };</script>
+<style>
+  .mc-stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
+  .mc-stat { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
+  .mc-stat .v { font-size:22px; font-weight:700; }
+  .mc-stat .l { font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); margin-top:4px; }
+  .mc-stat .sub { font-size:10px; color:var(--muted); margin-top:2px; }
+  .mc-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; margin-bottom:20px; }
+  .mc-card { background:var(--surface); border:1px solid var(--hairline); padding:16px; }
+  .mc-card h3 { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .mc-bar { display:flex; align-items:flex-end; gap:6px; height:120px; }
+  .mc-bar .b { flex:1; background:var(--core); opacity:.8; min-height:2px; }
+  .mc-bar .b.tool { background:var(--tool); }
+  .mc-list { font-size:11px; }
+  .mc-list .r { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--hairline); color:var(--muted); }
+  .mc-list .r b { color:var(--text); font-weight:600; }
+  .mc-feed { font-size:11px; max-height:200px; overflow-y:auto; }
+  .mc-feed .r { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--hairline); color:var(--muted); }
+  .mc-badges { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .mc-badge { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:4px 10px; border:1px solid var(--hairline2); color:var(--muted); }
+  .mc-badge.ok { color:var(--ok); border-color:var(--ok); }
+</style>
 </head>
 <body>
   <div class="os-page">
-    <h1 class="os-h1">OPERATOR CONSOLE</h1>
-    <div class="os-pulse">
-      <div><div class="m" id="m-nodes">&ndash;</div><div class="l">Graph nodes</div></div>
-      <div><div class="m" id="m-edges">&ndash;</div><div class="l">Edges</div></div>
-      <div><div class="m" id="m-agents">&ndash;</div><div class="l">Agents</div></div>
-      <div><div class="m" id="m-systems">&ndash;</div><div class="l">Systems</div></div>
+    <div class="mc-badges" id="os-badges"></div>
+    <h1 class="os-h1">MISSION CONTROL</h1>
+    <div class="mc-stats" id="os-stats"></div>
+    <div class="mc-row">
+      <div class="mc-card"><h3>Revenue Trend (last 3 months)</h3><div class="mc-bar" id="rev-chart"></div></div>
+      <div class="mc-card"><h3>Pipeline by Stage</h3><div class="mc-bar" id="pipe-chart"></div></div>
+      <div class="mc-card"><h3>Content Output</h3><div class="mc-bar" id="content-chart"></div></div>
     </div>
-    <div class="os-row">
-      <div class="os-card" style="flex:2;min-width:300px;cursor:pointer" onclick="location.href='/ui/brain.html'" title="Open interactive graph"><h3>Knowledge Core <span style="float:right;color:var(--dim)">OPEN BRAIN →</span></h3><div id="core-preview" style="height:280px"></div></div>
-      <div class="os-card" style="flex:1;min-width:240px"><h3>Agent Roster</h3><div id="agent-list"></div></div>
+    <div class="mc-row">
+      <div class="mc-card"><h3>Today's Priorities</h3><div class="mc-list" id="os-prio"></div></div>
+      <div class="mc-card"><h3>Open Tasks</h3><div class="mc-list" id="os-tasks"></div></div>
+      <div class="mc-card"><h3>AI Activity</h3><div class="mc-feed" id="os-feed"></div></div>
     </div>
   </div>
   <script src="/ui/shell.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script>
-    fetch("/graph").then(r => r.json()).then(d => {
-      document.getElementById("m-nodes").textContent = d.nodes.length;
-      document.getElementById("m-edges").textContent = d.edges.length;
-      const doms = d.nodes.filter(n => n.type === "domain").length;
-      const tools = d.nodes.filter(n => n.type === "tool").length;
-      document.getElementById("m-agents").textContent = d.nodes.filter(n => n.type === "agent" || n.type === "employee").length;
-      document.getElementById("m-systems").textContent = tools + " tools / " + doms + " domains";
-      // mini radial: core + domains + systems
-      const W = 480, H = 280, cx = W / 2, cy = H / 2;
-      const svg = d3.select("#core-preview").append("svg").attr("width", W).attr("height", H);
-      const core = d.nodes.find(n => n.type === "core");
-      const ring1 = d.nodes.filter(n => n.type === "domain");
-      const ring2 = d.nodes.filter(n => n.type === "tool" || n.type === "agent" || n.type === "dept").slice(0, 24);
-      svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", 10).attr("fill", "var(--core)").style("filter", "drop-shadow(0 0 10px var(--core))");
-      ring1.forEach((n, i) => {
-        const a = (i / ring1.length) * 2 * Math.PI - Math.PI / 2, r = 60;
-        svg.append("line").attr("x1", cx).attr("y1", cy).attr("x2", cx + Math.cos(a) * r).attr("y2", cy + Math.sin(a) * r).attr("stroke", "var(--hairline2)");
-        svg.append("circle").attr("cx", cx + Math.cos(a) * r).attr("cy", cy + Math.sin(a) * r).attr("r", 6).attr("fill", n.color || "var(--muted)");
-        svg.append("text").attr("x", cx + Math.cos(a) * (r + 18)).attr("y", cy + Math.sin(a) * (r + 18) + 4).attr("fill", "var(--muted)").attr("font-size", 10).attr("text-anchor", "middle").text(n.label);
-      });
-      ring2.forEach((n, i) => {
-        const a = (i / Math.max(ring2.length, 1)) * 2 * Math.PI + 0.3, r = 100;
-        svg.append("circle").attr("cx", cx + Math.cos(a) * r).attr("cy", cy + Math.sin(a) * r).attr("r", 3).attr("fill", n.color || "var(--dim)");
-      });
-    });
-    fetch("/agent-status").then(r => r.json()).then(st => {
-      const list = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || ""));
-      document.getElementById("agent-list").innerHTML = list.slice(0, 12).map(([name, info]) =>
-        '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:12px">' +
-        '<span><span style="color:var(--ok)">\u25CF</span> ' + name + '</span>' +
-        '<span style="color:var(--dim)">' + (info.action || "idle") + '</span></div>'
-      ).join("") || '<div style="color:var(--dim);font-size:12px">no agents yet</div>';
-    });
+    const $ = id => document.getElementById(id);
+    function bars(el, values, color) {
+      const max = Math.max(...values, 1);
+      el.innerHTML = values.map(v =>
+        '<div class="b ' + (color || "") + '" style="height:' + (v / max * 100) + '%" title="' + v + '"></div>'
+      ).join("");
+    }
+    function load() {
+      // ── badges: scheduler + data mode ──
+      fetch("/scheduler-status").then(r => r.json()).then(d => {
+        $("os-badges").innerHTML =
+          '<span class="mc-badge ' + (d.running ? "ok" : "") + '">' + (d.running ? "● SCHEDULER RUNNING" : "○ SCHEDULER OFF") + '</span>' +
+          '<span class="mc-badge">DATA MODE: FAKE</span>' +
+          '<span class="mc-badge">V3.0</span>';
+      }).catch(() => {});
+      // ── stats: revenue, pipeline, tasks, inbox, content, agents ──
+      Promise.all([
+        fetch("/systems/finance").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/crm").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/pm").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/second_brain").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/creator").then(r => r.json()).catch(() => ({})),
+        fetch("/agent-status").then(r => r.json()).catch(() => ({}))
+      ]).then(([fin, crm, pm, sb, cr, st]) => {
+        const txs = fin.transactions || [];
+        const income = txs.filter(t => t.kind === "income").reduce((s, t) => s + (t.amount || 0), 0);
+        const deals = crm.deals || [];
+        const pipe = deals.reduce((s, d) => s + (d.value || 0), 0);
+        const open = (pm.tasks || []).filter(t => t.status !== "done").length;
+        const unread = (sb.inbox || []).filter(m => m.status === "unread").length;
+        const content = (cr.content || []).length;
+        const okAgents = Object.values(st).filter(v => v.ok).length;
+        const totalAgents = Object.keys(st).length;
+        $("os-stats").innerHTML =
+          stat("$" + income.toLocaleString(), "Revenue (3mo)", income + " income") +
+          stat("$" + pipe.toLocaleString(), "Pipeline", deals.length + " deals") +
+          stat(open, "Open Tasks", "pm.db") +
+          stat(unread, "Unread Inbox", "needs triage") +
+          stat(content, "Content Items", "creator.db") +
+          stat(okAgents + "/" + totalAgents, "Agents OK", "honest status");
+        // ── charts ──
+        // revenue by month (approximate: group income txs by month of date)
+        const months = {};
+        txs.filter(t => t.kind === "income").forEach(t => {
+          const m = (t.date || "2026-08").slice(0, 7);
+          months[m] = (months[m] || 0) + (t.amount || 0);
+        });
+        const revVals = Object.values(months).slice(-3);
+        bars($("rev-chart"), revVals.length ? revVals : [100, 200, 150]);
+        // pipeline by stage counts
+        const stages = ["prospect", "proposal", "needs-follow-up", "negotiation", "contract-pending", "won"];
+        bars($("pipe-chart"), stages.map(s => deals.filter(d => (d.stage || "prospect") === s).length), "tool");
+        // content by status
+        const statuses = ["idea", "draft", "script", "scheduled", "published"];
+        bars($("content-chart"), statuses.map(s => (cr.content || []).filter(c => (c.status || "idea") === s).length));
+        // ── priorities (top 3 open tasks by priority) ──
+        const prio = { high: 0, medium: 1, low: 2 };
+        const sorted = (pm.tasks || []).filter(t => t.status !== "done")
+          .sort((a, b) => (prio[a.priority] ?? 9) - (prio[b.priority] ?? 9)).slice(0, 3);
+        $("os-prio").innerHTML = sorted.map(t =>
+          '<div class="r"><b>' + t.title + '</b><span>' + (t.priority || "medium") + '</span></div>'
+        ).join("") || '<div class="r">no priorities</div>';
+        // ── open tasks ──
+        $("os-tasks").innerHTML = (pm.tasks || []).filter(t => t.status !== "done").slice(0, 6).map(t =>
+          '<div class="r"><span>' + t.title + '</span><span>' + (t.status || "todo") + '</span></div>'
+        ).join("") || '<div class="r">no tasks</div>';
+        // ── AI activity feed ──
+        $("os-feed").innerHTML = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || "")).slice(0, 12).map(([n, i]) =>
+          '<div class="r"><span>' + (i.ok ? "●" : "○") + ' ' + n + '</span><span>' + (i.action || "idle") + '</span></div>'
+        ).join("") || '<div class="r">no agent runs yet</div>';
+      }).catch(e => { $("os-stats").innerHTML = '<div style="color:var(--err)">error: ' + e + '</div>'; });
+    }
+    function stat(v, l, sub) { return '<div class="mc-stat"><div class="v">' + v + '</div><div class="l">' + l + '</div><div class="sub">' + sub + '</div></div>'; }
+    load();
+    setInterval(load, 10000);
   </script>
 </body>
 </html>

@@ -122,6 +122,17 @@ def run_cmd(cmd: str = ""):
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/persona/{name}")
+def persona(name: str):
+    """Return a persona's full roster (staffed team)."""
+    import glob
+    pf = ROOT / "02-blocks" / "personas" / f"{name}.yaml"
+    if not pf.exists():
+        return {"error": "unknown persona", "personas": [Path(x).stem for x in glob.glob(str(ROOT / "02-blocks" / "personas" / "*.yaml"))]}
+    import yaml as y
+    cfg = y.safe_load(pf.read_text()) or {}
+    return {"name": name, "roster": cfg}
+
 @app.get("/agent-status")
 def agent_status():
     """Read agent run logs → return last-run timestamps + status for live pulse."""

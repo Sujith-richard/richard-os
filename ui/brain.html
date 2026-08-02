@@ -50,6 +50,7 @@
         <div class="os-card"><h3>Legend</h3><div class="os-legend" id="os-legend"></div></div>
         <div class="os-card"><h3>Directory</h3><div class="os-dir" id="os-dir"></div></div>
         <div class="os-card"><h3>Stats</h3><div id="os-stats"></div></div>
+        <div class="os-card"><h3>Persona Roster</h3><div class="os-dir" id="os-persona" style="max-height:220px"><div style="color:var(--dim)">click a persona node</div></div></div>
         <div class="os-card"><h3>Agent Activity</h3><div class="os-act" id="os-act"></div></div>
       </div>
     </div>
@@ -182,7 +183,11 @@
           if (focusStack.length) return;
           nodeSel.attr("opacity", 1).attr("stroke", "rgba(255,255,255,.3)").attr("stroke-width", 1);
           linkSel.attr("opacity", 1);
-        }).on("click", (e, d) => { e.stopPropagation(); applyFocus(d, true); });
+        }).on("click", (e, d) => {
+          e.stopPropagation();
+          applyFocus(d, true);
+          if (d.type === "persona") loadPersona(d.label);
+        });
         sim.on("tick", () => {
           linkSel.attr("x1", l => l.source.x).attr("y1", l => l.source.y).attr("x2", l => l.target.x).attr("y2", l => l.target.y);
           nodeSel.attr("cx", d => d.x).attr("cy", d => d.y);
@@ -244,6 +249,24 @@
         }
       }, 50);
     })();
+
+    function loadPersona(name) {
+      fetch("/persona/" + encodeURIComponent(name)).then(r => r.json()).then(d => {
+        const el = document.getElementById("os-persona");
+        if (d.error) { el.innerHTML = '<div style="color:var(--err)">' + d.error + '</div>'; return; }
+        const r = d.roster || {};
+        let html = '';
+        Object.keys(r).forEach(k => {
+          const v = r[k];
+          if (Array.isArray(v)) html += '<div class="g">' + k + '</div><div style="padding:2px 4px;color:var(--muted)">' + v.join(', ') + '</div>';
+          else if (typeof v === "object" && v !== null) {
+            html += '<div class="g">' + k + '</div>';
+            Object.keys(v).forEach(h => html += '<div style="padding:2px 4px;color:var(--muted)">' + h + ' → ' + v[h].join(', ') + '</div>');
+          }
+        });
+        el.innerHTML = html || '<div style="color:var(--dim)">no roster</div>';
+      }).catch(() => {});
+    }
 </script>
 </body>
 </html>

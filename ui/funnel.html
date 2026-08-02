@@ -6,41 +6,70 @@
 <title>Richard OS — Funnel</title>
 <script>window.PAGE = { title: "Funnel", crumb: ["System", "Funnel"] };</script>
 <style>
-  .os-funnel { display:flex; gap:12px; overflow-x:auto; }
-  .os-stage { flex:1; min-width:200px; background:var(--surface); border:1px solid var(--hairline); padding:12px; }
-  .os-stage h3 { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .os-kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-kpi { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-kpi .v { font-size:18px; font-weight:700; }
+  .os-kpi .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
+  .os-chart { display:flex; align-items:flex-end; gap:8px; height:110px; margin-bottom:20px; }
+  .os-chart .b { flex:1; background:var(--tool); opacity:.8; min-height:2px; }
+  .os-chart .b.core { background:var(--core); }
+  .os-funnel { display:flex; gap:10px; overflow-x:auto; }
+  .os-stage { flex:1; min-width:180px; background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-stage h3 { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .os-stage .tot { font-size:9px; color:var(--dim); margin-bottom:8px; }
   .os-deal { background:var(--surface2); border:1px solid var(--hairline); padding:10px; margin-bottom:8px; }
   .os-deal .n { font-size:12px; }
-  .os-deal .v { font-size:16px; font-weight:700; color:var(--ok); margin-top:4px; }
+  .os-deal .v { font-size:15px; font-weight:700; color:var(--ok); margin-top:3px; }
 </style>
 </head>
 <body>
   <div class="os-page">
-    <h1 class="os-h1">FUNNEL · DEAL PIPELINE</h1>
+    <h1 class="os-h1">FUNNEL</h1>
+    <div class="os-kpis" id="os-kpis"></div>
+    <div class="os-card"><h3>Conversion by Stage</h3><div class="os-chart" id="conv-chart"></div></div>
+    <h3 class="os-h1" style="font-size:12px">DEAL PIPELINE</h3>
     <div class="os-funnel" id="os-funnel"></div>
   </div>
   <script src="/ui/shell.js"></script>
   <script>
+    const STAGES = [
+      ["visitors", "Visitors"], ["leads", "Leads"], ["qualified", "Qualified"],
+      ["meeting", "Meeting"], ["proposal", "Proposal"], ["won", "Won"], ["lost", "Lost"]
+    ];
+    const MAP = { visitors: "prospect", leads: "needs-follow-up", qualified: "negotiation", meeting: "contract-pending", proposal: "proposal", won: "won", lost: "lost" };
+    function bars(el, vals) {
+      const max = Math.max(...vals, 1);
+      el.innerHTML = vals.map((v, i) => '<div class="b ' + (i === 0 ? "core" : "") + '" style="height:' + (v / max * 100) + '%" title="' + v + '"></div>').join("");
+    }
     function load() {
-      fetch("/systems/crm").then(r => r.json()).then(d => {
-        const deals = d.deals || [];
-        const stages = ["prospect", "proposal", "needs-follow-up", "negotiation", "contract-pending", "won"];
-        const stNames = { prospect: "Prospect", proposal: "Proposal", "needs-follow-up": "Needs Follow-Up", negotiation: "Negotiation", "contract-pending": "Contract Pending", won: "Won" };
+      Promise.all([fetch("/systems/crm").then(r => r.json()).catch(() => ({})), fetch("/systems/comms").then(r => r.json()).catch(() => ({})), fetch("/systems/creator").then(r => r.json()).catch(() => ({}))]).then(([crm, comms, cr]) => {
+        const deals = crm.deals || [];
+        const convs = comms.conversations || [];
+        const pipeline = deals.reduce((s, d) => s + (d.value || 0), 0);
+        const won = deals.filter(d => (d.stage || "") === "won").reduce((s, d) => s + (d.value || 0), 0);
+        const active = deals.length;
+        const conversion = Math.round((deals.filter(d => (d.stage || "") === "won").length / Math.max(deals.length, 1)) * 100);
+        document.getElementById("os-kpis").innerHTML =
+          kpi(active, "Active deals") + kpi("$" + pipeline.toLocaleString(), "Pipeline") +
+          kpi("$" + won.toLocaleString(), "Won") + kpi(conversion + "%", "Win rate") +
+          kpi(convs.length, "Conversations") + kpi((cr.content || []).length, "Content");
+        // conversion chart by stage (counts)
+        bars(document.getElementById("conv-chart"), STAGES.map(([k]) => deals.filter(d => (d.stage || "prospect") === MAP[k]).length + 1));
+        // funnel columns
         const el = document.getElementById("os-funnel");
         el.innerHTML = "";
-        stages.forEach(st => {
-          const s = document.createElement("div");
-          s.className = "os-stage";
-          s.innerHTML = "<h3>" + (stNames[st] || st) + "</h3>";
-          const items = deals.filter(x => (x.stage || "prospect") === st);
-          items.forEach(x => {
-            s.innerHTML += '<div class="os-deal"><div class="n">' + (x.title || "") + '</div><div class="v">$' + (x.value || 0).toLocaleString() + '</div></div>';
-          });
-          if (!items.length) s.innerHTML += '<div style="color:var(--dim);font-size:11px">empty</div>';
-          el.appendChild(s);
+        STAGES.forEach(([k, label]) => {
+          const st = document.createElement("div");
+          st.className = "os-stage";
+          const items = deals.filter(d => (d.stage || "prospect") === MAP[k]);
+          st.innerHTML = '<h3>' + label + '</h3><div class="tot">' + items.length + ' · $' + items.reduce((s, d) => s + (d.value || 0), 0).toLocaleString() + '</div>';
+          items.slice(0, 6).forEach(x => st.innerHTML += '<div class="os-deal"><div class="n">' + x.title + '</div><div class="v">$' + (x.value || 0).toLocaleString() + '</div></div>');
+          if (!items.length) st.innerHTML += '<div style="color:var(--dim);font-size:11px">empty</div>';
+          el.appendChild(st);
         });
       }).catch(e => console.error(e));
     }
+    function kpi(v, l) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }
     load();
     setInterval(load, 10000);
   </script>

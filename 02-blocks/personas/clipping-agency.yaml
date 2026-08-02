@@ -1,0 +1,6 @@
+# Clipping Agency — clipping-ceo, three directors
+ceo: clipping-ceo
+directors:
+  agency: [prospector, closer, onboarder, account-manager, reporter]
+  fulfillment: [moment-scorer, hook-engineer, editor-lead, voice-keeper, account-warmer, poster]
+  intelligence: [library-compounder, outcome-tracker]

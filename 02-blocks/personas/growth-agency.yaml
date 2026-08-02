@@ -1,0 +1,10 @@
+# Growth Operator Agency — the whole company, staffed
+ceo: growth-operator-agent
+heads:
+  foundations: [icp-builder, offer-architect, niche-architect, brand-voice-researcher, financial-modeler]
+  marketing: [content-strategist, paid-ads-shortform, stories-producer, twitter-writer, linkedin-writer, youtube-producer]
+  sales: [vsl-builder, vsl-writer, funnel-architect, sales-scripter, sales-ops]
+  nurture: [email-copywriter, lead-magnet-designer, webinar-producer, show-rate-ops]
+  partnerships: [jv-outreach, affiliate-architect, referral-designer]
+  launch: [launch-manager, post-launch-analyst]
+  scale: [sop-builder, talent-recruiter, client-success, case-study-producer, competitor-analyst, revenue-analyst]

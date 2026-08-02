@@ -1,0 +1,12 @@
+# YouTube Agency — youtube-ceo, content to cashflow
+ceo: youtube-ceo
+heads:
+  foundations: [audience-researcher, creator-voice-encoder, niche-architect, offer-architect]
+  content: [script-writer]
+  retention: [hook-writer]
+  production: [thumbnail-designer]
+  distribution: [title-strategist]
+  monetization: [vsl-builder]
+  audience: [community-manager]
+  intelligence: [postmortem-analyst]
+orchestrators: [content-orchestrator, monetization-orchestrator]

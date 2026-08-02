@@ -1,0 +1,8 @@
+# LinkedIn Agency — agency-director runs the roster
+director: linkedin-agent
+heads:
+  foundations: [icp-builder, offer-architect, voice-extractor]
+  marketing: [content-strategist, hook-writer, linkedin-ghostwriter]
+  acquisition: [dm-strategist, lead-list-builder, call-prep-specialist]
+  fulfillment: [account-manager, client-reporter]
+  program: [program-mentor]

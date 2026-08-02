@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Richard OS — shared agent library: memory, logs, LLM calls."""
-import json, os, sqlite3, time
+import sys, json, os, sqlite3, time
 from datetime import datetime
 from pathlib import Path
 import httpx
@@ -53,7 +53,9 @@ def log_run(agent, action, detail=""):
     """Append an honest run log line."""
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     line = f"{stamp} | {agent} | {action} | {detail}\n"
-    with open(LOGS / f"{agent}.md", "a", encoding="utf-8") as f:
+    log_path = LOGS / f"{agent}.md"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, "a", encoding="utf-8") as f:
         f.write(line)
     print(f"  ✍️  log: {agent} → {action}")
 

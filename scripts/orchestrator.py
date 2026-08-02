@@ -17,7 +17,7 @@ def find_agent(text, domains):
     """Naive intent routing: match keywords → domain → sub-agent."""
     text = text.lower()
     rules = {
-        "company": ["hr", "recruit", "payroll", "invoice", "expense", "backend", "frontend", "tester", "support", "dev", "finance", "hire"],
+        "company": ["hr", "recruit", "onboard", "onboarding", "new hire", "payroll", "invoice", "expense", "backend", "frontend", "tester", "support", "dev", "finance", "hire"],
         "home": ["light", "tv", "ac", "temperature", "camera", "lock", "kitchen", "bedroom", "fan", "alarm"],
         "personal": ["email", "mail", "calendar", "schedule", "meeting", "task", "remind", "expense", "money"],
     }

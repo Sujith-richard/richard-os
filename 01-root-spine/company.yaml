@@ -24,6 +24,11 @@ agents:
     autonomy: 3
     schedule: "08:00 daily"
     model: "deepseek-v4-flash-free"
+  reading_agent:
+    role: "Curates your saved links, flags what to read next, surfaces resources by goal"
+    autonomy: 2
+    schedule: "daily 07:30"
+    model: "deepseek-v4-flash-free"
   portfolio_builder:
     role: "Tracks GitHub metrics, suggests portfolio improvements"
     autonomy: 1

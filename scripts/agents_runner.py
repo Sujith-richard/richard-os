@@ -25,6 +25,12 @@ AGENTS = {
         "prompt": ("You are PM-Assistant. Read OS memory. List open tasks from the pm DB, "
                    "flag blockers, and suggest today's top 3 priorities, autonomy 3."),
     },
+    "reading_agent": {
+        "model": "deepseek-v4-flash-free",
+        "prompt": ("You are Reading-Ops. Read the OS memory. Look at the saved links in the "
+                   "reading DB and recommend the top 3 to read today based on current goals "
+                   "(job hunt, freelance, learning), autonomy 2."),
+    },
     "portfolio_builder": {
         "model": "deepseek-v4-flash-free",
         "prompt": ("You are Portfolio-Builder. Read OS memory. Based on projects and content "
@@ -48,6 +54,7 @@ def main():
             "freelance_biz": ("finance.db", "transactions"),
             "pm_assistant": ("pm.db", "tasks"),
             "portfolio_builder": ("pm.db", "projects"),
+            "reading_agent": ("reading.db", "links"),
         }
         dbfile, table = tables[a]
         rows = []

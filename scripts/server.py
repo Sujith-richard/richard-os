@@ -34,6 +34,7 @@ def graph():
         ("finance", "finance.db", "transactions", "tool"),
         ("crm", "crm.db", "contacts", "tool"),
         ("creator", "creator.db", "content", "tool"),
+        ("reading", "reading.db", "links", "tool"),
     ]
     for i, (name, dbfile, table, ntype) in enumerate(systems):
         nodes.append({"id": name, "label": name, "type": ntype, "x": 200, "y": (i - 2) * 140})

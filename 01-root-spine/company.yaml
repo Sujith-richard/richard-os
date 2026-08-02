@@ -32,6 +32,7 @@ agents:
 
 systems_of_record:
   - second_brain
+  - reading
   - pm
   - finance
   - crm

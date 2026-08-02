@@ -106,7 +106,7 @@ for title, platform, status in [
 conn.commit(); conn.close()
 
 # ── personal: fake inbox + calendar ────────────────
-conn = reset("second_brain.db")
+conn = sqlite3.connect(DATA / "second_brain.db")
 conn.execute("CREATE TABLE IF NOT EXISTS inbox (id INTEGER PRIMARY KEY AUTOINCREMENT, from_addr TEXT, subject TEXT, body TEXT, status TEXT DEFAULT 'unread')")
 conn.execute("CREATE TABLE IF NOT EXISTS calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, when_date TEXT, status TEXT DEFAULT 'upcoming')")
 for frm, subj, body in [
@@ -123,6 +123,24 @@ for title, when in [
     ("Portfolio demo", "2026-08-05"),
 ]:
     conn.execute("INSERT INTO calendar (title, when_date) VALUES (?,?)", (title, when))
+conn.commit(); conn.close()
+
+# ── reading: curated links + resources ─────────────
+conn = sqlite3.connect(DATA / "reading.db")
+conn.execute("CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, url TEXT, category TEXT, status TEXT DEFAULT 'unread')")
+for title, url, cat in [
+    ("The Founder OS", "https://thefounderos.com", "course"),
+    ("Referral request template", "https://example.com/referral-template", "job-hunt"),
+    ("AI-Workspace v1.1", "https://github.com/Sujith-richard/AI-Workspace", "project"),
+    ("How to Use Claude Code Free", "https://docs.google.com/document/d/1DDnA0hSpdz6ZvWSU3w8NCjiugZHvXGdTbfUx2MBt764", "ai"),
+    ("Auto Edit AI", "https://autoeditai.net", "tool"),
+    ("OpenCode", "https://opencode.ai", "ai"),
+    ("The 100K Job Playbook", "https://wave-pocket-284.notion.site/The-100K-Job-Playbook", "job-hunt"),
+    ("GitHub custom profile tutorial", "https://github.com/arifhaxn", "profile"),
+    ("Nvidia free AI API", "https://build.nvidia.com", "ai"),
+    ("Learn SQL/Excel/PowerBI free", "https://docs.google.com/document/d/13ARutMpdo0c2sNMcA2B8zLBwZpxiiLclOoJfk4ScLKw", "learning"),
+]:
+    conn.execute("INSERT INTO links (title, url, category) VALUES (?,?,?)", (title, url, cat))
 conn.commit(); conn.close()
 
 print("✓ Seeded fake data into all 5 systems of record:")

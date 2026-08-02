@@ -6,29 +6,69 @@
 <title>Richard OS — Social</title>
 <script>window.PAGE = { title: "Social", crumb: ["System", "Social"] };</script>
 <style>
-  .os-content { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+  .os-kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-kpi { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-kpi .v { font-size:18px; font-weight:700; }
+  .os-kpi .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
+  .os-chart { display:flex; align-items:flex-end; gap:8px; height:110px; margin-bottom:20px; }
+  .os-chart .b { flex:1; background:var(--tool); opacity:.8; min-height:2px; }
+  .os-content { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
   .os-piece { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
   .os-piece .t { font-size:13px; }
-  .os-piece .m { font-size:10px; color:var(--muted); margin-top:6px; display:flex; justify-content:space-between; }
+  .os-piece .m { font-size:10px; color:var(--muted); margin:6px 0; display:flex; justify-content:space-between; }
   .os-badge { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--hairline2); color:var(--muted); }
+  .os-badge.pub { color:var(--ok); border-color:var(--ok); }
+  .os-metrics { display:flex; gap:14px; font-size:11px; color:var(--muted); margin-top:8px; }
+  .os-metrics b { color:var(--text); }
 </style>
 </head>
 <body>
   <div class="os-page">
-    <h1 class="os-h1">SOCIAL · CONTENT PIPELINE</h1>
+    <h1 class="os-h1">SOCIAL</h1>
+    <div class="os-kpis" id="os-kpis"></div>
+    <div class="os-card"><h3>Engagement by Platform</h3><div class="os-chart" id="plat-chart"></div></div>
     <div class="os-content" id="os-content"></div>
   </div>
   <script src="/ui/shell.js"></script>
   <script>
     function load() {
       fetch("/systems/creator").then(r => r.json()).then(d => {
-        const c = d.content || [];
-        document.getElementById("os-content").innerHTML = c.map(x =>
-          '<div class="os-piece"><div class="t">' + (x.title || "") + '</div>' +
-          '<div class="m"><span>' + (x.platform || "") + '</span><span class="os-badge">' + (x.status || "idea") + '</span></div></div>'
-        ).join("") || '<div style="color:var(--dim)">no content</div>';
+        const content = d.content || [];
+        const perf = d.performance || [];
+        // total reach = sum of views across performance rows
+        const reach = perf.reduce((s, p) => s + (p.views || 0), 0);
+        const likes = perf.reduce((s, p) => s + (p.likes || 0), 0);
+        const comments = perf.reduce((s, p) => s + (p.comments || 0), 0);
+        const eng = perf.length ? Math.round(((likes + comments) / Math.max(reach, 1)) * 1000) / 10 : 0;
+        document.getElementById("os-kpis").innerHTML =
+          kpi(reach.toLocaleString(), "Total Reach") + kpi(likes.toLocaleString(), "Likes") +
+          kpi(comments.toLocaleString(), "Comments") + kpi(eng + "%", "Engagement") +
+          kpi(content.length, "Posts");
+        // platform chart: posts per platform
+        const byPlat = {};
+        content.forEach(c => { byPlat[c.platform] = (byPlat[c.platform] || 0) + 1; });
+        const entries = Object.entries(byPlat);
+        const max = Math.max(...entries.map(e => e[1]), 1);
+        document.getElementById("plat-chart").innerHTML = entries.map(([p, n]) =>
+          '<div class="b" style="height:' + (n / max * 100) + '%" title="' + p + ': ' + n + '"></div>'
+        ).join("");
+        // post cards: join latest performance row per content id
+        const latestPerf = {};
+        perf.forEach(p => {
+          const cur = latestPerf[p.content_id];
+          if (!cur || p.date > cur.date) latestPerf[p.content_id] = p;
+        });
+        document.getElementById("os-content").innerHTML = content.map(c => {
+          const p = latestPerf[c.id];
+          return '<div class="os-piece">' +
+            '<div class="t">' + c.title + '</div>' +
+            '<div class="m"><span>' + c.platform + '</span><span class="os-badge ' + (c.status === "published" ? "pub" : "") + '">' + (c.status || "idea") + '</span></div>' +
+            (p ? '<div class="metrics" style="display:flex;gap:14px;font-size:11px;color:var(--muted)"><span>reach <b>' + (p.views || 0).toLocaleString() + '</b></span><span>likes <b>' + (p.likes || 0) + '</b></span><span>comments <b>' + (p.comments || 0) + '</b></span></div>' : '<div style="font-size:10px;color:var(--dim)">no metrics yet</div>') +
+            '</div>';
+        }).join("") || '<div style="color:var(--dim)">no content</div>';
       }).catch(e => console.error(e));
     }
+    function kpi(v, l) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }
     load();
     setInterval(load, 10000);
   </script>

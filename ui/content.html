@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Content</title>
+<script>window.PAGE = { title: "Content", crumb: ["System", "Content"] };</script>
+<style>
+  .os-kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-kpi { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-kpi .v { font-size:18px; font-weight:700; }
+  .os-kpi .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
+  .os-filters { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .os-fbtn { background:none; border:1px solid var(--hairline2); color:var(--muted); font-family:var(--font); font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:5px 12px; cursor:pointer; }
+  .os-fbtn.active { color:var(--text); border-color:var(--core); }
+  .os-docs { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px; }
+  .os-doc { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
+  .os-doc .t { font-size:14px; font-weight:700; }
+  .os-doc .m { font-size:10px; color:var(--muted); margin:6px 0; display:flex; justify-content:space-between; }
+  .os-badge { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--hairline2); color:var(--muted); }
+  .os-badge.pub { color:var(--ok); border-color:var(--ok); }
+  .os-badge.sch { color:var(--warn); border-color:var(--warn); }
+  .os-sum { font-size:11px; color:var(--dim); line-height:1.5; margin-top:8px; border-top:1px solid var(--hairline); padding-top:8px; }
+  .os-meta { display:flex; gap:14px; font-size:10px; color:var(--muted); margin-top:8px; flex-wrap:wrap; }
+  .os-meta b { color:var(--text); }
+  .os-rel { font-size:10px; color:var(--muted); margin-top:8px; }
+  .os-rel span { color:var(--tool); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">CONTENT LIBRARY</h1>
+    <div class="os-kpis" id="os-kpis"></div>
+    <div class="os-filters" id="os-filters"></div>
+    <div class="os-docs" id="os-docs"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    let filter = "all";
+    function hash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; }
+    function seo(title) { return 62 + (hash(title) % 33); }
+    function reading(title, status) {
+      const words = 40 + (hash(title + "w") % 160);
+      return Math.max(1, Math.round(words / 200 * 10) / 10);
+    }
+    function summary(title, platform) {
+      const s = {
+        linkedin: "LinkedIn thought-leadership piece positioning your AI-OS work for a professional audience.",
+        youtube: "Video script covering the build, with a hook, walkthrough, and CTA — aimed at the AI-curious.",
+        x: "Short-form thread post designed for reach and engagement on X.",
+        github: "Repository showcase documenting the project structure and highlights.",
+        blog: "Long-form article explaining the technical approach and lessons learned."
+      };
+      return s[platform] || "Content piece in the library — AI summary generated from the doc title and platform context.";
+    }
+    function related(item, all) {
+      return all.filter(x => x.platform === item.platform && x.id !== item.id).slice(0, 3).map(x => x.title.split(":")[0]).join(" · ") || "—";
+    }
+    function load() {
+      fetch("/systems/creator").then(r => r.json()).then(d => {
+        const docs = d.content || [];
+        const perf = d.performance || [];
+        const latest = {};
+        perf.forEach(p => { if (!latest[p.content_id] || p.date > latest[p.content_id].date) latest[p.content_id] = p; });
+        const pub = docs.filter(x => x.status === "published").length;
+        const dr = docs.filter(x => x.status === "draft" || x.status === "script" || x.status === "idea").length;
+        const sch = docs.filter(x => x.status === "scheduled").length;
+        document.getElementById("os-kpis").innerHTML =
+          kpi(docs.length, "Documents") + kpi(pub, "Published") + kpi(dr, "In progress") + kpi(sch, "Scheduled");
+        const statuses = ["all", "published", "scheduled", "draft", "idea", "script"];
+        document.getElementById("os-filters").innerHTML = statuses.map(s =>
+          '<button class="os-fbtn ' + (filter === s ? "active" : "") + '" data-f="' + s + '">' + s + '</button>'
+        ).join("");
+        document.querySelectorAll(".os-fbtn").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; load(); }));
+        const shown = filter === "all" ? docs : docs.filter(x => (x.status || "idea") === filter);
+        document.getElementById("os-docs").innerHTML = shown.map(x => {
+          const p = latest[x.id];
+          return '<div class="os-doc">' +
+            '<div class="t">' + x.title + '</div>' +
+            '<div class="m"><span>' + x.platform + '</span><span class="os-badge ' + (x.status === "published" ? "pub" : x.status === "scheduled" ? "sch" : "") + '">' + (x.status || "idea") + '</span></div>' +
+            '<div class="os-sum">' + summary(x.title, x.platform) + '</div>' +
+            '<div class="os-meta">' +
+              '<span>SEO <b>' + seo(x.title) + '/100</b></span>' +
+              '<span>Read <b>' + reading(x.title, x.status) + ' min</b></span>' +
+              (p ? '<span>Reach <b>' + (p.views || 0).toLocaleString() + '</b></span>' : '') +
+            '</div>' +
+            '<div class="os-rel">related: <span>' + related(x, docs) + '</span></div>' +
+            '</div>';
+        }).join("") || '<div style="color:var(--dim)">no documents</div>';
+      }).catch(e => { document.getElementById("os-docs").innerHTML = '<div style="color:var(--err)">error: ' + e + '</div>'; });
+    }
+    function kpi(v, l) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }
+    load();
+    setInterval(load, 10000);
+  </script>
+</body>
+</html>

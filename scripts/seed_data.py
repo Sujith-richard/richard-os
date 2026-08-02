@@ -260,22 +260,22 @@ for title, platform, status in [
 ]:
     conn.execute("INSERT INTO content (title, platform, status) VALUES (?,?,?)", (title, platform, status))
 conn.commit(); conn.close()
-# ── content performance metrics (for charts) ─────────
-conn = sqlite3.connect(DATA / "creator.db")
-conn.execute("CREATE TABLE IF NOT EXISTS performance (id INTEGER PRIMARY KEY AUTOINCREMENT, content_id INTEGER, views INTEGER, likes INTEGER, comments INTEGER, date TEXT)")
-conn.execute("DELETE FROM performance")
-import random
-random.seed(42)
-today2 = dt2.date.today()
-for cid in range(1, 16):
+
+# ── content performance metrics (AFTER content insert) ─
+pconn = sqlite3.connect(DATA / "creator.db")
+content_ids = [r[0] for r in pconn.execute("SELECT id FROM content ORDER BY id").fetchall()]
+import random as _r; _r.seed(42)
+pconn.execute("CREATE TABLE IF NOT EXISTS performance (id INTEGER PRIMARY KEY AUTOINCREMENT, content_id INTEGER, views INTEGER, likes INTEGER, comments INTEGER, date TEXT)")
+pconn.execute("DELETE FROM performance")
+for cid in content_ids:
     for days_back in (0, 3, 7, 14):
-        views = random.randint(400, 9000)
-        likes = int(views * random.uniform(0.03, 0.09))
-        comments = int(likes * random.uniform(0.05, 0.2))
-        d = (today2 - dt2.timedelta(days=days_back)).isoformat()
-        conn.execute("INSERT INTO performance (content_id, views, likes, comments, date) VALUES (?,?,?,?,?)",
-                     (cid, views, likes, comments, d))
-conn.commit(); conn.close()
+        views = _r.randint(400, 9000)
+        likes = int(views * _r.uniform(0.03, 0.09))
+        comments = int(likes * _r.uniform(0.05, 0.2))
+        d = (dt2.date.today() - dt2.timedelta(days=days_back)).isoformat()
+        pconn.execute("INSERT INTO performance (content_id, views, likes, comments, date) VALUES (?,?,?,?,?)",
+                      (cid, views, likes, comments, d))
+pconn.commit(); pconn.close()
 
 
 # ── reading: your real curated links collection ──────

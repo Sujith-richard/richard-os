@@ -17,7 +17,7 @@
       { label: "Funnel", href: "/ui/funnel.html", ic: "\u21E2" },
       { label: "Finance", href: "/ui/finances.html", ic: "\u20BF" },
       { label: "Social", href: "/ui/social.html", ic: "\u2630" },
-      { label: "Content", href: "/ui/social.html", ic: "\u270D" },
+      { label: "Content", href: "/ui/content.html", ic: "\u270D" },
       { label: "Integrations", href: "/ui/integrations.html", ic: "\u21C4" },
       { label: "Analytics", href: "/ui/analytics.html", ic: "\u25A6" },
       { label: "Roadmap", href: "/ui/roadmap.html", ic: "\u21E3" },

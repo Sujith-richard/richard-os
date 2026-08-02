@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Knowledge Graph</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  :root {
+    --bg: #0D0D0D; --fg: #e5e5e5; --muted: #8a8a8a;
+    --core: #ff8a3d; --tool: #22d3ee; --data: #a78bfa; --edge: rgba(255,255,255,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: Inter, system-ui, sans-serif; }
+  body { background: var(--bg); color: var(--fg); overflow: hidden; }
+  header { height: 52px; display: flex; align-items: center; justify-content: space-between;
+           padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
+           font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  header .status { display: flex; align-items: center; gap: 8px; }
+  header .dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; }
+  header .brand { color: var(--fg); font-weight: 600; }
+  #graph { width: 100%; height: calc(100vh - 52px); }
+  .tooltip { position: absolute; background: rgba(20,20,20,0.92); border: 1px solid rgba(255,255,255,0.12);
+             border-radius: 12px; padding: 10px 14px; font-size: 12px; pointer-events: none; opacity: 0;
+             transition: opacity 0.18s; backdrop-filter: blur(8px); max-width: 260px; z-index: 10; }
+  .tooltip .t-title { font-weight: 600; color: var(--fg); }
+  .tooltip .t-type { color: var(--core); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .tooltip .t-meta { color: var(--muted); margin-top: 4px; font-size: 11px; }
+  .search { position: absolute; top: 66px; left: 20px; display: flex; align-items: center; gap: 8px;
+            background: rgba(20,20,20,0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            padding: 8px 14px; backdrop-filter: blur(10px); font-size: 13px; color: var(--muted); }
+  .search input { background: none; border: none; outline: none; color: var(--fg); font-size: 13px; width: 200px; }
+  .search kbd { border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 1px 6px; font-size: 10px; }
+  .legend { position: absolute; bottom: 20px; left: 20px; display: flex; flex-direction: column; gap: 6px;
+            background: rgba(20,20,20,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+            padding: 12px 16px; font-size: 11px; color: var(--muted); backdrop-filter: blur(10px); }
+  .legend div { display: flex; align-items: center; gap: 8px; }
+  .legend .sw { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+<header>
+  <div class="status"><span class="dot"></span><span class="brand">AI WORKSPACE</span> · KNOWLEDGE GRAPH · LIVE</div>
+  <div>WORKSPACE: SUJITH &nbsp;⟳ SYNCED &nbsp;<span style="color:var(--muted)">Every connection updates in real time.</span></div>
+</header>
+
+<div class="search">
+  <span>⌕</span><input id="search" placeholder="Search the graph..." />
+  <kbd>⌘K</kbd>
+</div>
+
+<div class="legend">
+  <div><span class="sw" style="background:var(--core)"></span> Core</div>
+  <div><span class="sw" style="background:var(--tool)"></span> Systems of record</div>
+  <div><span class="sw" style="background:var(--data)"></span> Records</div>
+</div>
+
+<div id="graph"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const W = window.innerWidth, H = window.innerHeight - 52;
+const svg = d3.select("#graph").append("svg").attr("width", W).attr("height", H);
+const tooltip = d3.select("#tooltip");
+const g = svg.append("g");
+
+fetch("/graph").then(r => r.json()).then(data => {
+  const { nodes, edges } = data;
+  const sim = d3.forceSimulation(nodes)
+    .force("charge", d3.forceManyBody().strength(-250))
+    .force("center", d3.forceCenter(W/2, H/2 + 26))
+    .force("link", d3.forceLink(edges).id(d => d.id).distance(d => 180 - d.strength * 30))
+    .force("collide", d3.forceCollide(30));
+
+  const link = g.append("g").selectAll("line").data(edges).join("line")
+    .attr("stroke", "var(--edge)").attr("stroke-width", d => d.strength * 0.5);
+
+  const node = g.append("g").selectAll("circle").data(nodes).join("circle")
+    .attr("r", d => d.type === "core" ? 22 : d.type === "tool" ? 10 : 6)
+    .attr("fill", d => d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : "var(--data)")
+    .attr("stroke", "rgba(255,255,255,0.3)").attr("stroke-width", 1)
+    .style("cursor", "pointer")
+    .style("filter", d => d.type === "core" ? "drop-shadow(0 0 12px var(--core))" : "none");
+
+  const label = g.append("g").selectAll("text").data(nodes.filter(d => d.type !== "data")).join("text")
+    .text(d => d.label).attr("fill", "var(--muted)").attr("font-size", 10).attr("text-anchor", "middle")
+    .attr("dy", d => d.type === "core" ? -30 : 18);
+
+  node.on("mouseover", (e, d) => {
+    tooltip.style("opacity", 1)
+      .html(`<div class="t-title">${d.label}</div><div class="t-type">${d.type}</div>
+             <div class="t-meta">${d.type === "core" ? "All knowledge radiates from here" : "Live record · tap to open"}</div>`)
+      .style("left", (e.pageX + 14) + "px").style("top", (e.pageY - 10) + "px");
+  }).on("mouseout", () => tooltip.style("opacity", 0));
+
+  sim.on("tick", () => {
+    link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+    node.attr("cx", d => d.x).attr("cy", d => d.y);
+    label.attr("x", d => d.x).attr("y", d => d.y);
+  });
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  d3.selectAll("circle").attr("opacity", d => !q || d.label.toLowerCase().includes(q) ? 1 : 0.15);
+});
+</script>
+</body>
+</html>

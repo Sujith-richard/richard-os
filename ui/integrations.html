@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Integrations</title>
+<script>window.PAGE = { title: "Integrations", crumb: ["System", "Integrations"] };</script>
+<style>
+  .os-kpis { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-kpi { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-kpi .v { font-size:18px; font-weight:700; }
+  .os-kpi .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
+  .os-int { background:var(--surface); border:1px solid var(--hairline); padding:14px; margin-bottom:10px; display:flex; align-items:center; gap:14px; }
+  .os-int .logo { width:36px; height:36px; border:1px solid var(--hairline2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; flex-shrink:0; }
+  .os-int .body { flex:1; min-width:0; }
+  .os-int .n { font-size:13px; font-weight:700; }
+  .os-int .d { font-size:11px; color:var(--muted); }
+  .os-int .meta { font-size:10px; color:var(--dim); margin-top:4px; }
+  .os-status { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:4px 10px; border:1px solid; white-space:nowrap; flex-shrink:0; }
+  .os-status.connected { color:var(--ok); border-color:var(--ok); }
+  .os-status.not_configured { color:var(--warn); border-color:var(--warn); }
+  .os-status.error { color:var(--err); border-color:var(--err); }
+  .os-status.disabled { color:var(--dim); border-color:var(--hairline2); }
+  .os-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .os-fbtn { background:none; border:1px solid var(--hairline2); color:var(--muted); font-family:var(--font); font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:5px 12px; cursor:pointer; }
+  .os-fbtn.active { color:var(--text); border-color:var(--core); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">INTEGRATIONS</h1>
+    <div class="os-kpis" id="os-kpis"></div>
+    <div class="os-filter" id="os-filter"></div>
+    <div id="os-list"></div>
+    <div style="font-size:10px;color:var(--dim);margin-top:14px">Honest status only — no fabricated connectivity. DATA_MODE=fake: these reflect the seeded registry, not live external systems.</div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    let filter = "all";
+    const STATE = { connected: "🟢 Connected", not_configured: "🟡 Not Configured", error: "🔴 Error", disabled: "⚪ Disabled" };
+    const LETTERS = { Gmail: "G", GitHub: "GH", OpenCode: "O", FreeLLMAPI: "F", Home: "H", Slack: "S", Stripe: "St", Notion: "N", MySQL: "M", SQLite: "SQ", Scheduler: "⏱", Approval: "✓" };
+    function load() {
+      fetch("/systems/integrations").then(r => r.json()).then(d => {
+        const ints = d.integrations || [];
+        const c = st => ints.filter(i => i.status === st).length;
+        document.getElementById("os-kpis").innerHTML =
+          kpi(c("connected"), "Connected") + kpi(c("not_configured"), "Not Configured") +
+          kpi(c("error"), "Error") + kpi(c("disabled"), "Disabled") + kpi(ints.length, "Total");
+        const filters = ["all", "connected", "not_configured", "error", "disabled"];
+        document.getElementById("os-filter").innerHTML = filters.map(f =>
+          '<button class="os-fbtn ' + (filter === f ? "active" : "") + '" data-f="' + f + '">' + f.replace("_", " ") + '</button>'
+        ).join("");
+        document.querySelectorAll(".os-fbtn").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; load(); }));
+        const shown = filter === "all" ? ints : ints.filter(i => i.status === filter);
+        document.getElementById("os-list").innerHTML = shown.map(i =>
+          '<div class="os-int">' +
+          '<div class="logo">' + (LETTERS[i.name] || i.name.charAt(0)) + '</div>' +
+          '<div class="body"><div class="n">' + i.name + '</div><div class="d">' + i.desc + '</div><div class="meta">' + i.category + ' · last sync: ' + i.last_sync + '</div></div>' +
+          '<span class="os-status ' + i.status + '">' + (STATE[i.status] || i.status) + '</span>' +
+          '</div>'
+        ).join("") || '<div style="color:var(--dim)">no integrations</div>';
+      }).catch(e => { document.getElementById("os-list").innerHTML = '<div style="color:var(--err)">error: ' + e + '</div>'; });
+    }
+    function kpi(v, l) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }
+    load();
+    setInterval(load, 10000);
+  </script>
+</body>
+</html>
+EOF
+

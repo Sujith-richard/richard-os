@@ -249,6 +249,7 @@ def system(name: str):
     tables = {
         "second_brain": ("second_brain.db", ["captures","goals","inbox","calendar"]),
         "comms": ("comms.db", ["conversations"]),
+        "integrations": ("integrations.db", ["integrations"]),
         "reading": ("reading.db", ["links"]),
         "creator": ("creator.db", ["content","performance"]),
         "social": ("social.db", ["stats"]),

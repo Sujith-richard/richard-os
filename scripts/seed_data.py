@@ -352,6 +352,29 @@ for i in range(40):
                  (ch, c, subjects[ch], body, sent, summary, reply, follow, ts))
 conn.commit(); conn.close()
 
+# ── integrations registry (honest statuses — never fake) ──
+conn = sqlite3.connect(DATA / "integrations.db")
+conn.execute("CREATE TABLE IF NOT EXISTS integrations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, desc TEXT, status TEXT, last_sync TEXT, category TEXT)")
+conn.execute("DELETE FROM integrations")
+rows = [
+    ("Gmail", "Unified inbox + email triage", "not_configured", "—", "Comms"),
+    ("GitHub", "Dev agents query repos", "connected", "2 min ago", "Dev"),
+    ("OpenCode Proxy", "Free model gateway (127.0.0.1:1234)", "connected", "just now", "AI"),
+    ("FreeLLMAPI", "Model server (port 3001)", "error", "unreachable", "AI"),
+    ("Home Assistant", "Room device control", "not_configured", "—", "Home"),
+    ("Slack", "Channel digests", "disabled", "—", "Comms"),
+    ("Stripe", "Payments + revenue", "not_configured", "—", "Finance"),
+    ("Notion", "Workspace docs", "disabled", "—", "Knowledge"),
+    ("MySQL", "Optional enterprise data layer", "not_configured", "—", "Data"),
+    ("SQLite", "Default local data layer", "connected", "live", "Data"),
+    ("Scheduler", "Cron + agent schedules", "connected", "live", "System"),
+    ("Approval Queue", "Human-in-the-loop drafts", "connected", "live", "System"),
+]
+for name, desc, status, sync, cat in rows:
+    conn.execute("INSERT INTO integrations (name, desc, status, last_sync, category) VALUES (?,?,?,?,?)",
+                 (name, desc, status, sync, cat))
+conn.commit(); conn.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 10 job leads (salary + applied dates)")
 print("  pm:           5 projects, 5 tasks")

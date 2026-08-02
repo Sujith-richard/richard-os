@@ -37,12 +37,17 @@ def main():
         return
 
     low = text.lower()
-    # find room + device
+    # find room: first by room name, then by device keyword
     room, device = None, None
-    for kw, (r, d) in ROOMS.items():
-        if kw in low:
-            room, device = r, d
+    for rn in ("living-room", "living room", "kitchen", "bedroom", "security"):
+        if rn in low:
+            room = rn
             break
+    if not room:
+        for kw, (r, d) in ROOMS.items():
+            if kw in low:
+                room, device = r, d
+                break
     if not room:
         print(f"❓ No device matched for: {text!r}")
         print("   Try: lights, tv, ac, kitchen, bedroom, alarm, camera, lock")
@@ -66,7 +71,7 @@ def main():
         out = call_llm(prompt, "deepseek-v4-flash-free")
         print(out[:500])
         try:
-            match = re.search(r"\{[^}]*\}", out)
+            match = re.search(r"\{.*\}", out, re.DOTALL)
             if match:
                 parsed = json.loads(match.group(0))
                 result = home_bridge.device_action(room, device, parsed.get("action", "on"), parsed.get("params", {}))

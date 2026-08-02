@@ -122,6 +122,16 @@ def run_cmd(cmd: str = ""):
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/persona-log/{specialist}")
+def persona_log(specialist: str):
+    """Return the latest run log for a persona specialist."""
+    import glob
+    hits = glob.glob(str(ROOT / "03-agents" / "logs" / "persona" / "*" / f"{specialist}.md"))
+    if not hits:
+        return {"specialist": specialist, "log": None}
+    lines = [l for l in Path(hits[0]).read_text().splitlines() if l.strip()]
+    return {"specialist": specialist, "log": lines[-3:] if lines else None}
+
 @app.get("/persona/{name}")
 def persona(name: str):
     """Return a persona's full roster (staffed team)."""

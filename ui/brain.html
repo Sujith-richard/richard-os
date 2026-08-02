@@ -187,6 +187,7 @@
           e.stopPropagation();
           applyFocus(d, true);
           if (d.type === "persona") loadPersona(d.label);
+          if (d.type === "employee" && d.label) loadSpecialistLog(d.label);
         });
         sim.on("tick", () => {
           linkSel.attr("x1", l => l.source.x).attr("y1", l => l.source.y).attr("x2", l => l.target.x).attr("y2", l => l.target.y);
@@ -265,6 +266,18 @@
           }
         });
         el.innerHTML = html || '<div style="color:var(--dim)">no roster</div>';
+      }).catch(() => {});
+    }
+
+    function loadSpecialistLog(name) {
+      fetch("/persona-log/" + encodeURIComponent(name)).then(r => r.json()).then(d => {
+        const el = document.getElementById("os-persona");
+        if (d.log && d.log.length) {
+          el.innerHTML = '<div class="g">' + d.specialist + ' · last run</div>' +
+            d.log.map(l => '<div style="padding:2px 4px;color:var(--muted);font-size:10px">' + l + '</div>').join("");
+        } else {
+          el.innerHTML = '<div class="g">' + d.specialist + '</div><div style="color:var(--dim)">no runs yet — run it from the roster</div>';
+        }
       }).catch(() => {});
     }
 </script>

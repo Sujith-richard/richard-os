@@ -6,6 +6,8 @@ from datetime import datetime
 # Agent name -> list of HH:MM times (24h)
 SCHEDULE = {
     "morning_brief":   ["07:00"],
+    "youtube_team":    ["10:00"],
+    "linkedin_team":   ["11:00"],
     "job_hunter":      ["09:00"],
     "content_ops":     ["18:00"],  # Mon/Wed/Fri handled by weekday check below
     "freelance_biz":   ["12:00"],
@@ -16,6 +18,14 @@ CONTENT_DAYS = {0, 2, 4}   # Mon, Wed, Fri
 PORTFOLIO_DAY = 0          # Monday
 
 def run(agent):
+    if agent == "youtube_team":
+        for sp, t in [("script-writer","today's content idea"), ("hook-writer","the script"), ("thumbnail-designer","the video")]:
+            subprocess.run([sys.executable, "persona_agents.py", "youtube-agency", sp, t], cwd="scripts")
+        return
+    if agent == "linkedin_team":
+        for sp, t in [("hook-writer","a post about Richard OS"), ("linkedin-ghostwriter","the same post")]:
+            subprocess.run([sys.executable, "persona_agents.py", "linkedin-agency", sp, t], cwd="scripts")
+        return
     if agent == "morning_brief":
         subprocess.run([sys.executable, "morning_brief.py"], cwd="scripts")
         return

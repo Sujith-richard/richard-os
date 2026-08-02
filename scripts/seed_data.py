@@ -311,6 +311,47 @@ for t, u, c in links:
     conn.execute("INSERT INTO links (title, url, category) VALUES (?,?,?)", (t, u, c))
 conn.commit(); conn.close()
 
+# ── comms: multi-channel conversations (email, linkedin, x, whatsapp, slack, discord, calls) ──
+conn = sqlite3.connect(DATA / "comms.db")
+conn.execute("CREATE TABLE IF NOT EXISTS conversations (id INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT, contact TEXT, subject TEXT, body TEXT, sentiment TEXT, summary TEXT, suggested_reply TEXT, follow_up TEXT, status TEXT DEFAULT 'unread', ts TEXT)")
+conn.execute("DELETE FROM conversations")
+import random as rnd
+rnd.seed(7)
+channels = ["email", "linkedin", "x", "whatsapp", "slack", "discord", "calls"]
+contacts = ["Priya Sharma", "Rahul Verma", "Ananya Iyer", "Karthik Nair", "Sarah Chen", "Alex Rivera", "Jordan Blake", "Grace Lin", "Marcus Webb", "Tayla Nguyen", "Noah Fields", "Elena Brooks"]
+subjects = {
+  "email": "Freelance proposal follow-up",
+  "linkedin": "Connection request + job opportunity",
+  "x": "Re: your AI OS thread",
+  "whatsapp": "Can we sync this week?",
+  "slack": "#general standup update",
+  "discord": "community question about MCP",
+  "calls": "Discovery call summary",
+}
+bodies = [
+  "Hey, saw your work on the AI OS — really impressive. Would love to discuss a potential collaboration.",
+  "Following up on the proposal we discussed last week. Any update on timing?",
+  "Your thread on building an OS in one folder was excellent. Quick question on the approval queue.",
+  "Can we schedule a call for Thursday? I have a few ideas that might fit your stack.",
+  "The demo you shared was great. What does the onboarding look like for a new client?",
+  "Noticed you're hiring — I know a great data engineer who might be a fit.",
+  "Quick question: how does the scheduler handle failed runs?",
+]
+sents = ["positive", "neutral", "positive", "neutral", "negative", "positive", "neutral"]
+for i in range(40):
+    ch = channels[i % len(channels)]
+    c = contacts[i % len(contacts)]
+    body = bodies[i % len(bodies)]
+    sent = sents[i % len(sents)]
+    summary = f"{sent.title()} — {c} discussing {subjects[ch].lower()}"
+    reply = "Thanks for reaching out — happy to sync this week. What time works?"
+    follow = "3 days" if sent == "positive" else "1 week"
+    days = i % 14
+    ts = f"2026-08-{max(1, 19 - days)}T{10 + i % 8}:{i % 60:02d}:00"
+    conn.execute("INSERT INTO conversations (channel, contact, subject, body, sentiment, summary, suggested_reply, follow_up, status, ts) VALUES (?,?,?,?,?,?,?,?, 'unread', ?)",
+                 (ch, c, subjects[ch], body, sent, summary, reply, follow, ts))
+conn.commit(); conn.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 10 job leads (salary + applied dates)")
 print("  pm:           5 projects, 5 tasks")

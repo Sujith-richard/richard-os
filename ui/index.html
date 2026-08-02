@@ -8,7 +8,7 @@
 <style>
   :root {
     --bg: #0D0D0D; --fg: #e5e5e5; --muted: #8a8a8a;
-    --core: #ff8a3d; --tool: #22d3ee; --data: #a78bfa; --edge: rgba(255,255,255,0.12);
+    --core: #ff8a3d; --tool: #22d3ee; --data: #a78bfa; --agent: #10b981; --edge: rgba(255,255,255,0.12);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: Inter, system-ui, sans-serif; }
   body { background: var(--bg); color: var(--fg); overflow: hidden; }
@@ -52,6 +52,7 @@
   <div><span class="sw" style="background:var(--core)"></span> Core</div>
   <div><span class="sw" style="background:var(--tool)"></span> Systems of record</div>
   <div><span class="sw" style="background:var(--data)"></span> Records</div>
+  <div><span class="sw" style="background:var(--agent)"></span> Agents</div>
 </div>
 
 <div id="graph"></div>
@@ -78,7 +79,7 @@ fetch("/graph").then(r => r.json()).then(data => {
 
   const node = g.append("g").selectAll("circle").data(nodes).join("circle")
     .attr("r", d => d.type === "core" ? 22 : d.type === "tool" ? 10 : 6)
-    .attr("fill", d => d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : "var(--data)")
+    .attr("fill", d => d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : d.type === "agent" ? "var(--agent)" : "var(--data)")
     .attr("stroke", "rgba(255,255,255,0.3)").attr("stroke-width", 1)
     .style("cursor", "pointer")
     .style("filter", d => d.type === "core" ? "drop-shadow(0 0 12px var(--core))" : "none");

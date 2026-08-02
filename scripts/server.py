@@ -45,6 +45,18 @@ def graph():
                 edges.append({"source": name, "target": nid, "strength": 1})
         except Exception:
             pass
+    # Agents -> green live nodes, wired to their systems of record
+    agents = [
+        ("agent-job_hunter", "job_hunter", "second_brain"),
+        ("agent-content_ops", "content_ops", "creator"),
+        ("agent-freelance_biz", "freelance_biz", "finance"),
+        ("agent-pm_assistant", "pm_assistant", "pm"),
+        ("agent-portfolio_builder", "portfolio_builder", "crm"),
+    ]
+    for i, (aid, alabel, target) in enumerate(agents):
+        nodes.append({"id": aid, "label": alabel, "type": "agent", "x": -220, "y": (i - 2) * 120})
+        edges.append({"source": "core", "target": aid, "strength": 2})
+        edges.append({"source": aid, "target": target, "strength": 2})
     return {"nodes": nodes, "edges": edges}
 
 @app.get("/systems/{name}")

@@ -24,3 +24,23 @@ Built by Sujith Richard. Free. Files you own outright — no subscription.
 
 ## Cross-platform CI
 GitHub Actions verifies boot + DB init + seed + CLI smoke on Linux/Windows/macOS.
+
+## Quickstart
+```bash
+git clone https://github.com/Sujith-richard/richard-os.git
+cd richard-os
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python3 scripts/init_db.py
+python3 scripts/seed_data.py
+python3 run.py
+## Approval queue
+```bash
+python3 scripts/approval_queue.py list
+python3 scripts/approval_queue.py approve 1
+## Knowledge-graph UI
+```bash
+python3 -m uvicorn scripts.server:app --reload --port 8000
+# open http://localhost:8000/ui/

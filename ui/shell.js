@@ -63,6 +63,20 @@
       const f = all.filter(i => i.label.toLowerCase().includes(q.toLowerCase()));
       res.innerHTML = f.map(i => '<a href="' + i.href + '"><span class="ic">' + i.ic + '</span><span>' + i.label + '</span><span style="margin-left:auto;color:var(--dim)">' + i.group + '</span></a>').join("") || '<a style="color:var(--dim)">no match</a>';
     }
+    // Scheduler status LED: green = running, amber = idle
+    function pollScheduler() {
+      fetch("/scheduler-status").then(r => r.json()).then(d => {
+        const led = document.querySelector(".os-sync .led");
+        if (led) {
+          led.style.background = d.running ? "var(--ok)" : "#ffb000";
+          led.style.boxShadow = d.running ? "0 0 8px var(--ok)" : "0 0 8px #ffb000";
+          const label = document.querySelector(".os-sync span:nth-child(3)");
+          if (label) label.textContent = d.running ? "SCHEDULER ON" : "SCHEDULER OFF";
+        }
+      }).catch(() => {});
+    }
+    setInterval(pollScheduler, 5000);
+    pollScheduler();
     document.addEventListener("keydown", e => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();

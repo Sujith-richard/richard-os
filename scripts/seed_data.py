@@ -185,6 +185,15 @@ conn.commit(); conn.close()
 
 # ── 2. More deals in CRM ─────────────────────────────────────
 conn = reset("crm.db")
+for name, company, email, stage in [
+    ("Priya Sharma", "Acme Corp", "priya@acme.com", "client"),
+    ("Rahul Verma", "TechStart Ltd", "rahul@techstart.io", "lead"),
+    ("Ananya Iyer", "Finnovate", "ananya@finnovate.com", "lead"),
+    ("Karthik Nair", "Google", "karthik.nair@google.com", "recruiter"),
+    ("Sarah Chen", "Stripe", "sarah.chen@stripe.com", "recruiter"),
+]:
+    conn.execute("INSERT INTO contacts (name, company, email, stage) VALUES (?,?,?,?)",
+                 (name, company, email, stage))
 for title, company, value, stage in [
     ("Website Design Project", "Acme Corp", 25000, "proposal"),
     ("Software License Agreement", "TechStart Ltd", 40000, "needs-follow-up"),

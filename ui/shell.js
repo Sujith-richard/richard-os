@@ -51,7 +51,7 @@
     main.innerHTML =
       '<header class="os-topbar">' +
         '<div class="os-crumb">' + PAGE.crumb.map((c, i) => '<span>' + c + '</span>' + (i < PAGE.crumb.length - 1 ? '<span class="sep">/</span>' : "")).join("") + '</div>' +
-        '<div class="os-sync"><span><span class="ws-label">WORKSPACE: SUJITH</span></span><span class="led"></span><span class="synced-label">SYNCED</span><kbd>CMD K</kbd></div>' +
+        '<div class="os-sync"><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><kbd>CMD K</kbd></div>' +
       '</header>' +
       '<div class="os-content" id="os-content"></div>';
 
@@ -91,7 +91,7 @@
         if (led) {
           led.style.background = d.running ? "var(--ok)" : "#ffb000";
           led.style.boxShadow = d.running ? "0 0 8px var(--ok)" : "0 0 8px #ffb000";
-          const label = document.querySelector(".os-sync span:nth-child(3)");
+          const label = document.getElementById("sched-label");
           if (label) label.textContent = d.running ? "SCHEDULER ON" : "SCHEDULER OFF";
         }
       }).catch(() => {});
@@ -109,6 +109,38 @@
     input.addEventListener("input", e => show(e.target.value));
     pal.addEventListener("click", e => { if (e.target === pal) pal.classList.remove("open"); });
   }
+  // Make the ⌘K chip clickable (opens the palette)
+  const kbdChip = document.querySelector(".os-sync kbd");
+  if (kbdChip) {
+    kbdChip.style.cursor = "pointer";
+    kbdChip.addEventListener("click", () => {
+      const pal = document.getElementById("os-palette");
+      if (pal) {
+        pal.classList.toggle("open");
+        const inp = document.getElementById("os-pal-input");
+        if (pal.classList.contains("open") && inp) { inp.value = ""; show(""); setTimeout(() => inp.focus(), 10); }
+      }
+    });
+  }
+
+  // ⌘K chip — delegated click handler (fires even though the topbar is
+  // built later by init(); no timing/scope dependency)
+  document.addEventListener("click", (e) => {
+    const chip = e.target.closest ? e.target.closest(".os-sync kbd") : null;
+    if (!chip) return;
+    const pal = document.getElementById("os-palette");
+    if (!pal) return;
+    pal.classList.toggle("open");
+    const inp = document.getElementById("os-pal-input");
+    const res = pal.querySelector ? pal.querySelector(".res") : null;
+    if (pal.classList.contains("open") && inp && res) {
+      inp.value = "";
+      res.innerHTML = all.map(i => '<a href="' + i.href + '"><span class="ic">' + i.ic + '</span><span>' + i.label + '</span><span style="margin-left:auto;color:var(--dim)">' + i.group + '</span></a>').join("");
+      setTimeout(() => inp.focus(), 10);
+    }
+    if (chip) chip.style.cursor = "pointer";
+  });
+
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();

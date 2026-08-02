@@ -10,7 +10,7 @@ DATA = ROOT / "06-data"
 app = FastAPI(title="Richard OS API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-def q(db_name, table, limit=50):
+def q(db_name, table, limit=1000):
     conn = sqlite3.connect(DATA / db_name)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(f"SELECT * FROM {table} LIMIT {limit}").fetchall()
@@ -255,7 +255,7 @@ def system(name: str):
         "pm": ("pm.db", ["tasks","projects"]),
         "finance": ("finance.db", ["accounts","transactions"]),
         "crm": ("crm.db", ["contacts","deals"]),
-        "creator": ("creator.db", ["content"]),
+        "creator": ("creator.db", ["content", "performance"]),
     }
     if name not in tables:
         return {"error": "unknown system"}

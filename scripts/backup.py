@@ -29,6 +29,15 @@ def export():
 
 def import_backup(path_str):
     path = Path(path_str)
+    # If given a glob or a directory, auto-pick the NEWEST backup
+    if "*" in path_str or path.is_dir():
+        BACKUP.mkdir(exist_ok=True)
+        files = sorted(BACKUP.glob("backup-*.json"), key=lambda f: f.stat().st_mtime)
+        if not files:
+            print("(no backups found)")
+            return
+        path = files[-1]
+        print(f"→ newest backup: {path.name}")
     if not path.exists():
         print(f"❌ No backup at {path}")
         return

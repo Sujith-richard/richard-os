@@ -51,7 +51,7 @@
     main.innerHTML =
       '<header class="os-topbar">' +
         '<div class="os-crumb">' + PAGE.crumb.map((c, i) => '<span>' + c + '</span>' + (i < PAGE.crumb.length - 1 ? '<span class="sep">/</span>' : "")).join("") + '</div>' +
-        '<div class="os-sync"><span>WORKSPACE: SUJITH</span><span class="led"></span><span>SYNCED</span><kbd>CMD K</kbd></div>' +
+        '<div class="os-sync"><span><span class="ws-label">WORKSPACE: SUJITH</span></span><span class="led"></span><span class="synced-label">SYNCED</span><kbd>CMD K</kbd></div>' +
       '</header>' +
       '<div class="os-content" id="os-content"></div>';
 

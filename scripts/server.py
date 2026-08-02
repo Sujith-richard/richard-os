@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Richard OS — FastAPI server: systems of record as a live API."""
-import sqlite3, json
+import sqlite3, json, yaml
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-DATA = Path(__file__).resolve().parent.parent / "06-data"
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / "06-data"
 app = FastAPI(title="Richard OS API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
@@ -57,6 +58,36 @@ def graph():
         nodes.append({"id": aid, "label": alabel, "type": "agent", "x": -220, "y": (i - 2) * 120})
         edges.append({"source": "core", "target": aid, "strength": 2})
         edges.append({"source": aid, "target": target, "strength": 2})
+    # ── Domains: company / home / personal hierarchy ──
+    DOMAIN_COLORS = {"company": "#60a5fa", "home": "#34d399", "personal": "#f472b6"}
+    domain_files = {
+        "company": ROOT / "02-blocks" / "company" / "departments.yaml",
+        "home": ROOT / "02-blocks" / "home" / "home.yaml",
+        "personal": ROOT / "02-blocks" / "personal" / "personal.yaml",
+    }
+    di = 0
+    for dname, dpath in domain_files.items():
+        try:
+            cfg = yaml.safe_load(dpath.read_text()) or {}
+        except Exception:
+            cfg = {}
+        color = DOMAIN_COLORS.get(dname, "#a78bfa")
+        nodes.append({"id": f"domain-{dname}", "label": dname, "type": "domain", "color": color, "x": -320, "y": (di - 1) * 180})
+        edges.append({"source": "core", "target": f"domain-{dname}", "strength": 2})
+        di += 1
+        subtree = cfg.get(dname, {})
+        ei = 0
+        for subname, agents in subtree.items():
+            nodes.append({"id": f"{dname}-{subname}", "label": subname, "type": "dept", "color": color, "x": -480, "y": (di - 1) * 180 + ei * 60})
+            edges.append({"source": f"domain-{dname}", "target": f"{dname}-{subname}", "strength": 1.5})
+            ei += 1
+            if isinstance(agents, list):
+                for a in agents:
+                    if isinstance(a, dict):
+                        for aname in a:
+                            nodes.append({"id": f"{dname}-{subname}-{aname}", "label": aname, "type": "employee", "color": "#10b981", "x": -640, "y": (di - 1) * 180 + ei * 60})
+                            edges.append({"source": f"{dname}-{subname}", "target": f"{dname}-{subname}-{aname}", "strength": 1})
+                            ei += 1
     return {"nodes": nodes, "edges": edges}
 
 @app.get("/systems/{name}")

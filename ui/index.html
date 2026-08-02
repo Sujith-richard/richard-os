@@ -8,7 +8,7 @@
 <style>
   :root {
     --bg: #0D0D0D; --fg: #e5e5e5; --muted: #8a8a8a;
-    --core: #ff8a3d; --tool: #22d3ee; --data: #a78bfa; --agent: #10b981; --edge: rgba(255,255,255,0.12);
+    --core: #ff8a3d; --tool: #22d3ee; --data: #a78bfa; --agent: #10b981; --company: #60a5fa; --home: #34d399; --personal: #f472b6; --edge: rgba(255,255,255,0.12);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: Inter, system-ui, sans-serif; }
   body { background: var(--bg); color: var(--fg); overflow: hidden; }
@@ -53,6 +53,9 @@
   <div><span class="sw" style="background:var(--tool)"></span> Systems of record</div>
   <div><span class="sw" style="background:var(--data)"></span> Records</div>
   <div><span class="sw" style="background:var(--agent)"></span> Agents</div>
+  <div><span class="sw" style="background:var(--company)"></span> Company</div>
+  <div><span class="sw" style="background:var(--home)"></span> Home</div>
+  <div><span class="sw" style="background:var(--personal)"></span> Personal</div>
 </div>
 
 <div id="graph"></div>
@@ -78,13 +81,13 @@ fetch("/graph").then(r => r.json()).then(data => {
     .attr("stroke", d => d.strength >= 3 ? "rgba(255,255,255,0.4)" : "rgba(167,139,250,0.55)").attr("stroke-width", d => Math.max(1, d.strength * 0.9));
 
   const node = g.append("g").selectAll("circle").data(nodes).join("circle")
-    .attr("r", d => d.type === "core" ? 22 : d.type === "tool" ? 10 : 6)
-    .attr("fill", d => d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : d.type === "agent" ? "var(--agent)" : "var(--data)")
+    .attr("r", d => d.type === "core" ? 22 : d.type === "domain" ? 16 : (d.type === "tool" || d.type === "agent") ? 10 : d.type === "dept" ? 9 : d.type === "employee" ? 5 : 6)
+    .attr("fill", d => d.color || (d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : d.type === "agent" ? "var(--agent)" : "var(--data)"))
     .attr("stroke", "rgba(255,255,255,0.3)").attr("stroke-width", 1)
     .style("cursor", "pointer")
     .style("filter", d => d.type === "core" ? "drop-shadow(0 0 12px var(--core))" : "none");
 
-  const label = g.append("g").selectAll("text").data(nodes.filter(d => d.type !== "data")).join("text")
+  const label = g.append("g").selectAll("text").data(nodes.filter(d => d.type !== "data" && d.type !== "employee")).join("text")
     .text(d => d.label).attr("fill", "var(--muted)").attr("font-size", 10).attr("text-anchor", "middle")
     .attr("dy", d => d.type === "core" ? -30 : 18);
 

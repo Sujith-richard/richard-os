@@ -4,7 +4,7 @@ Each employee agent has a role, autonomy level, and uses MCP tools + SQLite."""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from agent_lib import call_llm, log_run, read_memory, call_tool
+from agent_lib import call_llm, log_run, read_memory, call_tool, queue_for_approval
 from orchestrator import load_domains, find_agent
 
 COMPANY = {
@@ -55,6 +55,13 @@ def dispatch(dept, employee, task):
     out = call_llm(prompt, cfg["model"])
     print(out[:1200])
     log_run(f"company/{dept}/{employee}", "run complete", out[:120])
+    # Queue drafts for approval (invoicing / onboarding / support)
+    if employee in ("invoicing",):
+        queue_for_approval(f"company/{dept}/{employee}", "create-invoice",
+                           {"draft": out[:800], "execute": "create_invoice"})
+    elif employee == "support":
+        queue_for_approval(f"company/{dept}/{employee}", "send-reply",
+                           {"draft": out[:800], "execute": "send_email"})
 
 def main():
     text = " ".join(sys.argv[1:])

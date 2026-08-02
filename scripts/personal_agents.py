@@ -4,7 +4,7 @@ Fake-data first; real Gmail/calendar swaps in via DATA_MODE later."""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from agent_lib import call_llm, log_run, read_memory, call_tool
+from agent_lib import call_llm, log_run, read_memory, call_tool, queue_for_approval
 
 DATA = Path(__file__).resolve().parent.parent / "06-data"
 import sqlite3
@@ -22,10 +22,22 @@ def triage_email():
     mem = read_memory()[:1200]
     prompt = (f"You are the email triage agent. Autonomy 2 (recommend only).\n"
               f"Classify each email: action-needed / info / newsletter. "
-              f"For action-needed, draft a 1-line reply.\n\nINBOX:\n{emails}\n\nOS MEMORY:\n{mem}")
+              f"For action-needed, draft a 1-line reply. Reply ONLY with a JSON array: [{\"from\": ..., \"subject\": ..., \"reply\": ...}] for action-needed emails only.\n\nINBOX:\n{emails}\n\nOS MEMORY:\n{mem}")
     out = call_llm(prompt, "deepseek-v4-flash-free")
     print(out[:1400])
     log_run("personal/email", "triage", out[:120])
+    # Queue action-needed drafts for approval (autonomy 2 -> human approves)
+    try:
+        import json, re
+        m = re.search(r"\[.*\]", out, re.DOTALL)
+        if m:
+            for d in json.loads(m.group(0)):
+                if isinstance(d, dict) and d.get("reply"):
+                    queue_for_approval("personal/email", "send-reply", {
+                        "to": d.get("from", ""), "subject": d.get("subject", ""),
+                        "body": d["reply"], "execute": "send_email"})
+    except Exception as e:
+        log_run("personal/email", "queue-error", str(e))
     # mark read
     conn = sqlite3.connect(DATA / "second_brain.db")
     conn.execute("UPDATE inbox SET status='read'")

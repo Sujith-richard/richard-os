@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Richard OS — run a named agent against a system of record."""
 import sys
-from agent_lib import db, log_run, read_memory, call_llm
+from agent_lib import db, log_run, read_memory, call_llm, queue_for_approval
 
 AGENTS = {
     "job_hunter": {
@@ -61,6 +61,10 @@ def main():
         out = call_llm(prompt, cfg["model"])
         print(out[:1200])
         log_run(a, "run complete", out[:120])
+        # Job-hunter: queue outreach/follow-up drafts for approval
+        if a == "job_hunter":
+            queue_for_approval("job_hunter", "outreach-followup",
+                               {"recommendations": out[:800], "execute": "draft_message"})
 
 if __name__ == "__main__":
     main()

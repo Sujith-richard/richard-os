@@ -4,3 +4,6 @@
 2026-08-02 13:58:17 | portfolio_builder | run complete | **Portfolio-Builder — Suggestions (autonomy 1: no changes made)**
 
 I read OS memory and checked current projects/content
+2026-08-02 15:10:19 | portfolio_builder | run complete | ### Suggested Portfolio Improvements (Autonomy Level 1 — suggestions only, no execution)
+
+1. **Turn active deals into so

@@ -22,3 +22,8 @@ For more
 1. **Data Scientist @ Company X**  
    - Applied via portal  
    - Source:
+2026-08-02 15:09:41 | job_hunter | run complete | ## Current Job Leads Summary (from second_brain DB)
+
+| Job | Status |
+|---|---|
+| Data Scientist @ Google | Applied via 

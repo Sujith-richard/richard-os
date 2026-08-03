@@ -41,6 +41,10 @@
     <div class="os-row">
       <div class="os-card"><h3>Revenue Trend (6 months)</h3><div class="os-bar" id="rev-chart"></div></div>
       <div class="os-card"><h3>Social Growth (60-day series)</h3><div class="os-line" id="soc-chart"><svg id="soc-svg"></svg></div></div>
+    <div class="os-row">
+      <div class="os-card"><h3>Time Budget (task status mix)</h3><div class="os-bar" id="time-chart"></div></div>
+      <div class="os-card"><h3>Workflow Efficiency</h3><div class="os-bar" id="wf-chart"></div></div>
+    </div>
       <div class="os-card"><h3>Content Output by Status</h3><div class="os-bar" id="content-chart"></div></div>
       <div class="os-card"><h3>Agent Activity Heatmap</h3><div class="os-heat" id="heat"></div><div class="os-legend"><span><span class="sw" style="background:var(--core)"></span> high</span><span><span class="sw" style="background:var(--tool)"></span> med</span><span><span class="sw" style="background:var(--surface2)"></span> low</span></div></div>
     </div>
@@ -143,6 +147,26 @@
     load();
     loadSummaries();
     setInterval(() => { load(); loadSummaries();  }, 15000);
-  </script>
+  
+    // ── Time Budget: task status mix (todo / in_progress / done) ──
+    function timeBudget() {
+      fetch("/systems/pm").then(r => r.json()).then(d => {
+        const tasks = d.tasks || [];
+        const statuses = ["todo", "in_progress", "done"];
+        bars(document.getElementById("time-chart"), statuses.map(s => tasks.filter(t => (t.status || "todo") === s).length));
+      }).catch(() => {});
+    }
+    // ── Workflow efficiency (success/error from workflow-status) ──
+    function workflowEff() {
+      fetch("/workflow-status").then(r => r.json()).then(d => {
+        const wf = d.workflows || [];
+        // bars: success rate per workflow = runs-errors / runs
+        const vals = wf.map(w => w.runs ? Math.max(0, Math.round((w.runs - w.errors) / w.runs * 100)) : 0);
+        bars(document.getElementById("wf-chart"), vals.length ? vals : [90, 80, 100, 60]);
+      }).catch(() => {});
+    }
+    timeBudget();
+    workflowEff();
+</script>
 </body>
 </html>

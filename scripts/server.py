@@ -163,6 +163,48 @@ def persona(name: str):
     return {"name": name, "roster": cfg}
 
 
+@app.get("/connections")
+def connections_list():
+    import sqlite3
+    conn = sqlite3.connect(ROOT / "06-data" / "connections.db")
+    conn.row_factory = sqlite3.Row
+    rows = [dict(r) for r in conn.execute("SELECT id, name, provider, base_url, status, saved_at FROM connections ORDER BY id").fetchall()]
+    conn.close()
+    return {"connections": rows}
+
+@app.post("/connections")
+def connections_add(name: str = "", provider: str = "", api_key: str = "", base_url: str = ""):
+    import sqlite3
+    conn = sqlite3.connect(ROOT / "06-data" / "connections.db")
+    conn.execute("INSERT INTO connections (name, provider, api_key, base_url, status) VALUES (?,?,?,?, 'configured')",
+                 (name or provider or "API", provider, api_key, base_url))
+    conn.commit(); conn.close()
+    return {"ok": True}
+
+@app.post("/connections/{cid}/test")
+def connections_test(cid: int):
+    """Honest test — never fakes connectivity. Returns reachable/error."""
+    import sqlite3
+    conn = sqlite3.connect(ROOT / "06-data" / "connections.db")
+    row = conn.execute("SELECT base_url FROM connections WHERE id=?", (cid,)).fetchone()
+    conn.close()
+    if not row or not row[0]:
+        return {"status": "error", "detail": "no base_url configured"}
+    import httpx
+    try:
+        r = httpx.get(row[0], timeout=5)
+        return {"status": "connected" if r.status_code < 500 else "error", "code": r.status_code}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)[:120]}
+
+@app.post("/connections/{cid}/delete")
+def connections_delete(cid: int):
+    import sqlite3
+    conn = sqlite3.connect(ROOT / "06-data" / "connections.db")
+    conn.execute("DELETE FROM connections WHERE id=?", (cid,))
+    conn.commit(); conn.close()
+    return {"ok": True}
+
 @app.get("/approval-count")
 def approval_count():
     """Real pending approval count (feeds the NOTIFY badge)."""

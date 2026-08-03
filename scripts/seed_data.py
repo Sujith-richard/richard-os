@@ -451,6 +451,11 @@ for name, amt in [("Subscriptions", 224), ("Rent", 1200), ("Food", 540), ("Cloud
     fc.execute("INSERT INTO categories (name, amount) VALUES (?,?)", (name, amt))
 fc.commit(); fc.close()
 
+# ── connections: user-added API keys (real-data swap bridge) ──
+conn = sqlite3.connect(DATA / "connections.db")
+conn.execute("CREATE TABLE IF NOT EXISTS connections (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, provider TEXT, api_key TEXT, base_url TEXT, status TEXT DEFAULT 'not_configured', saved_at TEXT DEFAULT CURRENT_TIMESTAMP)")
+conn.commit(); conn.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 10 job leads (salary + applied dates)")
 print("  pm:           5 projects, 5 tasks")

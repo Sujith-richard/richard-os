@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Connections</title>
+<script>window.PAGE={title:"Connections",crumb:["System","Connections"]};</script>
+<style>
+  .os-modal { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:80; }
+  .os-modal.open { display:flex; }
+  .os-modal .box { width:76vw; max-width:860px; background:var(--surface); border:1px solid var(--hairline2); border-radius:10px; box-shadow:0 24px 70px rgba(0,0,0,.6); display:flex; flex-direction:column; max-height:90vh; }
+  .os-modal .head { display:flex; align-items:center; gap:12px; padding:16px 24px; border-bottom:1px solid var(--hairline); }
+  .os-modal .head .logo { width:28px; height:28px; border:1px solid var(--hairline2); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .os-modal .head .ttl { font-size:18px; font-weight:600; }
+  .os-modal .head .sub { font-size:13px; color:var(--muted); }
+  .os-modal .head .right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .os-modal .body { display:flex; flex:1; min-height:0; }
+  .os-modal .side { width:180px; border-right:1px solid var(--hairline); padding:16px; }
+  .os-modal .side div { padding:9px 12px; border-radius:6px; color:var(--muted); cursor:pointer; font-size:13px; margin-bottom:4px; }
+  .os-modal .side div.on { background:var(--surface2); color:var(--text); font-weight:600; }
+  .os-modal .side div:hover:not(.on) { background:var(--surface2); }
+  .os-modal .content { flex:1; padding:24px; overflow-y:auto; }
+  .os-alert { display:flex; align-items:center; gap:12px; background:rgba(248,113,113,.12); border:1px solid #f87171; border-radius:6px; padding:12px 14px; color:#f87171; font-size:13px; margin-bottom:16px; }
+  .os-alert button { margin-left:auto; background:none; border:1px solid #f87171; color:#f87171; border-radius:6px; padding:5px 14px; cursor:pointer; font-size:12px; }
+  .os-alert button:hover { background:rgba(248,113,113,.2); }
+  .os-help { display:flex; align-items:center; gap:8px; background:rgba(245,194,107,.12); border:1px solid #f5c26b; border-radius:6px; padding:10px 14px; color:var(--muted); font-size:12px; margin-bottom:24px; }
+  .os-help b { color:#f5c26b; cursor:pointer; }
+  .os-field { margin-bottom:20px; }
+  .os-field label { display:block; font-size:13px; font-weight:500; margin-bottom:6px; color:var(--text); }
+  .os-field input { width:100%; height:48px; background:var(--surface); border:1px solid var(--hairline2); border-radius:6px; padding:0 14px; font-size:15px; color:var(--text); font-family:var(--font); outline:none; }
+  .os-field input:focus { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+  .os-field .wrap { position:relative; }
+  .os-field .wrap .ic { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--dim); font-size:12px; }
+  .os-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
+  .os-actions button { font-family:var(--font); font-size:13px; border-radius:6px; padding:9px 20px; cursor:pointer; }
+  .btn-ghost { background:none; border:1px solid var(--hairline2); color:var(--muted); }
+  .btn-ghost:hover { background:var(--surface2); }
+  .btn-primary { background:none; border:1px solid var(--tool); color:var(--tool); }
+  .btn-primary:hover { background:rgba(41,215,246,.12); }
+  .os-conns { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+  .os-conn { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
+  .os-conn .n { font-size:13px; font-weight:600; }
+  .os-conn .p { font-size:10px; color:var(--muted); margin:4px 0; }
+  .os-conn .st { font-size:10px; letter-spacing:.12em; text-transform:uppercase; }
+  .os-conn .st.ok { color:var(--ok); } .os-conn .st.err { color:var(--err); } .os-conn .st.none { color:var(--warn); }
+  .os-conn .btns { display:flex; gap:8px; margin-top:10px; }
+  .os-conn button { background:none; border:1px solid var(--hairline2); color:var(--muted); font-family:var(--font); font-size:10px; padding:4px 10px; cursor:pointer; border-radius:4px; }
+  .os-conn button:hover { background:var(--surface2); }
+</style>
+</head>
+<body>
+<div class="os-page">
+<h1 class="os-h1">CONNECTIONS</h1>
+<div style="margin-bottom:16px;display:flex;gap:10px;align-items:center">
+  <button id="os-new" style="background:none;border:1px solid var(--tool);color:var(--tool);font-family:var(--font);font-size:12px;padding:7px 16px;border-radius:6px;cursor:pointer">+ New API Connection</button>
+  <span style="font-size:10px;color:var(--dim)">Add your real APIs here — the swap to live data is a click away (stored locally, never committed).</span>
+</div>
+<div class="os-conns" id="os-conns"></div>
+</div>
+
+<!-- Settings Modal -->
+<div class="os-modal" id="os-modal">
+  <div class="box">
+    <div class="head">
+      <div class="logo">⚡</div>
+      <div><div class="ttl" id="m-title">API connection</div><div class="sub" id="m-sub">Add a real service (Gmail, GitHub, Home Assistant, MySQL...)</div></div>
+      <div class="right"><span style="font-size:11px;color:var(--ok)" id="m-saved">Saved</span><button id="m-del" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:14px" title="Delete">🗑</button><button id="m-close" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="on" data-tab="conn">Connection</div>
+        <div data-tab="share">Sharing</div>
+        <div data-tab="detail">Details</div>
+      </div>
+      <div class="content">
+        <div class="os-alert" id="os-alert" style="display:none"><span>⚠</span><span>Couldn't connect with these settings <b style="cursor:pointer;text-decoration:underline">More details</b></span><button id="m-retry">Retry</button></div>
+        <div class="os-help"><span>Need help filling out these fields?</span><b id="m-docs">Open docs</b></div>
+        <div class="os-field"><label>Provider</label><input id="f-provider" placeholder="e.g. Gmail, GitHub, Home Assistant" /></div>
+        <div class="os-field"><label>Connection name</label><input id="f-name" placeholder="e.g. my-gmail" /></div>
+        <div class="os-field"><label>API Key</label><div class="wrap"><input id="f-key" type="password" placeholder="••••••••••••••••" /><span class="ic">🔒</span></div></div>
+        <div class="os-field"><label>Base URL</label><div class="wrap"><input id="f-url" placeholder="https://api.example.com" /><span class="ic">ⓘ</span></div></div>
+        <div class="os-actions"><button class="btn-ghost" id="m-cancel">Cancel</button><button class="btn-primary" id="m-save">Save & Test</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/ui/shell.js"></script>
+<script>
+let editing = null;
+function load() {
+  fetch("/connections").then(r => r.json()).then(d => {
+    const list = d.connections || [];
+    document.getElementById("os-conns").innerHTML = list.map(c =>
+      '<div class="os-conn"><div class="n">' + c.name + '</div><div class="p">' + c.provider + ' · ' + (c.base_url || "no url") + '</div>' +
+      '<div class="st ' + (c.status === "configured" ? "ok" : "none") + '">' + (c.status || "not configured") + '</div>' +
+      '<div class="btns"><button class="edit" data-id="' + c.id + '">EDIT</button><button class="test" data-id="' + c.id + '">TEST</button><button class="del" data-id="' + c.id + '">DELETE</button></div></div>'
+    ).join("") || '<div style="color:var(--dim)">no connections yet — add your first API</div>';
+    document.querySelectorAll(".edit").forEach(b => b.addEventListener("click", () => openEdit(b.dataset.id)));
+    document.querySelectorAll(".test").forEach(b => b.addEventListener("click", () => test(b.dataset.id)));
+    document.querySelectorAll(".del").forEach(b => b.addEventListener("click", () => fetch("/connections/" + b.dataset.id + "/delete", { method: "POST" }).then(load)));
+  }).catch(() => {});
+}
+function openEdit(id) {
+  fetch("/connections").then(r => r.json()).then(d => {
+    const c = (d.connections || []).find(x => x.id == id);
+    if (!c) return;
+    editing = id;
+    document.getElementById("f-provider").value = c.provider || "";
+    document.getElementById("f-name").value = c.name || "";
+    document.getElementById("f-key").value = "";
+    document.getElementById("f-url").value = c.base_url || "";
+    document.getElementById("m-title").textContent = c.name;
+    document.getElementById("os-modal").classList.add("open");
+  });
+}
+function test(id) {
+  fetch("/connections/" + id + "/test", { method: "POST" }).then(r => r.json()).then(d => {
+    alert("Test: " + (d.status || "?") + (d.detail ? " — " + d.detail : ""));
+  });
+}
+document.getElementById("os-new").addEventListener("click", () => {
+  editing = null;
+  ["f-provider","f-name","f-key","f-url"].forEach(x => document.getElementById(x).value = "");
+  document.getElementById("m-title").textContent = "API connection";
+  document.getElementById("os-modal").classList.add("open");
+});
+document.getElementById("m-close").addEventListener("click", () => document.getElementById("os-modal").classList.remove("open"));
+document.getElementById("m-cancel").addEventListener("click", () => document.getElementById("os-modal").classList.remove("open"));
+document.getElementById("m-save").addEventListener("click", () => {
+  const name = document.getElementById("f-name").value || document.getElementById("f-provider").value;
+  const provider = document.getElementById("f-provider").value;
+  const key = document.getElementById("f-key").value;
+  const url = document.getElementById("f-url").value;
+  fetch("/connections?name=" + encodeURIComponent(name) + "&provider=" + encodeURIComponent(provider) + "&api_key=" + encodeURIComponent(key) + "&base_url=" + encodeURIComponent(url), { method: "POST" })
+    .then(r => r.json()).then(() => { document.getElementById("os-modal").classList.remove("open"); load(); });
+});
+document.getElementById("m-del").addEventListener("click", () => { if (editing) fetch("/connections/" + editing + "/delete", { method: "POST" }).then(() => { document.getElementById("os-modal").classList.remove("open"); load(); }); });
+document.querySelectorAll(".side div").forEach(d => d.addEventListener("click", () => { document.querySelectorAll(".side div").forEach(x => x.classList.remove("on")); d.classList.add("on"); }));
+document.getElementById("m-retry").addEventListener("click", () => { document.getElementById("os-alert").style.display = "none"; alert("Retry — check your base URL and key."); });
+document.getElementById("m-docs").addEventListener("click", () => { document.getElementById("os-help").textContent = "Check docs/REAL_DATA_SWAP.md for the exact steps per service."; });
+load();
+</script>
+</body>
+</html>

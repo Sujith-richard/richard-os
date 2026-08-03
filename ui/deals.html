@@ -8,14 +8,25 @@
 <body>
 <div class="os-page">
 <h1 class="os-h1">DEALS OS</h1>
+<div id="os-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
 <div class="os-tx" id="os-deals"></div>
 </div>
 <script src="/ui/shell.js"></script>
 <script>
 fetch("/systems/deals").then(r=>r.json()).then(d=>{
   const l=d.ledger||[];
+  // forecast: probability per stage × value
+  const prob={prospect:0.15,proposal:0.3,"needs-follow-up":0.4,negotiation:0.6,"contract-pending":0.8,won:1,lost:0};
+  const total=l.reduce((s,x)=>s+(x.value||0),0);
+  const forecast=l.reduce((s,x)=>s+((x.value||0)*(prob[x.stage]||0.2)),0);
+  const won=l.filter(x=>x.stage==="won").reduce((s,x)=>s+(x.value||0),0);
+  document.getElementById("os-kpis").innerHTML =
+    '<div class="os-kpi" style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:20px;font-weight:700">$'+total.toLocaleString()+'</div><div style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:3px">Total Pipeline</div></div>'+
+    '<div class="os-kpi" style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:20px;font-weight:700;color:var(--ok)">$'+Math.round(forecast).toLocaleString()+'</div><div style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:3px">Forecast (weighted)</div></div>'+
+    '<div class="os-kpi" style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:20px;font-weight:700;color:var(--tool)">$'+won.toLocaleString()+'</div><div style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:3px">Won</div></div>'+
+    '<div class="os-kpi" style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:20px;font-weight:700">'+l.length+'</div><div style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:3px">Deals</div></div>';
   document.getElementById("os-deals").innerHTML=l.map(x=>
-    '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--hairline);font-size:12px;color:var(--muted)"><span>'+x.title+' <span style="color:var(--dim)">· '+x.client+'</span></span><span>'+x.stage+' · $'+(x.value||0).toLocaleString()+'</span></div>'
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--hairline);font-size:12px;color:var(--muted)"><span>'+x.title+' <span style="color:var(--dim)">· '+x.client+'</span></span><span>'+x.stage+' · $'+(x.value||0).toLocaleString()+' · '+(x.closed||"—")+'</span></div>'
   ).join("");
 }).catch(()=>{});
 </script>

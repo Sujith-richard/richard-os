@@ -51,7 +51,7 @@
     main.innerHTML =
       '<header class="os-topbar">' +
         '<div class="os-crumb">' + PAGE.crumb.map((c, i) => '<span>' + c + '</span>' + (i < PAGE.crumb.length - 1 ? '<span class="sep">/</span>' : "")).join("") + '</div>' +
-        '<div class="os-sync"><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><kbd>CMD K</kbd></div>' +
+        '<div class="os-sync"><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span></button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><kbd>CMD K</kbd></div>' +
       '</header>' +
       '<div class="os-content" id="os-content"></div>';
 
@@ -140,6 +140,42 @@
     }
     if (chip) chip.style.cursor = "pointer";
   });
+
+
+
+
+    // Quick Add + Notifications — DELEGATED (works even though buttons are
+    // built later by init(); no timing/scope dependency)
+
+
+    // QUICK ADD + NOTIFY — one clean delegated dropdown
+    document.addEventListener("click", function ya(e) {
+      const qa = e.target.closest ? e.target.closest(".qa-btn") : null;
+      const nb = e.target.closest ? e.target.closest(".notify-btn") : null;
+      let el = document.getElementById("os-drop");
+      if (!qa && !nb) { if (el) el.style.display = "none"; return; }  // click elsewhere → close
+      e.stopPropagation();
+      if (el && el.dataset.open === "1" && el.dataset.owner === (qa ? "qa" : "nb")) {
+        el.style.display = "none"; el.dataset.open = "0"; return;   // toggle same button
+      }
+      if (!el) { el = document.createElement("div"); el.id = "os-drop"; el.className = "os-drop"; document.body.appendChild(el); }
+      const items = qa
+        ? [{ a: "task", l: "+ New task" }, { a: "agent", l: "+ Run agent" }, { a: "note", l: "+ New note" }]
+        : [{ a: "none", l: "(no notifications — demo)" }, { a: "task", l: "3 approval drafts pending" }];
+      el.innerHTML = items.map(i => '<div data-a="' + i.a + '">' + i.l + '</div>').join("");
+      el.querySelectorAll("div").forEach(d => d.addEventListener("click", () => {
+        el.style.display = "none"; el.dataset.open = "0";
+        if (d.dataset.a === "task") location.href = "/ui/tasks.html";
+        else if (d.dataset.a === "agent") location.href = "/ui/agents.html";
+        else if (d.dataset.a === "note") location.href = "/ui/";
+      }));
+      const b = qa || nb, r = b.getBoundingClientRect();
+      el.style.top = (r.bottom + 4) + "px";
+      el.style.right = (window.innerWidth - r.right) + "px";
+      el.style.display = "block";
+      el.dataset.owner = qa ? "qa" : "nb";
+      el.dataset.open = "1";
+    });
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();

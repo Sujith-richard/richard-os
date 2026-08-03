@@ -77,3 +77,15 @@ kbd { border:1px solid var(--hairline2); border-radius:3px; padding:0 5px; font-
   .os-topbar .os-sync { gap:6px; }
   .os-sync kbd { display:none; }
 }
+
+/* Top-bar buttons — styled uniformly like the THEME button */
+.qa-btn, .notify-btn, .theme-btn {
+  background:none; border:1px solid var(--hairline2); color:var(--muted);
+  font-family:var(--font); font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; padding:3px 10px; cursor:pointer; flex-shrink:0;
+}
+.qa-btn:hover, .notify-btn:hover, .theme-btn:hover { color:var(--text); background:var(--surface2); }
+.os-drop { position:fixed; background:var(--surface); border:1px solid var(--hairline2);
+  padding:6px; z-index:70; min-width:200px; font-size:11px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+.os-drop div { padding:6px 10px; cursor:pointer; color:var(--muted); }
+.os-drop div:hover { background:var(--surface2); color:var(--text); }

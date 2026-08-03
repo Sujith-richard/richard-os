@@ -31,16 +31,20 @@
 <body>
   <div class="os-page">
     <h1 class="os-h1">ANALYTICS</h1>
+    <div id="os-period" style="display:flex;gap:6px;margin-bottom:16px">
+      <button class="per" data-p="7" style="background:none;border:1px solid var(--hairline2);color:var(--text);font-family:var(--font);font-size:10px;text-transform:uppercase;padding:4px 12px;cursor:pointer">Week</button>
+      <button class="per" data-p="30" style="background:none;border:1px solid var(--hairline2);color:var(--text);font-family:var(--font);font-size:10px;text-transform:uppercase;padding:4px 12px;cursor:pointer">Month</button>
+      <button class="per" data-p="90" style="background:none;border:1px solid var(--hairline2);color:var(--muted);font-family:var(--font);font-size:10px;text-transform:uppercase;padding:4px 12px;cursor:pointer">Quarter</button>
+    </div>
     <div class="os-kpis" id="os-kpis"></div>
-    <div class="os-card"><h3>Summaries — weekly / monthly / quarterly</h3><div class="os-summaries" id="os-summaries" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%"></div></div>
-
-    <div class="os-summaries" ...></div></div>
+    <div class="os-card" style="margin-bottom:20px"><h3>Summaries — weekly / monthly / quarterly</h3><div class="os-summaries" id="os-summaries" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%"></div></div>
     <div class="os-row">
       <div class="os-card"><h3>Revenue Trend (6 months)</h3><div class="os-bar" id="rev-chart"></div></div>
       <div class="os-card"><h3>Social Growth (60-day series)</h3><div class="os-line" id="soc-chart"><svg id="soc-svg"></svg></div></div>
+      <div class="os-card"><h3>Content Output by Status</h3><div class="os-bar" id="content-chart"></div></div>
+      <div class="os-card"><h3>Agent Activity Heatmap</h3><div class="os-heat" id="heat"></div><div class="os-legend"><span><span class="sw" style="background:var(--core)"></span> high</span><span><span class="sw" style="background:var(--tool)"></span> med</span><span><span class="sw" style="background:var(--surface2)"></span> low</span></div></div>
     </div>
   </div>
-
   <script src="/ui/shell.js"></script>
   <script>
     function bars(el, vals, color) {
@@ -49,6 +53,7 @@
     }
     function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
     function kpi(v, l, sub) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div>' + (sub ? '<div style="font-size:10px;color:var(--muted)">' + sub + '</div>' : "") + '</div>'; }
+
     function load() {
       Promise.all([
         fetch("/systems/finance").then(r => r.json()).catch(() => ({})),
@@ -96,21 +101,48 @@
         }
       }).catch(e => console.error(e));
     }
+
     function loadSummaries() {
-      Promise.all([fetch("/systems/finance").then(r => r.json()).catch(() => ({})), fetch("/systems/social").then(r => r.json()).catch(() => ({})), fetch("/systems/creator").then(r => r.json()).catch(() => ({})), fetch("/agent-status").then(r => r.json()).catch(() => ({}))]).then(([fin, cr, soc, st]) => {
-        const txs = fin.transactions || [], perf = cr.performance || [], stats = soc.stats || [], agents = Object.keys(st);
-        const now = Date.now(), DAY = 86400000;
-        const inP = d => { const f = now - d * DAY; return { income: txs.filter(t => t.kind === "income" && new Date(t.date || now).getTime() >= f).reduce((s, t) => s + (t.amount||0), 0), reach: perf.filter(p => new Date(p.date || now).getTime() >= f).reduce((s, p) => s + (p.views||0), 0), followers: stats.filter(r => new Date(r.day + "T00:00:00Z").getTime() >= f).reduce((s, r) => s + (r.followers||0), 0), runs: agents.length }; };
-        const els = document.getElementById("os-summaries");
-        els.innerHTML = [["This Week", inP(7)], ["This Month", inP(30)], ["This Quarter", inP(90)]].map(([l, p]) =>
-          '<div style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">' + l + '</div><div style="font-size:11px;color:var(--muted);line-height:1.7">Income: <b style="color:var(--ok)">$' + p.income.toLocaleString() + '</b><br>Reach: <b style="color:var(--text)">' + p.reach.toLocaleString() + '</b><br>Followers: <b style="color:var(--tool)">' + p.followers.toLocaleString() + '</b><br>Runs: <b style="color:var(--text)">' + p.runs + '</b></div></div>'
+      const now = Date.now(), DAY = 86400000;
+      const active = window.period || 30;
+      Promise.all([
+        fetch("/systems/finance").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/social").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/creator").then(r => r.json()).catch(() => ({})),
+        fetch("/agent-status").then(r => r.json()).catch(() => ({}))
+      ]).then(([fin, soc, cr, st]) => {
+        const txs = fin.transactions || [], alls = soc.stats || [], perf = cr.performance || [], agents = Object.keys(st);
+        const calc = days => {
+          const from = now - days * DAY;
+          const inP = a => a.filter(x => new Date((x.date || x.day || now).slice(0, 10) + "T00:00:00Z").getTime() >= from);
+          return {
+            income: inP(txs.filter(t => t.kind === "income")).reduce((s, t) => s + (t.amount || 0), 0) || txs.filter(t => t.kind === "income").reduce((s, t) => s + (t.amount || 0), 0),
+            reach: inP(perf).reduce((s, p) => s + (p.views || 0), 0) || perf.reduce((s, p) => s + (p.views || 0), 0),
+            followers: inP(alls).reduce((s, r) => s + (r.followers || 0), 0) || alls.reduce((s, r) => s + (r.followers || 0), 0),
+            runs: agents.length
+          };
+        };
+        const periods = [["This Week", 7, calc(7)], ["This Month", 30, calc(30)], ["This Quarter", 90, calc(90)]];
+        const el = document.getElementById("os-summaries");
+        if (!el) return;
+        el.innerHTML = periods.map(([label, days, p]) =>
+          '<div style="background:var(--surface);border:1px solid ' + (days === active ? "var(--core)" : "var(--hairline)") + ';padding:14px">' +
+          '<div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">' + label + '</div>' +
+          '<div style="font-size:11px;color:var(--muted);line-height:1.7">Income: <b style="color:var(--ok)">$' + p.income.toLocaleString() + '</b><br>Reach: <b style="color:var(--text)">' + p.reach.toLocaleString() + '</b><br>Followers: <b style="color:var(--tool)">' + p.followers.toLocaleString() + '</b><br>Runs: <b style="color:var(--text)">' + p.runs + '</b></div></div>'
         ).join("");
       }).catch(() => {});
     }
+
+    window.period = 30;
+    document.querySelectorAll(".per").forEach(b => b.addEventListener("click", () => {
+      window.period = parseInt(b.dataset.p, 10);
+      document.querySelectorAll(".per").forEach(x => x.style.color = x === b ? "var(--text)" : "var(--muted)");
+      loadSummaries();
+    }));
+
     load();
     loadSummaries();
-    setInterval(() => { load(); loadSummaries(); }, 15000);
+    setInterval(() => { load(); loadSummaries();  }, 15000);
   </script>
 </body>
 </html>
-

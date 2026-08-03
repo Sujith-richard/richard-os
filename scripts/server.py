@@ -132,6 +132,25 @@ def persona_log(specialist: str):
     lines = [l for l in Path(hits[0]).read_text().splitlines() if l.strip()]
     return {"specialist": specialist, "log": lines[-3:] if lines else None}
 
+@app.get("/persona-list")
+def persona_list():
+    """All persona agencies + their team sizes (for the Personas page)."""
+    import glob
+    out = []
+    for pf in sorted(glob.glob(str(ROOT / "02-blocks" / "personas" / "*.yaml"))):
+        import yaml as y
+        cfg = y.safe_load(Path(pf).read_text()) or {}
+        lead = cfg.get("ceo") or cfg.get("director") or "?"
+        count = 0
+        for k, v in cfg.items():
+            if isinstance(v, dict):
+                for team in v.values():
+                    count += len(team)
+            elif isinstance(v, list):
+                count += len(v)
+        out.append({"name": Path(pf).stem, "lead": lead, "members": count})
+    return {"personas": out}
+
 @app.get("/persona/{name}")
 def persona(name: str):
     """Return a persona's full roster (staffed team)."""

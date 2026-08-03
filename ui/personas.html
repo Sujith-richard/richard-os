@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Personas</title>
+<script>window.PAGE = { title: "Personas", crumb: ["Operate", "Personas"] };</script>
+<style>
+  .os-pers { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+  .os-p { background:var(--surface); border:1px solid var(--hairline); padding:16px; cursor:pointer; }
+  .os-p:hover { border-color:var(--core); }
+  .os-p .name { font-size:15px; font-weight:700; }
+  .os-p .lead { font-size:10px; color:var(--personal); letter-spacing:.1em; text-transform:uppercase; margin-top:2px; }
+  .os-p .sub { font-size:11px; color:var(--dim); margin-top:8px; }
+  .os-p .meta { font-size:10px; color:var(--muted); margin-top:8px; border-top:1px solid var(--hairline); padding-top:8px; }
+  .os-team { background:var(--surface); border:1px solid var(--hairline); padding:16px; margin-top:14px; }
+  .os-team h3 { font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--core); margin-bottom:10px; }
+  .os-team .head { font-size:12px; font-weight:600; margin-top:10px; }
+  .os-team .team { font-size:11px; color:var(--muted); padding:3px 0 3px 12px; }
+  .os-back { background:none; border:1px solid var(--hairline2); color:var(--text); font-family:var(--font); font-size:10px; padding:5px 12px; cursor:pointer; margin-bottom:12px; }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">PERSONAS</h1>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Every business ships as a staffed team. Open a folder, meet the roster.</div>
+    <div class="os-poster" id="os-poster"></div>
+    <div id="os-team" style="display:none"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    let personas = [];
+    function load() {
+      fetch("/persona-list").then(r => r.json()).then(d => {
+        personas = d.personas || [];
+        document.getElementById("os-poster").innerHTML = personas.map(p =>
+          '<div class="os-p" data-name="' + p.name + '"><div class="name">' + p.name + '</div>' +
+          '<div class="lead">' + (p.lead || "—") + '</div>' +
+          '<div class="sub">A staffed company, ready to work.</div>' +
+          '<div class="meta">' + p.members + ' specialists · click to meet the roster</div></div>'
+        ).join("") || '<div style="color:var(--dim)">no personas</div>';
+        document.querySelectorAll(".os-p").forEach(el => el.addEventListener("click", () => meet(el.dataset.name)));
+      }).catch(e => console.error(e));
+    }
+    function meet(name) {
+      fetch("/persona/" + encodeURIComponent(name)).then(r => r.json()).then(d => {
+        document.getElementById("os-team").style.display = "block";
+        const r = d.roster || {};
+        let html = '<button class="os-back">← BACK</button><div class="os-team"><h3>' + name + ' · roster</h3>';
+        Object.keys(r).forEach(k => {
+          const v = r[k];
+          if (Array.isArray(v)) { html += '<div class="head">' + k + '</div><div class="team">' + v.join(", ") + '</div>'; }
+          else if (typeof v === "object" && v !== null) {
+            html += '<div class="head">' + k + '</div>';
+            Object.keys(v).forEach(h => html += '<div class="team">' + h + ' → ' + v[h].join(", ") + '</div>');
+          }
+        });
+        html += '</div>';
+        document.getElementById("os-team").innerHTML = html;
+        document.querySelector(".os-back").addEventListener("click", () => { document.getElementById("os-team").style.display = "none"; });
+      }).catch(() => {});
+    }
+    load();
+  </script>
+</body>
+</html>
+

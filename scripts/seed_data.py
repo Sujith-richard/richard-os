@@ -205,6 +205,8 @@ for title, company, value, stage in [
     ("Dashboard Revamp", "Cloudly", 9500, "needs-follow-up"),
     ("E-commerce Integration", "ShopWave", 28000, "prospect"),
     ("CRM Migration", "Acme Corp", 21000, "contract-pending"),
+    ("E-commerce Integration", "ShopWave", 28000, "lost"),
+    ("CRM Migration", "Acme Corp", 21000, "lost"),
 ]:
     conn.execute("INSERT INTO deals (title, company, value, stage) VALUES (?,?,?,?)", (title, company, value, stage))
 conn.commit(); conn.close()

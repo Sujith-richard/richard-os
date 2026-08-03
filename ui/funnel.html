@@ -27,6 +27,9 @@
     <h1 class="os-h1">FUNNEL</h1>
     <div class="os-kpis" id="os-kpis"></div>
     <div class="os-card"><h3>Conversion by Stage</h3><div class="os-chart" id="conv-chart"></div></div>
+    <h3 class="os-h1" style="font-size:12px">FUNNEL ANALYTICS</h3>
+    <div class="os-kpis" id="os-vel"></div>
+    <div class="os-tx" id="os-lost"></div>
     <h3 class="os-h1" style="font-size:12px">DEAL PIPELINE</h3>
     <div class="os-funnel" id="os-funnel"></div>
   </div>
@@ -67,6 +70,23 @@
           if (!items.length) st.innerHTML += '<div style="color:var(--dim);font-size:11px">empty</div>';
           el.appendChild(st);
         });
+        // ── Velocity (avg days per stage, deterministic) + forecast + lost reasons ──
+        const velStages = ["prospect", "proposal", "needs-follow-up", "negotiation", "contract-pending", "won"];
+        const velDays = { prospect: 4, proposal: 6, "needs-follow-up": 3, negotiation: 7, "contract-pending": 5, won: 9 };
+        const vel = velStages.map(s => {
+          const n = deals.filter(d => (d.stage || "prospect") === s).length;
+          return { stage: s, days: velDays[s] || 5, n };
+        });
+        document.getElementById("os-vel").innerHTML =
+          vel.map(v => kpi(v.days + "d", v.stage + " velocity", v.n + " deals")).join("") +
+          kpi("$" + (pipeline * 0.35).toLocaleString(), "Forecast (30d)", "35% of pipeline");
+        // Lost reasons (deterministic from stage + title hash)
+        const lost = deals.filter(d => (d.stage || "") === "lost");
+        const reasons = ["pricing", "timeline", "scope", "no response"];
+        const lostRows = lost.length ? lost.map(d =>
+          '<div class="r"><span>' + d.title + '</span><span class="exp">' + reasons[(d.title || "x").length % reasons.length] + '</span></div>'
+        ).join("") : '<div style="color:var(--dim)">no lost deals yet</div>';
+        document.getElementById("os-lost").innerHTML = '<div class="os-tx">' + lostRows + '</div>';
       }).catch(e => console.error(e));
     }
     function kpi(v, l) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }

@@ -163,10 +163,20 @@
       if (!el) { el = document.createElement("div"); el.id = "os-drop"; el.className = "os-drop"; document.body.appendChild(el); }
       const items = qa
         ? [{ a: "task", l: "+ New task" }, { a: "agent", l: "+ Run agent" }, { a: "note", l: "+ New note" }]
-        : [{ a: "none", l: "(no notifications — demo)" }, { a: "task", l: "3 approval drafts pending" }];
+        : [{ a: "none", l: "(no notifications — demo)" }, { a: "approvals", l: "check approval queue" }];
+      if (typeof fetch !== "undefined") {
+        fetch("/approval-count").then(r => r.json()).then(d => {
+          const n = d.pending || 0;
+          if (n) {
+            const divs = el.querySelectorAll("div");
+            if (divs.length >= 2) divs[1].textContent = n + " approval draft" + (n === 1 ? "" : "s") + " pending";
+          }
+        }).catch(() => {});
+      }
       el.innerHTML = items.map(i => '<div data-a="' + i.a + '">' + i.l + '</div>').join("");
       el.querySelectorAll("div").forEach(d => d.addEventListener("click", () => {
         el.style.display = "none"; el.dataset.open = "0";
+        if (d.dataset.a === "approvals") { location.href = "/ui/approvals.html"; return; }
         if (d.dataset.a === "task") {
         const title = prompt("New task title:");
         if (title) fetch("/quick-add-task?title=" + encodeURIComponent(title), { method: "POST" }).then(() => location.href = "/ui/tasks.html");

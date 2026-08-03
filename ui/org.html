@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Organization</title>
+<script>window.PAGE = { title: "Organization", crumb: ["Operate", "Organization"] };</script>
+<style>
+  .os-node { margin-left: 0; }
+  .os-row { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:4px; }
+  .os-row:hover { background:var(--surface2); }
+  .os-arrow { width:14px; color:var(--dim); cursor:pointer; font-size:10px; }
+  .os-ic { width:14px; color:var(--muted); }
+  .os-lbl { font-size:12px; }
+  .os-meta { font-size:10px; color:var(--dim); margin-left:auto; }
+  .os-children { margin-left:18px; border-left:1px solid var(--hairline); padding-left:8px; }
+  .os-children.collapsed { display:none; }
+  .os-kind-self { color:var(--core); font-weight:700; }
+  .os-kind-dept { color:var(--tool); }
+  .os-kind-agent { color:var(--agent); }
+  .os-kind-proj { color:var(--data); }
+  .os-kind-persona { color:var(--personal); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">ORGANIZATION</h1>
+    <div id="os-tree"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    // ── Hierarchy tree ──
+    const tree = {
+      label: "Richard OS", kind: "self", meta: "founder", children: [
+        { label: "Company Domains", kind: "dept", meta: "02-blocks/", children: [
+          { label: "company / home / personal", kind: "dept", meta: "domains" },
+          { label: "4 staffed agencies", kind: "persona", meta: "personas/", children: [
+            { label: "growth-agency", kind: "persona" }, { label: "linkedin-agency", kind: "persona" },
+            { label: "youtube-agency", kind: "persona" }, { label: "clipping-agency", kind: "persona" }
+          ]}
+        ]},
+        { label: "AI Agents", kind: "dept", meta: "03-agents/", children: [
+          { label: "job_hunter", kind: "agent" }, { label: "content_ops", kind: "agent" },
+          { label: "freelance_biz", kind: "agent" }, { label: "pm_assistant", kind: "agent" },
+          { label: "portfolio_builder", kind: "agent" }, { label: "reading_agent", kind: "agent" },
+          { label: "email / calendar / reminders", kind: "agent" }
+        ]},
+        { label: "Systems of Record", kind: "dept", meta: "05-systems/", children: [
+          { label: "second_brain", kind: "proj" }, { label: "pm", kind: "proj" },
+          { label: "finance", kind: "proj" }, { label: "crm", kind: "proj" },
+          { label: "creator", kind: "proj" }, { label: "reading", kind: "proj" }, { label: "social", kind: "proj" }
+        ]},
+        { label: "Active Projects", kind: "dept", meta: "pm.db", children: [
+          { label: "Richard OS v1", kind: "proj" }, { label: "AI-Workspace v1.1", kind: "proj" },
+          { label: "Portfolio Revamp", kind: "proj" }, { label: "Freelance Dashboard (Acme)", kind: "proj" }
+        ]}
+      ]
+    };
+
+    function render(node, depth) {
+      const el = document.createElement("div");
+      el.className = "os-node";
+      const hasKids = node.children && node.children.length;
+      el.innerHTML =
+        '<div class="os-row">' +
+        '<span class="os-arrow" style="color:var(--dim);width:12px;display:inline-block">' + (hasKids ? "▸" : "·") + '</span>' +
+        '<span class="os-ic"></span>' +
+        '<span class="os-lbl os-kind-' + node.kind + '">' + node.label + '</span>' +
+        (node.meta ? '<span class="os-meta">' + node.meta + '</span>' : '') +
+        '</div>';
+      if (hasKids) {
+        const kids = document.createElement("div");
+        kids.className = "os-children";
+        node.children.forEach(c => kids.appendChild(render(c, depth + 1)));
+        const arrow = el.querySelector(".os-arrow");
+        arrow.style.cursor = "pointer";
+        arrow.addEventListener("click", () => {
+          const collapsed = kids.classList.toggle("collapsed");
+          arrow.textContent = collapsed ? "▸" : "▾";
+        });
+        el.appendChild(kids);
+      }
+      return el;
+    }
+    document.getElementById("os-tree").appendChild(render(tree, 0));
+  </script>
+</body>
+</html>
+

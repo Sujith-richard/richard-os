@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Richard OS — Morning Brief: one summary of everything that needs you today."""
 import sqlite3
+from db_engine import connect as _connect
 from pathlib import Path
 from datetime import date
 
 DATA = Path(__file__).resolve().parent.parent / "06-data"
 
 def q(db_name, sql):
-    conn = sqlite3.connect(DATA / db_name)
+    conn = _connect(db_name)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(sql).fetchall()
     conn.close()

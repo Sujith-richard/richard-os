@@ -22,6 +22,8 @@
       { label: "Analytics", href: "/ui/analytics.html", ic: "\u25A6" },
       { label: "Roadmap", href: "/ui/roadmap.html", ic: "\u21E3" },
       { label: "Reference", href: "/ui/reference.html", ic: "\u2630" },
+      { label: "Learning", href: "/ui/learning.html", ic: "\u2730" },
+      { label: "Deals", href: "/ui/deals.html", ic: "\u20BF" },
     ]},
   ];
   const PAGE = window.PAGE || { title: "Console", crumb: ["Operate", "Console"] };

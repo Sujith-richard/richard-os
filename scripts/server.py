@@ -351,6 +351,8 @@ def system(name: str):
         "reading": ("reading.db", ["links"]),
         "creator": ("creator.db", ["content","performance"]),
         "social": ("social.db", ["stats"]),
+        "learning": ("learning.db", ["courses"]),
+        "deals": ("deals.db", ["ledger"]),
         "pm": ("pm.db", ["tasks","projects"]),
         "finance": ("finance.db", ["accounts","transactions","invoices","subscriptions","bills","categories"]),
         "crm": ("crm.db", ["contacts","deals"]),

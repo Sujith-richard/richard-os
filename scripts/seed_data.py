@@ -418,6 +418,37 @@ for i in range(25):
                (f"Piece {i+1}: {proj_names[i % len(proj_names)]}", ["LinkedIn","YouTube","X","Blog","GitHub"][i % 5], ["idea","draft","scheduled","published"][i % 4]))
 cr.commit(); cr.close()
 
+# ── finance: invoices, subscriptions, bills, categories ──
+fc = sqlite3.connect(DATA / "finance.db")
+fc.execute("CREATE TABLE IF NOT EXISTS invoices (id INTEGER PRIMARY KEY AUTOINCREMENT, client TEXT, amount REAL, status TEXT, due TEXT)")
+fc.execute("DELETE FROM invoices")
+fc.execute("CREATE TABLE IF NOT EXISTS subscriptions (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, cost REAL, cycle TEXT, next_bill TEXT)")
+fc.execute("DELETE FROM subscriptions")
+fc.execute("CREATE TABLE IF NOT EXISTS bills (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount REAL, due TEXT)")
+fc.execute("DELETE FROM bills")
+fc.execute("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, amount REAL)")
+fc.execute("DELETE FROM categories")
+for client, amt, status, due in [
+    ("Acme Corp", 25000, "sent", "2026-08-10"), ("TechStart", 18000, "sent", "2026-08-12"),
+    ("Finnovate", 12000, "paid", "2026-08-01"), ("Cloudly", 9500, "draft", "2026-08-15"),
+    ("ShopWave", 28000, "sent", "2026-08-18"),
+]:
+    fc.execute("INSERT INTO invoices (client, amount, status, due) VALUES (?,?,?,?)", (client, amt, status, due))
+for name, cost, cycle, next_bill in [
+    ("HuggingFace", 25, "monthly", "2026-08-09"), ("Figma", 15, "monthly", "2026-08-11"),
+    ("Cloud hosting", 60, "monthly", "2026-08-07"), ("Canva Pro", 12, "monthly", "2026-08-20"),
+    ("Netflix", 13, "monthly", "2026-08-22"), ("Domain renewals", 99, "yearly", "2026-09-01"),
+]:
+    fc.execute("INSERT INTO subscriptions (name, cost, cycle, next_bill) VALUES (?,?,?,?)", (name, cost, cycle, next_bill))
+for name, amt, due in [
+    ("Rent", 1200, "2026-08-05"), ("Electricity", 340, "2026-08-08"), ("Internet", 260, "2026-08-14"),
+    ("Groceries", 540, "2026-08-16"), ("Transport", 180, "2026-08-19"),
+]:
+    fc.execute("INSERT INTO bills (name, amount, due) VALUES (?,?,?)", (name, amt, due))
+for name, amt in [("Subscriptions", 224), ("Rent", 1200), ("Food", 540), ("Cloud", 60), ("Transport", 180), ("Other", 300)]:
+    fc.execute("INSERT INTO categories (name, amount) VALUES (?,?)", (name, amt))
+fc.commit(); fc.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 10 job leads (salary + applied dates)")
 print("  pm:           5 projects, 5 tasks")

@@ -35,6 +35,10 @@
     <div class="os-accounts" id="os-accounts"></div>
     <h3 class="os-h1" style="font-size:12px">TRANSACTIONS</h3>
     <div class="os-tx" id="os-tx"></div>
+    <h3 class="os-h1" style="font-size:12px">INVOICES</h3><div class="os-tx" id="os-inv"></div>
+    <h3 class="os-h1" style="font-size:12px">SUBSCRIPTIONS</h3><div class="os-tx" id="os-subs"></div>
+    <h3 class="os-h1" style="font-size:12px">UPCOMING BILLS</h3><div class="os-tx" id="os-bills"></div>
+    <h3 class="os-h1" style="font-size:12px">EXPENSE CATEGORIES</h3><div class="os-tx" id="os-cats"></div>
   </div>
   <script src="/ui/shell.js"></script>
   <script>
@@ -84,6 +88,23 @@
         document.getElementById("os-tx").innerHTML = txs.slice().reverse().map(t =>
           '<div class="r"><span>' + (t.note || "") + ' <span class="d">' + (t.date || "") + '</span></span><span class="' + (t.kind === "income" ? "inc" : "exp") + '">' + (t.kind === "income" ? "+" : "-") + '$' + (t.amount || 0).toFixed(2) + '</span></div>'
         ).join("") || '<div style="color:var(--dim)">no transactions</div>';
+        // ── invoices, subscriptions, bills, categories ──
+        const inv = d.invoices || [];
+        document.getElementById("os-inv").innerHTML = inv.map(i =>
+          '<div class="r"><span>' + (i.client || "") + ' <span class="d">' + (i.status || "") + ' · due ' + (i.due || "") + '</span></span><span class="inc">$' + (i.amount || 0).toLocaleString() + '</span></div>'
+        ).join("") || '<div style="color:var(--dim)">no invoices</div>';
+        const subs = d.subscriptions || [];
+        document.getElementById("os-subs").innerHTML = subs.map(s =>
+          '<div class="r"><span>' + (s.name || "") + ' <span class="d">' + (s.cycle || "") + ' · ' + (s.next_bill || "") + '</span></span><span class="exp">$' + (s.cost || 0).toFixed(2) + '/mo</span></div>'
+        ).join("") || '<div style="color:var(--dim)">no subscriptions</div>';
+        const bills = d.bills || [];
+        document.getElementById("os-bills").innerHTML = bills.map(b =>
+          '<div class="r"><span>' + (b.name || "") + ' <span class="d">due ' + (b.due || "") + '</span></span><span class="exp">$' + (b.amount || 0).toFixed(2) + '</span></div>'
+        ).join("") || '<div style="color:var(--dim)">no bills</div>';
+        const cats = d.categories || [];
+        document.getElementById("os-cats").innerHTML = cats.map(c =>
+          '<div class="r"><span>' + (c.name || "") + '</span><span class="exp">$' + (c.amount || 0).toFixed(2) + '</span></div>'
+        ).join("") || '<div style="color:var(--dim)">no categories</div>';
       }).catch(e => console.error(e));
     }
     function kpi(v, l, sub) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div><div class="sub">' + sub + '</div></div>'; }

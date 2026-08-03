@@ -331,7 +331,7 @@ def system(name: str):
         "creator": ("creator.db", ["content","performance"]),
         "social": ("social.db", ["stats"]),
         "pm": ("pm.db", ["tasks","projects"]),
-        "finance": ("finance.db", ["accounts","transactions"]),
+        "finance": ("finance.db", ["accounts","transactions","invoices","subscriptions","bills","categories"]),
         "crm": ("crm.db", ["contacts","deals"]),
         "creator": ("creator.db", ["content", "performance"]),
     }

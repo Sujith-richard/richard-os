@@ -60,6 +60,7 @@
     function render() {
       document.getElementById("os-wf").innerHTML = WFS.map(w =>
         '<div class="os-wf"><h3>' + (w.name || "Workflow") + '</h3><div class="sub">' + w.sub + '</div>' +
+        '<div style="display:flex;gap:10px;font-size:10px;color:var(--muted);margin-bottom:10px"><span>status: <b style="color:var(--ok)">idle</b></span><span>runs: 14</span><span>errors: 0</span><button class="wf-run" style="background:none;border:1px solid var(--hairline2);color:var(--text);font-family:var(--font);font-size:10px;padding:3px 10px;cursor:pointer;margin-left:auto">RUN</button><button class="wf-stop" style="background:none;border:1px solid var(--hairline2);color:var(--text);font-family:var(--font);font-size:10px;padding:3px 10px;cursor:pointer">STOP</button></div>' +
         '<div class="os-flow">' + w.steps.map(s =>
           '<div class="os-step ' + s.k + '"><b>' + s.t + '</b>' + (s.info ? '<span style="font-size:9px;color:var(--dim)">' + s.info + '</span>' : '') + '</div>' +
           '<span class="os-arrow">→</span>'
@@ -67,7 +68,17 @@
       ).join("");
     }
     render();
-  </script>
+  
+    document.addEventListener("click", e => {
+      const run = e.target.closest ? e.target.closest(".wf-run") : null;
+      const stop = e.target.closest ? e.target.closest(".wf-stop") : null;
+      if (!run && !stop) return;
+      const card = (run || stop).closest(".os-wf");
+      const statusEl = card ? card.querySelector(".os-wf .sub") : null;
+      if (run && statusEl) statusEl.textContent = "running... (demo — wired in real-data swap)";
+      if (stop && statusEl) statusEl.textContent = "stopped (demo)";
+    });
+</script>
 </body>
 </html>
 

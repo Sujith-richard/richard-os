@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Workflows</title>
+<script>window.PAGE = { title: "Workflows", crumb: ["Operate", "Workflows"] };</script>
+<style>
+  .os-wf { background:var(--surface); border:1px solid var(--hairline); padding:16px; margin-bottom:16px; }
+  .os-wf h3 { font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--text); margin-bottom:4px; }
+  .os-wf .sub { font-size:10px; color:var(--dim); margin-bottom:14px; }
+  .os-flow { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .os-step { background:var(--surface2); border:1px solid var(--hairline2); padding:10px 14px; font-size:11px; color:var(--muted); max-width:150px; }
+  .os-step b { display:block; color:var(--text); font-size:11px; }
+  .os-step .k { font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--core); }
+  .os-arrow { color:var(--dim); font-size:12px; }
+  .os-step.trigger { border-color:var(--warn); }
+  .os-step.approve { border-color:var(--err); }
+  .os-step.action { border-color:var(--ok); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">WORKFLOWS</h1>
+    <div id="os-wf"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    const WFS = [
+      { name: "New Job Lead → Pipeline", sub: "A captured job lead flows into tracking and outreach.", steps: [
+        { k: "trigger", t: "New lead", info: "second_brain" },
+        { k: "agent", t: "Job Hunter", info: "screens & scores" },
+        { k: "data", t: "CRM update", info: "crm.db" },
+        { k: "agent", t: "Draft outreach", info: "job_hunter" },
+        { k: "approve", t: "Founder approval", info: "approval queue" },
+        { k: "action", t: "Send", info: "outreach" }
+      ]},
+      { name: "Email → Triage → Reply", sub: "Inbox email classified, replied, and logged.", steps: [
+        { k: "trigger", t: "Email arrives", info: "imap/comms" },
+        { k: "agent", t: "Email Agent", info: "triage" },
+        { k: "data", t: "Classify", info: "action-needed" },
+        { k: "agent", t: "Draft reply", info: "in your voice" },
+        { k: "approve", t: "Founder approval", info: "approval queue" },
+        { k: "action", t: "Send reply", info: "done" }
+      ]},
+      { name: "Daily Brief", sub: "The 7am summary the OS works on while you sleep.", steps: [
+        { k: "trigger", t: "7:00 AM", info: "scheduler" },
+        { k: "agent", t: "Agents run", info: "jobs/tasks/finance" },
+        { k: "data", t: "Collect", info: "all systems" },
+        { k: "action", t: "Morning Brief", info: "one screen" }
+      ]},
+      { name: "Content Pipeline", sub: "From idea to published post.", steps: [
+        { k: "trigger", t: "Content idea", info: "creator.db" },
+        { k: "agent", t: "Content Ops", info: "drafts" },
+        { k: "data", t: "Schedule", info: "calendar" },
+        { k: "approve", t: "Founder approval", info: "approval queue" },
+        { k: "action", t: "Publish", info: "social" }
+      ]}
+    ];
+    function render() {
+      document.getElementById("os-wf").innerHTML = WFS.map(w =>
+        '<div class="os-wf"><h3>' + (w.name || "Workflow") + '</h3><div class="sub">' + w.sub + '</div>' +
+        '<div class="os-flow">' + w.steps.map(s =>
+          '<div class="os-step ' + s.k + '"><b>' + s.t + '</b>' + (s.info ? '<span style="font-size:9px;color:var(--dim)">' + s.info + '</span>' : '') + '</div>' +
+          '<span class="os-arrow">→</span>'
+        ).join("").replace(/<span class="os-arrow">→<\/span>$/, "") + '</div></div>'
+      ).join("");
+    }
+    render();
+  </script>
+</body>
+</html>
+EOF

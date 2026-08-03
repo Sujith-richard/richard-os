@@ -87,6 +87,19 @@ JOBS = {
     "outcome-tracker": "Track outcomes: metric, baseline, result, next experiment.",
 }
 
+KNOWLEDGE = {
+    "script-writer": "creator.db + performance metrics",
+    "thumbnail-writer": "creator.db/performance",
+    "hook-writer": "creator.db content ideas",
+    "icp-builder": "crm.db contacts",
+    "offer-architect": "encoding.md pricing + crm.db",
+    "revenue-analyst": "finance.db transactions",
+    "voice-writer": "reference docs", 
+    "funnel-architect": "crm.db deals",
+    "competitor-analyst": "web search (mcp)", 
+    "client-reporter": "pm.db projects",
+}
+
 def main():
     if len(sys.argv) < 4:
         print("Usage: python scripts/persona_agents.py <persona> <specialist> <task>")
@@ -99,7 +112,7 @@ def main():
         return
     job = JOBS.get(specialist, f"Act as the {specialist} specialist. Deliver high-quality work.")
     mem = read_memory()[:1200]
-    prompt = (f"You are the {specialist} specialist in {persona} (reports to {head}).\n"
+    prompt = (f"You are the {specialist} specialist in {persona} (reports to {head}).\n" + f"Knowledge to draw from: {KNOWLEDGE.get(specialist, 'core')}\n" +
               f"Your job: {job}\nTask: {task}\n\nOS MEMORY:\n{mem}")
     out = call_llm(prompt, "deepseek-v4-flash-free")
     print(out[:1400])

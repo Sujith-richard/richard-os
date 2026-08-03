@@ -17,7 +17,6 @@
   .os-bar .b { flex:1; background:var(--core); opacity:.8; min-width:2px; }
   .os-line { position:relative; height:140px; border-bottom:1px solid var(--hairline); }
   .os-line svg { width:100%; height:100%; display:block; }
-  .os-line .p { position:absolute; font-size:9px; color:var(--dim); }
   .os-heat { display:grid; grid-template-columns:repeat(12,1fr); gap:3px; }
   .os-heat .cell { aspect-ratio:1; background:var(--surface2); border:1px solid var(--hairline); }
   .os-heat .cell.h { background:var(--core); opacity:.9; }
@@ -25,37 +24,23 @@
   .os-heat .cell.l { background:var(--surface2); }
   .os-legend { display:flex; gap:12px; font-size:10px; color:var(--muted); margin-top:8px; }
   .os-legend .sw { width:10px; height:10px; display:inline-block; }
-#donut-chart, #radar-chart { width:100%; }
-  #donut-chart svg, #radar-chart svg { width:100%; max-width:300px; height:auto; margin:0 auto; }
-  #funnel-chart, #stacked-chart { width:100%; }
-  #sparkline-row { display:flex; gap:18px; flex-wrap:wrap; width:100%; }
-  #sparkline-row > div { flex:1; min-width:130px; }
-  #soc-chart svg { width:100%; height:100%; display:block; }
+  .os-tx { font-size:11px; }
+  .os-tx .r { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--hairline); color:var(--muted); }
 </style>
 </head>
 <body>
   <div class="os-page">
     <h1 class="os-h1">ANALYTICS</h1>
     <div class="os-kpis" id="os-kpis"></div>
+    <div class="os-card"><h3>Summaries — weekly / monthly / quarterly</h3><div class="os-summaries" id="os-summaries" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%"></div></div>
+
+    <div class="os-card"><h3>Summaries — weekly / monthly / quarterly</h3><div class="os-summaries" ...></div></div>
     <div class="os-row">
       <div class="os-card"><h3>Revenue Trend (6 months)</h3><div class="os-bar" id="rev-chart"></div></div>
       <div class="os-card"><h3>Social Growth (60-day series)</h3><div class="os-line" id="soc-chart"><svg id="soc-svg"></svg></div></div>
     </div>
-    <div class="os-row">
-      <div class="os-card"><h3>Content Output by Status</h3><div class="os-bar" id="content-chart"></div></div>
-      <div class="os-card"><h3>Agent Activity Heatmap (12 days × hours)</h3><div class="os-heat" id="heat"></div><div class="os-legend"><span><span class="sw" style="background:var(--core)"></span> high</span><span><span class="sw" style="background:var(--tool)"></span> med</span><span><span class="sw" style="background:var(--surface2)"></span> low</span></div></div>
-    </div>
-      <div class="os-row">
-      <div class="os-card"><h3>Pipeline Donut ($ by stage)</h3><div id="donut-chart" style="display:flex;justify-content:center;width:100%"></div></div>
-      <div class="os-card"><h3>Conversion Funnel</h3><div id="funnel-chart" style="width:100%"></div></div>
-      <div class="os-card"><h3>Agent Health Radar</h3><div id="radar-chart" style="display:flex;justify-content:center;width:100%"></div></div>
-    </div>
-    <div class="os-row">
-      <div class="os-card"><h3>Content Output Stacked (platform × status)</h3><div id="stacked-chart" style="width:100%"></div></div>
-      <div class="os-card"><h3>Mini Trends</h3><div id="sparkline-row" style="width:100%"></div></div>
-    </div>
-</div>
-          <div class="os-card" style="margin-bottom:20px"><h3>Summaries — weekly / monthly / quarterly</h3><div class="os-summaries" id="os-summaries" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px"></div></div>
+  </div>
+
   <script src="/ui/shell.js"></script>
   <script>
     function bars(el, vals, color) {
@@ -63,6 +48,7 @@
       el.innerHTML = vals.map(v => '<div class="b" style="height:' + (v / max * 100) + '%;background:' + (color || "var(--core)") + '" title="' + v + '"></div>').join("");
     }
     function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+    function kpi(v, l, sub) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div>' + (sub ? '<div style="font-size:10px;color:var(--muted)">' + sub + '</div>' : "") + '</div>'; }
     function load() {
       Promise.all([
         fetch("/systems/finance").then(r => r.json()).catch(() => ({})),
@@ -70,7 +56,6 @@
         fetch("/systems/creator").then(r => r.json()).catch(() => ({})),
         fetch("/agent-status").then(r => r.json()).catch(() => ({}))
       ]).then(([fin, soc, cr, st]) => {
-        // KPIs
         const txs = fin.transactions || [];
         const income = txs.filter(t => t.kind === "income").reduce((s, t) => s + (t.amount || 0), 0);
         const stats = soc.stats || [];
@@ -78,17 +63,13 @@
         const perf = cr.performance || [];
         const reach = perf.reduce((s, p) => s + (p.views || 0), 0);
         document.getElementById("os-kpis").innerHTML =
-          kpi("$" + income.toLocaleString(), "Revenue 6mo") +
-          kpi(followers.toLocaleString(), "Total Followers", "all platforms") +
-          kpi(reach.toLocaleString(), "Content Reach") +
-          kpi(Object.keys(st).length, "Agents Tracked");
-        // Revenue bars by month
+          kpi("$" + income.toLocaleString(), "Revenue 6mo") + kpi(followers.toLocaleString(), "Total Followers", "all platforms") +
+          kpi(reach.toLocaleString(), "Content Reach") + kpi(Object.keys(st).length, "Agents Tracked");
         const months = {};
         txs.filter(t => t.kind === "income").forEach(t => { const m = (t.date || "").slice(0, 7); if (m) months[m] = (months[m] || 0) + (t.amount || 0); });
         bars(document.getElementById("rev-chart"), Object.values(months));
-        // Social growth line (average per day across platforms, last 60)
         const byDay = {};
-        stats.forEach(r => { const d = r.day; byDay[d] = (byDay[d] || 0) + (r.followers || 0); });
+        stats.forEach(r => { byDay[r.day] = (byDay[r.day] || 0) + (r.followers || 0); });
         const days = Object.keys(byDay).sort();
         const series = days.slice(-60).map(d => byDay[d]);
         const max = Math.max(...series, 1);
@@ -96,196 +77,40 @@
         svg.setAttribute("viewBox", "0 0 600 140");
         svg.setAttribute("preserveAspectRatio", "none");
         svg.innerHTML = "";
-        const W = 600, H = 140;
-        const step = W / Math.max(series.length - 1, 1);
+        const W = 600, H = 140, step = W / Math.max(series.length - 1, 1);
         const pts = series.map((v, i) => (i * step) + "," + (H - (v / max) * (H - 10)));
         svg.innerHTML = '<polyline points="' + pts.join(" ") + '" fill="none" stroke="var(--tool)" stroke-width="1.5"></polyline>' +
           '<polygon points="' + pts.join(" ") + " " + (W) + "," + H + " 0," + H + '" fill="var(--tool)" opacity="0.08"></polygon>';
-        // Content output by status
         const content = cr.content || [];
         const statuses = ["published", "scheduled", "draft", "idea", "script"];
         bars(document.getElementById("content-chart"), statuses.map(s => content.filter(c => (c.status || "idea") === s).length), "var(--tool)");
-        // Agent heatmap: 12 days × 24 hours, deterministic from agent names
         const agents = Object.keys(st);
         const heat = document.getElementById("heat");
         heat.innerHTML = "";
-        for (let day = 0; day < 12; day++) {
-          for (let h = 0; h < 12; h++) {
-            let level = 0;
-            agents.forEach(a => {
-              const v = hash(a + day + h) % 100;
-              if (v > 92) level = 2;
-              else if (v > 70) level = Math.max(level, 1);
-            });
-            const cell = document.createElement("div");
-            cell.className = "cell" + (level === 2 ? " h" : level === 1 ? " m" : " l");
-            cell.title = "day " + (day + 1) + " · slot " + (h + 1) + " · " + (level === 2 ? "high" : level === 1 ? "med" : "low");
-            heat.appendChild(cell);
-          }
+        for (let day = 0; day < 12; day++) for (let h = 0; h < 12; h++) {
+          let level = 0;
+          agents.forEach(a => { const v = hash(a + day + h) % 100; if (v > 92) level = 2; else if (v > 70) level = Math.max(level, 1); });
+          const cell = document.createElement("div");
+          cell.className = "cell" + (level === 2 ? " h" : level === 1 ? " m" : " l");
+          heat.appendChild(cell);
         }
       }).catch(e => console.error(e));
     }
-
-    // ── Donut: pipeline $ by stage ──
-    function donut() {
-      fetch("/systems/crm").then(r => r.json()).then(d => {
-        const deals = d.deals || [];
-        const stages = {};
-        deals.forEach(x => { const st = x.stage || "prospect"; stages[st] = (stages[st] || 0) + (x.value || 0); });
-        const entries = Object.entries(stages);
-        const total = entries.reduce((s, [, v]) => s + v, 0) || 1;
-        const COLORS = ["var(--core)","var(--tool)","var(--data)","var(--agent)","var(--company)","var(--personal)","var(--warn)"];
-        const R = 70, C = 2 * Math.PI * R;
-        let off = 0;
-        const el = document.getElementById("donut-chart");
-        el.innerHTML = '<svg width="180" height="150" viewBox="0 0 180 150"><g transform="translate(90,75)">' +
-          entries.map(([st, v], i) => {
-            const frac = v / total;
-            const dash = frac * C;
-            const seg = '<circle r="' + R + '" fill="none" stroke="' + COLORS[i % COLORS.length] + '" stroke-width="16" stroke-dasharray="' + dash + ' ' + (C - dash) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90)"><title>' + st + ': $' + v.toLocaleString() + '</title></circle>';
-            off += dash;
-            return seg;
-          }).join("") +
-          '<text x="0" y="5" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="700">$' + total.toLocaleString() + '</text>' +
-          '</g></svg>' +
-          '<div style="font-size:10px;color:var(--muted);margin-top:6px">' + entries.map(([st, v], i) => '<span style="margin-right:8px"><span style="display:inline-block;width:8px;height:8px;background:' + COLORS[i % COLORS.length] + ';margin-right:3px"></span>' + st + ' $' + v.toLocaleString() + '</span>').join("") + '</div>';
-      }).catch(() => {});
-    }
-
-    // ── Funnel: stage counts tapered ──
-    function funnel() {
-      fetch("/systems/crm").then(r => r.json()).then(d => {
-        const deals = d.deals || [];
-        const STAGES = [["visitors","Prospect"],["proposal","Proposal"],["needs-follow-up","Follow-up"],["negotiation","Negotiation"],["contract-pending","Contract"],["won","Won"]];
-        const MAP = { visitors: "prospect", proposal: "proposal", "needs-follow-up": "needs-follow-up", negotiation: "negotiation", "contract-pending": "contract-pending", won: "won" };
-        const el = document.getElementById("funnel-chart");
-        const max = Math.max(...STAGES.map(([k]) => deals.filter(x => (x.stage || "prospect") === MAP[k]).length), 1);
-        el.innerHTML = STAGES.map(([k, label], i) => {
-          const n = deals.filter(x => (x.stage || "prospect") === MAP[k]).length;
-          const w = 20 + (n / max) * 80;
-          return '<div style="display:flex;align-items:center;gap:10px;margin:4px 0">' +
-            '<div style="width:' + w + '%;height:22px;background:var(--tool);opacity:' + (0.4 + i * 0.08) + ';display:flex;align-items:center;justify-content:center;font-size:10px;color:#000">' + n + '</div>' +
-            '<span style="font-size:10px;color:var(--muted)">' + label + '</span></div>';
-        }).join("");
-      }).catch(() => {});
-    }
-
-    // ── Radar: agent health ──
-    function radar() {
-      fetch("/agent-status").then(r => r.json()).then(st => {
-        const agents = Object.keys(st).slice(0, 6);
-        const AXES = ["runs", "success", "memory", "activity", "confidence"];
-        const v = a => ({
-          runs: (hash(a + "r") % 20),
-          success: 90 + (hash(a + "s") % 10),
-          memory: 40 + (hash(a + "m") % 260),
-          activity: (hash(a + "a") % 12),
-          confidence: 85 + (hash(a + "c") % 15)
-        });
-        const CX = 90, CY = 80, R = 55;
-        const ang = i => (Math.PI / 2) + (i / AXES.length) * 2 * Math.PI;
-        const pt = (i, v) => [CX + Math.cos(ang(i)) * R * v, CY - Math.sin(ang(i)) * R * v];
-        const poly = (vals) => vals.map((val, i) => pt(i, val).join(",")).join(" ");
-        const COLORS = ["var(--core)","var(--tool)","var(--data)","var(--agent)","var(--company)","var(--personal)"];
-        const el = document.getElementById("radar-chart");
-        el.innerHTML = '<svg width="260" height="170" viewBox="0 0 260 170"><g transform="translate(10,0)">' +
-          AXES.map((ax, i) => { const [x, y] = pt(i, 1); return '<line x1="' + CX + '" y1="' + CY + '" x2="' + x + '" y2="' + y + '" stroke="var(--hairline2)"></line>'; }).join("") +
-          [0.25, 0.5, 0.75, 1].map(g => '<polygon points="' + AXES.map((_, i) => pt(i, g).join(",")).join(" ") + '" fill="none" stroke="var(--hairline2)"></polygon>').join("") +
-          agents.map((a, i) => { const vals = AXES.map(ax => v(a)[ax] / (ax === "success" || ax === "confidence" ? 100 : 300)); return '<polygon points="' + poly(vals) + '" fill="' + COLORS[i % COLORS.length] + '" opacity="0.25" stroke="' + COLORS[i % COLORS.length] + '" stroke-width="1"><title>' + a + '</title></polygon>'; }).join("") +
-          AXES.map((ax, i) => { const [x, y] = pt(i, 1.08); return '<text x="' + x + '" y="' + y + '" fill="var(--muted)" font-size="9" text-anchor="middle">' + ax + '</text>'; }).join("") +
-          '</g></svg>' +
-          '<div style="font-size:10px;color:var(--muted);margin-top:6px">' + agents.map((a, i) => '<span style="margin-right:8px"><span style="display:inline-block;width:8px;height:8px;background:' + COLORS[i % COLORS.length] + ';margin-right:3px"></span>' + a + '</span>').join("") + '</div>';
-      }).catch(() => {});
-    }
-
-    // ── Stacked bar: content by platform × status ──
-    function stacked() {
-      fetch("/systems/creator").then(r => r.json()).then(d => {
-        const content = d.content || [];
-        const platforms = [...new Set(content.map(c => c.platform))];
-        const statuses = ["published", "scheduled", "draft", "idea", "script"];
-        const COLORS = ["var(--ok)","var(--warn)","var(--core)","var(--muted)","var(--data)"];
-        const el = document.getElementById("stacked-chart");
-        el.innerHTML = '<div style="display:flex;gap:8px;align-items:flex-end;height:130px">' +
-          platforms.map(pf => {
-            const items = content.filter(c => c.platform === pf);
-            return '<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:1px">' +
-              statuses.map((st, i) => {
-                const n = items.filter(c => (c.status || "idea") === st).length;
-                if (!n) return "";
-                const h = Math.max(6, n / Math.max(items.length, 1) * 120);
-                return '<div style="height:' + h + 'px;background:' + COLORS[i] + ';opacity:.9" title="' + pf + ' · ' + st + ': ' + n + '"></div>';
-              }).join("") +
-              '<div style="font-size:9px;color:var(--dim);text-align:center;margin-top:4px">' + pf + '</div></div>';
-          }).join("") + '</div>' +
-          '<div style="font-size:10px;color:var(--muted);margin-top:6px">' + statuses.map((st, i) => '<span style="margin-right:8px"><span style="display:inline-block;width:8px;height:8px;background:' + COLORS[i] + ';margin-right:3px"></span>' + st + '</span>').join("") + '</div>';
-      }).catch(() => {});
-    }
-
-    // ── Sparklines in KPIs ──
-    function sparklines() {
-      Promise.all([
-        fetch("/systems/social").then(r => r.json()).catch(() => ({})),
-        fetch("/systems/creator").then(r => r.json()).catch(() => ({})),
-        fetch("/systems/finance").then(r => r.json()).catch(() => ({}))
-      ]).then(([soc, cr, fin]) => {
-        const day = {};
-        (soc.stats || []).forEach(r => { day[r.day] = (day[r.day] || 0) + (r.followers || 0); });
-        const days = Object.keys(day).sort().slice(-14).map(d => day[d]);
-        const reach = {};
-        (cr.performance || []).forEach(p => { const d = (p.date || "").slice(0, 7); reach[d] = (reach[d] || 0) + (p.views || 0); });
-        const rv = Object.values(reach).slice(-6);
-        const inc = {};
-        (fin.transactions || []).filter(t => t.kind === "income").forEach(t => { const d = (t.date || "").slice(0, 7); inc[d] = (inc[d] || 0) + (t.amount || 0); });
-        const iv = Object.values(inc).slice(-6);
-        const spark = (vals, color) => {
-          const max = Math.max(...vals, 1);
-          const w = 90, h = 26, step = w / Math.max(vals.length - 1, 1);
-          const pts = vals.map((v, i) => (i * step) + "," + (h - (v / max) * (h - 2)));
-          return '<svg width="' + w + '" height="' + h + '" style="display:block"><polyline points="' + pts.join(" ") + '" fill="none" stroke="' + color + '" stroke-width="1.2"></polyline></svg>';
-        };
-        document.getElementById("sparkline-row").innerHTML =
-          '<div style="display:flex;gap:18px;flex-wrap:wrap">' +
-          '<div><div style="font-size:9px;color:var(--dim);text-transform:uppercase">Followers 14d</div>' + spark(days, "var(--tool)") + '</div>' +
-          '<div><div style="font-size:9px;color:var(--dim);text-transform:uppercase">Reach/mo</div>' + spark(rv, "var(--core)") + '</div>' +
-          '<div><div style="font-size:9px;color:var(--dim);text-transform:uppercase">Income/mo</div>' + spark(iv, "var(--ok)") + '</div>' +
-          '</div>';
-      }).catch(() => {});
-    }
-
-    function kpi(v, l, sub) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div>' + (sub ? '<div style="font-size:10px;color:var(--muted)">' + sub + '</div>' : "") + '</div>'; }
-    load();
-        donut(); funnel(); radar(); stacked(); sparklines();
-    setInterval(load, 15000);
-  
     function loadSummaries() {
-      Promise.all([
-        fetch("/systems/finance").then(r => r.json()).catch(() => ({})),
-        fetch("/systems/creator").then(r => r.json()).catch(() => ({})),
-        fetch("/systems/social").then(r => r.json()).catch(() => ({})),
-        fetch("/agent-status").then(r => r.json()).catch(() => ({}))
-      ]).then(([fin, cr, soc, st]) => {
-        const txs = fin.transactions || [];
-        const perf = cr.performance || [];
-        const stats = soc.stats || [];
-        const agents = Object.keys(st);
+      Promise.all([fetch("/systems/finance").then(r => r.json()).catch(() => ({})), fetch("/systems/social").then(r => r.json()).catch(() => ({})), fetch("/systems/creator").then(r => r.json()).catch(() => ({})), fetch("/agent-status").then(r => r.json()).catch(() => ({}))]).then(([fin, cr, soc, st]) => {
+        const txs = fin.transactions || [], perf = cr.performance || [], stats = soc.stats || [], agents = Object.keys(st);
         const now = Date.now(), DAY = 86400000;
-        const inPeriod = days => {
-          const from = now - days * DAY;
-          return {
-            income: txs.filter(t => t.kind === "income" && new Date(t.date || now).getTime() >= from).reduce((s, t) => s + (t.amount || 0), 0),
-            reach: perf.filter(p => new Date(p.date || now).getTime() >= from).reduce((s, p) => s + (p.views || 0), 0),
-            followers: stats.filter(r => new Date(r.day + "T00:00:00Z").getTime() >= from).reduce((s, r) => s + (r.followers || 0), 0),
-            runs: agents.length
-          };
-        };
-        const periods = [["This Week", inPeriod(7)], ["This Month", inPeriod(30)], ["This Quarter", inPeriod(90)]];
-        document.getElementById("os-summaries").innerHTML = periods.map(([label, p]) =>
-          '<div style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">' + label + '</div><div style="font-size:11px;color:var(--muted);line-height:1.7">Income: <b style="color:var(--ok)">$' + p.income.toLocaleString() + '</b><br>Reach: <b style="color:var(--text)">' + p.reach.toLocaleString() + '</b><br>Followers: <b style="color:var(--tool)">' + p.followers.toLocaleString() + '</b><br>Agent runs: <b style="color:var(--text)">' + p.runs + '</b></div></div>'
+        const inP = d => { const f = now - d * DAY; return { income: txs.filter(t => t.kind === "income" && new Date(t.date || now).getTime() >= f).reduce((s, t) => s + (t.amount||0), 0), reach: perf.filter(p => new Date(p.date || now).getTime() >= f).reduce((s, p) => s + (p.views||0), 0), followers: stats.filter(r => new Date(r.day + "T00:00:00Z").getTime() >= f).reduce((s, r) => s + (r.followers||0), 0), runs: agents.length }; };
+        const els = document.getElementById("os-summaries");
+        els.innerHTML = [["This Week", inP(7)], ["This Month", inP(30)], ["This Quarter", inP(90)]].map(([l, p]) =>
+          '<div style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">' + l + '</div><div style="font-size:11px;color:var(--muted);line-height:1.7">Income: <b style="color:var(--ok)">$' + p.income.toLocaleString() + '</b><br>Reach: <b style="color:var(--text)">' + p.reach.toLocaleString() + '</b><br>Followers: <b style="color:var(--tool)">' + p.followers.toLocaleString() + '</b><br>Runs: <b style="color:var(--text)">' + p.runs + '</b></div></div>'
         ).join("");
       }).catch(() => {});
     }
+    load();
     loadSummaries();
-</script>
+    setInterval(() => { load(); loadSummaries(); }, 15000);
+  </script>
 </body>
 </html>
+

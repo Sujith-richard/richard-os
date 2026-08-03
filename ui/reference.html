@@ -6,6 +6,8 @@
 <title>Richard OS — Reference</title>
 <script>window.PAGE = { title: "Reference", crumb: ["System", "Reference"] };</script>
 <style>
+  .os-search { display:flex; gap:8px; margin-bottom:16px; }
+  .os-search input { flex:1; background:var(--surface); border:1px solid var(--hairline2); color:var(--text); font-family:var(--font); font-size:13px; padding:10px 14px; outline:none; }
   .os-sections { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
   .os-sec { background:var(--surface); border:1px solid var(--hairline); padding:16px; }
   .os-sec h3 { font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--core); margin-bottom:12px; }
@@ -17,36 +19,54 @@
 <body>
   <div class="os-page">
     <h1 class="os-h1">REFERENCE</h1>
-    <div class="os-sections">
-      <div class="os-sec"><h3>Architecture</h3>
-        <div class="row">Root spine: <b>01-root-spine/</b> <code>system · encoding · invariants · company.yaml</code></div>
-        <div class="row">Blocks: <b>02-blocks/</b> <code>company/home/personal + personas/</code></div>
-        <div class="row">Agents: <b>03-agents/</b> <code>core + hierarchy + persona logs</code></div>
-        <div class="row">Skills + SOPs: <b>04-skills/</b> <code>skill.md + sops/</code></div>
-      </div>
-      <div class="os-sec"><h3>Commands</h3>
-        <div class="row"><code>python3 run.py</code> — boot check</div>
-        <div class="row"><code>python3 scripts/seed_data.py</code> — seed (idempotent)</div>
-        <div class="row"><code>python3 scripts/agents_runner.py all</code> — run roster</div>
-        <div class="row"><code>python3 scripts/backup.py export</code> — backup</div>
-        <div class="row"><code>python3 -m uvicorn scripts.server:app --reload --port 8000</code> — UI</div>
-      </div>
-      <div class="os-sec"><h3>Autonomy Levels</h3>
-        <div class="row"><b>1</b> Lookup · you decide</div>
-        <div class="row"><b>2</b> Recommend · nothing ships without you</div>
-        <div class="row"><b>3</b> Act & spot-check · flags exceptions</div>
-        <div class="row"><b>4</b> Runs independently · escalates the odd one</div>
-        <div class="row"><b>5</b> Self-monitoring · audits itself</div>
-      </div>
-      <div class="os-sec"><h3>Discipline</h3>
-        <div class="row">Fake-data-first, real integrations at the very end.</div>
-        <div class="row">Honest run logs — no silent actions.</div>
-        <div class="row">Every dot is a real note, task, or decision.</div>
-        <div class="row">Files you own, no subscription.</div>
-      </div>
-    </div>
+    <div class="os-search"><span style="color:var(--dim)">⌕</span><input id="os-ref-search" placeholder="Search reference (commands, SOPs, skills, autonomy)..." /></div>
+    <div class="os-sections" id="os-sections"></div>
   </div>
   <script src="/ui/shell.js"></script>
+  <script>
+    const SECTIONS = [
+      { title: "Architecture", rows: [
+        ["Root spine", "01-root-spine/ — system · encoding · invariants · company.yaml"],
+        ["Blocks", "02-blocks/ — company/home/personal + personas/"],
+        ["Agents", "03-agents/ — core + hierarchy + persona logs"],
+        ["Skills + SOPs", "04-skills/ — skill.md + sops/"]
+      ]},
+      { title: "Commands", rows: [
+        ["boot", "python3 run.py"],
+        ["seed", "python3 scripts/seed_data.py"],
+        ["run roster", "python3 scripts/agents_runner.py all"],
+        ["backup", "python3 scripts/backup.py export"],
+        ["UI", "python3 -m uvicorn scripts.server:app --reload --port 8000"]
+      ]},
+      { title: "Autonomy", rows: [
+        ["1", "Lookup · you decide"],
+        ["2", "Recommend · nothing ships without you"],
+        ["3", "Act & spot-check · flags exceptions"],
+        ["4", "Runs independently · escalates the odd one"],
+        ["5", "Self-monitoring · audits itself"]
+      ]},
+      { title: "SOPs", rows: [
+        ["email-triage", "Pull inbox → classify → draft → queue approval"],
+        ["skills", "04-skills/ — outreach, resume_tailor, invoice, linkedin_post, job_screen"]
+      ]},
+      { title: "Discipline", rows: [
+        ["Fake-data-first", "real integrations at the very end"],
+        ["Honest run logs", "no silent actions"],
+        ["Ownership", "files you own, no subscription"]
+      ]}
+    ];
+    function render(q) {
+      q = (q || "").toLowerCase();
+      document.getElementById("os-sections").innerHTML = SECTIONS.map(sec => {
+        const rows = sec.rows.filter(r => !q || r.join(" ").toLowerCase().includes(q));
+        if (!rows.length) return "";
+        return '<div class="os-sec"><h3>' + sec.title + '</h3>' +
+          rows.map(r => '<div class="row"><b>' + r[0] + '</b> <code>' + r[1] + '</code></div>').join("") +
+          '</div>';
+      }).join("");
+    }
+    document.getElementById("os-ref-search").addEventListener("input", e => render(e.target.value));
+    render("");
+  </script>
 </body>
 </html>
-

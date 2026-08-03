@@ -89,3 +89,18 @@ kbd { border:1px solid var(--hairline2); border-radius:3px; padding:0 5px; font-
   padding:6px; z-index:70; min-width:200px; font-size:11px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
 .os-drop div { padding:6px 10px; cursor:pointer; color:var(--muted); }
 .os-drop div:hover { background:var(--surface2); color:var(--text); }
+
+/* ── Align to 'tactical command center' spec ── */
+:root {
+  --acc-cyan:#29D7F6; --acc-orange:#E9883A; --acc-green:#48D06A;
+  --acc-purple:#B58CFF; --acc-pink:#F26CB8; --acc-yellow:#D5C44B; --acc-white:#E8E8E8;
+}
+/* persistent engineering grid over the whole content area */
+.os-content {
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size:64px 64px;
+}
+/* align chart accent colors to spec where possible */
+.os-bar .b{ background:var(--acc-orange); }

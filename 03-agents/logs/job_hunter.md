@@ -49,3 +49,9 @@ No job leads can be summarized from the provided OS memory. The `CURRENT DATA (c
 
 | # | Role | Company | Source | Status |
 |---|------|---------|--------|---
+2026-08-03 12:27:47 | job_hunter | run complete | ## Job Leads Summary (from second_brain DB)
+
+**10 active leads tracked:**
+
+### 💰 US / High-comp roles
+| Company | Role |

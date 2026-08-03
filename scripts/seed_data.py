@@ -375,6 +375,49 @@ for name, desc, status, sync, cat in rows:
                  (name, desc, status, sync, cat))
 conn.commit(); conn.close()
 
+# ── SCALE-UP: match the spec volume (deterministic, idempotent) ──
+import random as R; R.seed(2026)
+# role: more tasks + projects
+pc = sqlite3.connect(DATA / "pm.db")
+pc.execute("CREATE TABLE IF NOT EXISTS tasks_scaled (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, project TEXT, status TEXT, priority TEXT, assignee TEXT, due TEXT)")
+pc.execute("DELETE FROM tasks_scaled")
+pc.execute("CREATE TABLE IF NOT EXISTS projects_scaled (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, client TEXT, value REAL, status TEXT)")
+pc.execute("DELETE FROM projects_scaled")
+proj_names = ["AI OS v3", "Portfolio Revamp", "Freelance Dashboard", "Chatbot MVP", "Data Pipeline", "Client Portal", "ML Model", "Mobile App"]
+for i in range(90):
+    pc.execute("INSERT INTO tasks_scaled (title, project, status, priority, assignee, due) VALUES (?,?,?,?,?,?)",
+               (f"Task {i+1}: {proj_names[i % len(proj_names)]} item", proj_names[i % len(proj_names)],
+                ["todo","in_progress","done"][i % 3], round(R.random() * 3, 1),
+                ["job_hunter","content_ops","pm_assistant","portfolio_builder"][i % 4], f"2026-08-{(i % 28)+1}"))
+for i in range(40):
+    pc.execute("INSERT INTO projects_scaled (name, client, value, status) VALUES (?,?,?,?)",
+               (proj_names[i % len(proj_names)], f"Client {i % 8 + 1}", round(5000 + i * 137), ["prospect","active","done"][i % 3]))
+pc.commit(); pc.close()
+
+# role: more job leads
+cb = sqlite3.connect(DATA / "second_brain.db")
+for i in range(30):
+    cb.execute("INSERT INTO captures (title, note, source, status, salary, applied_date) VALUES (?,?,?, 'job', ?, ?)",
+               (f"Data Role {i+1} @ Company {chr(65 + i % 26)}", f"cooling/referral {i%3}", ["LinkedIn","Naukri","Careers"][i%3],
+                f"${120 + (i%40)*5}K", f"2026-08-{(i%28)+1}"))
+cb.commit(); cb.close()
+
+# role: scale finance transactions to 60
+fc = sqlite3.connect(DATA / "finance.db")
+for i in range(42):
+    kind = "income" if i % 2 == 0 else "expense"
+    fc.execute("INSERT INTO transactions (kind, account, amount, note, date) VALUES (?,?,?,?,?)",
+               (kind, ["Payoneer","City Bank","Paypal"][i % 3], round(200 + R.random() * 900, 2),
+                f"auto txn {i}", f"2026-08-{(i % 28)+1}"))
+fc.commit(); fc.close()
+
+# role: more content + performance
+cr = sqlite3.connect(DATA / "creator.db")
+for i in range(25):
+    cr.execute("INSERT INTO content (title, platform, status) VALUES (?,?,?)",
+               (f"Piece {i+1}: {proj_names[i % len(proj_names)]}", ["LinkedIn","YouTube","X","Blog","GitHub"][i % 5], ["idea","draft","scheduled","published"][i % 4]))
+cr.commit(); cr.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 10 job leads (salary + applied dates)")
 print("  pm:           5 projects, 5 tasks")

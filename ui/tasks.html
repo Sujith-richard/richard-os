@@ -17,11 +17,14 @@
   .os-card2 { background:var(--surface2); border:1px solid var(--hairline); border-left:3px solid var(--dim); padding:10px; margin-bottom:8px; }
   .os-card2 .p { font-size:10px; color:var(--muted); display:flex; justify-content:space-between; margin-top:6px; }
   .os-card2 .p .pri { font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
-  .os-card2.pri-high { border-left-color:var(--err); }
-  .os-card2.pri-medium { border-left-color:var(--warn); }
-  .os-card2.pri-low { border-left-color:var(--dim); }
+  .os-card2.pri-high   { border-left:4px solid #ef4444 !important; background:rgba(239,68,68,.12); }
+  .os-card2.pri-medium { border-left:4px solid #f59e0b !important; background:rgba(245,158,11,.12); }
+  .os-card2.pri-low    { border-left:4px solid #10b981 !important; background:rgba(16,185,129,.12); }
   .os-empty { color:var(--dim); font-size:11px; }
-</style>
+  .pri-high   { border-left: 5px solid #ef4444; }
+  .pri-medium { border-left: 5px solid #f59e0b; }
+  .pri-low    { border-left: 5px solid #10b981; }
+  </style>
 </head>
 <body>
   <div class="os-page">

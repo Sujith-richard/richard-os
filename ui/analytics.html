@@ -44,6 +44,10 @@
     <div class="os-row">
       <div class="os-card"><h3>Time Budget (task status mix)</h3><div class="os-bar" id="time-chart"></div></div>
       <div class="os-card"><h3>Workflow Efficiency</h3><div class="os-bar" id="wf-chart"></div></div>
+
+    <div class="os-row">
+      <div class="os-card"><h3>Retention (followers across periods)</h3><div class="os-bar" id="ret-chart"></div></div>
+    </div>
     </div>
       <div class="os-card"><h3>Content Output by Status</h3><div class="os-bar" id="content-chart"></div></div>
       <div class="os-card"><h3>Agent Activity Heatmap</h3><div class="os-heat" id="heat"></div><div class="os-legend"><span><span class="sw" style="background:var(--core)"></span> high</span><span><span class="sw" style="background:var(--tool)"></span> med</span><span><span class="sw" style="background:var(--surface2)"></span> low</span></div></div>
@@ -167,6 +171,27 @@
     }
     timeBudget();
     workflowEff();
+
+    // ── Retention: followers held across 7/30/90-day periods ──
+    function retention() {
+      fetch("/systems/social").then(r => r.json()).then(d => {
+        const stats = d.stats || [];
+        const latest = {};
+        stats.forEach(r => { const d2 = r.day; if (!latest[r.platform] || d2 > latest[r.platform]) latest[r.platform] = d2; });
+        // group followers by day (sum across platforms), then take 7/30/90 recent
+        const byDay = {};
+        stats.forEach(r => { byDay[r.day] = (byDay[r.day] || 0) + (r.followers || 0); });
+        const days = Object.keys(byDay).sort();
+        const pick = n => { const s2 = days.slice(-n); return s2.map(d => byDay[d] || 0); };
+        const total7 = pick(7).reduce((a, b) => a + b, 0) || 1;
+        const total30 = pick(30).reduce((a, b) => a + b, 0) || 1;
+        const total90 = pick(90).reduce((a, b) => a + b, 0) || 1;
+        // retention = each period vs the longest (90d) baseline
+        const vals = [Math.round(total7 / total90 * 100), Math.round(total30 / total90 * 100), 100];
+        bars(document.getElementById("ret-chart"), vals);
+      }).catch(() => {});
+    }
+    retention();
 </script>
 </body>
 </html>

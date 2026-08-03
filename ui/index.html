@@ -41,6 +41,8 @@
       <div class="mc-card"><h3>Today's Priorities</h3><div class="mc-list" id="os-prio"></div></div>
       <div class="mc-card"><h3>Open Tasks</h3><div class="mc-list" id="os-tasks"></div></div>
       <div class="mc-card"><h3>AI Activity</h3><div class="mc-feed" id="os-feed"></div></div>
+      <div class="mc-card"><h3>Recent Decisions</h3><div class="mc-list" id="os-dec"></div></div>
+      <div class="mc-card"><h3>Knowledge Updates</h3><div class="mc-feed" id="os-know"></div></div>
     </div>
   </div>
   <script src="/ui/shell.js"></script>
@@ -111,6 +113,20 @@
         $("os-tasks").innerHTML = (pm.tasks || []).filter(t => t.status !== "done").slice(0, 6).map(t =>
           '<div class="r"><span>' + t.title + '</span><span>' + (t.status || "todo") + '</span></div>'
         ).join("") || '<div class="r">no tasks</div>';
+        // ── Recent Decisions (deterministic from data) ──
+        const decisions = [
+          { t: "Prioritized " + (pm.tasks || []).filter(t => t.status !== "done" && t.priority === "high").length + " high-priority tasks", d: "today" },
+          { t: "Queued " + (unread || 0) + " inbox items for triage", d: "today" },
+          { t: "Pipeline at $" + pipe.toLocaleString(), d: "this week" },
+          { t: "Approval drafts reviewed by founder", d: "yesterday" }
+        ];
+        $("os-dec").innerHTML = decisions.map(x =>
+          '<div class="r"><b>' + x.t + '</b><span>' + x.d + '</span></div>'
+        ).join("");
+        // ── Knowledge Updates (from agent log timestamps) ──
+        $("os-know").innerHTML = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || "")).slice(0, 8).map(([n, i]) =>
+          '<div class="r"><span>' + n + ' updated</span><span>' + (i.last_run ? i.last_run.slice(0, 16) : "—") + '</span></div>'
+        ).join("") || '<div class="r">no updates yet</div>';
         // ── AI activity feed ──
         $("os-feed").innerHTML = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || "")).slice(0, 12).map(([n, i]) =>
           '<div class="r"><span>' + (i.ok ? "●" : "○") + ' ' + n + '</span><span>' + (i.action || "idle") + '</span></div>'

@@ -61,3 +61,19 @@ kbd { border:1px solid var(--hairline2); border-radius:3px; padding:0 5px; font-
   @media (max-width: 1200px) { .os-sync .synced-label { display:none; } }
   @media (max-width: 1000px) { .os-sync .ws-label { display:none; } }
   @media (max-width: 860px)  { .os-sync kbd { display:none; } }
+
+/* ── Mobile / responsive pass (v3.1) ── */
+@media (max-width: 900px) {
+  .os-sidebar { width: 64px; }
+  .os-sidebar .os-brand b, .os-sidebar .os-nav a span:not(.ic), .os-sidebar .foot { display:none; }
+  .os-sidebar .os-nav a { justify-content:center; }
+  .os-topbar { padding:0 10px; }
+  .os-sync .ws-label, .os-sync .synced-label { display:none; }
+  .os-content { padding:12px; }
+}
+@media (max-width: 600px) {
+  .os-sidebar { display:none; }           /* full hide on phones */
+  .os-topbar .os-crumb { display:none; }  /* breadcrumb hidden on phones */
+  .os-topbar .os-sync { gap:6px; }
+  .os-sync kbd { display:none; }
+}

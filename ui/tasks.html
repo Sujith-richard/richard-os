@@ -55,7 +55,7 @@
           const col = document.createElement("div");
           col.className = "os-col";
           const items = tasks.filter(t => (t.status || "todo") === key);
-          col.appendChild(header(label, items.length));
+          col.innerHTML = header(label, items.length);
           items.forEach(t => {
             const c = document.createElement("div");
             c.className = "os-card2 pri-" + (t.priority || "low");

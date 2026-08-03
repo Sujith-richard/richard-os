@@ -341,4 +341,9 @@ def system(name: str):
     return {t: q(dbfile, t) for t in tabs}
 
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+@app.get("/favicon.ico")
+def favicon():
+    return FileResponse(ROOT / "ui" / "favicon.svg")
+
 app.mount("/ui", StaticFiles(directory="ui", html=True), name="ui")

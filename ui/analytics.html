@@ -55,7 +55,8 @@
       <div class="os-card"><h3>Mini Trends</h3><div id="sparkline-row" style="width:100%"></div></div>
     </div>
 </div>
-      <script src="/ui/shell.js"></script>
+          <div class="os-card" style="margin-bottom:20px"><h3>Summaries — weekly / monthly / quarterly</h3><div class="os-summaries" id="os-summaries" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px"></div></div>
+  <script src="/ui/shell.js"></script>
   <script>
     function bars(el, vals, color) {
       const max = Math.max(...vals, 1);
@@ -256,6 +257,35 @@
     load();
         donut(); funnel(); radar(); stacked(); sparklines();
     setInterval(load, 15000);
-  </script>
+  
+    function loadSummaries() {
+      Promise.all([
+        fetch("/systems/finance").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/creator").then(r => r.json()).catch(() => ({})),
+        fetch("/systems/social").then(r => r.json()).catch(() => ({})),
+        fetch("/agent-status").then(r => r.json()).catch(() => ({}))
+      ]).then(([fin, cr, soc, st]) => {
+        const txs = fin.transactions || [];
+        const perf = cr.performance || [];
+        const stats = soc.stats || [];
+        const agents = Object.keys(st);
+        const now = Date.now(), DAY = 86400000;
+        const inPeriod = days => {
+          const from = now - days * DAY;
+          return {
+            income: txs.filter(t => t.kind === "income" && new Date(t.date || now).getTime() >= from).reduce((s, t) => s + (t.amount || 0), 0),
+            reach: perf.filter(p => new Date(p.date || now).getTime() >= from).reduce((s, p) => s + (p.views || 0), 0),
+            followers: stats.filter(r => new Date(r.day + "T00:00:00Z").getTime() >= from).reduce((s, r) => s + (r.followers || 0), 0),
+            runs: agents.length
+          };
+        };
+        const periods = [["This Week", inPeriod(7)], ["This Month", inPeriod(30)], ["This Quarter", inPeriod(90)]];
+        document.getElementById("os-summaries").innerHTML = periods.map(([label, p]) =>
+          '<div style="background:var(--surface);border:1px solid var(--hairline);padding:14px"><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">' + label + '</div><div style="font-size:11px;color:var(--muted);line-height:1.7">Income: <b style="color:var(--ok)">$' + p.income.toLocaleString() + '</b><br>Reach: <b style="color:var(--text)">' + p.reach.toLocaleString() + '</b><br>Followers: <b style="color:var(--tool)">' + p.followers.toLocaleString() + '</b><br>Agent runs: <b style="color:var(--text)">' + p.runs + '</b></div></div>'
+        ).join("");
+      }).catch(() => {});
+    }
+    loadSummaries();
+</script>
 </body>
 </html>

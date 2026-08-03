@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Skills</title>
+<script>window.PAGE = { title: "Skills", crumb: ["Operate", "Skills"] };</script>
+<style>
+  .os-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-stat { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
+  .os-stat .v { font-size:18px; font-weight:700; }
+  .os-stat .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
+  .os-skills { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+  .os-skill { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
+  .os-skill .t { font-size:13px; font-weight:700; }
+  .os-skill .c { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--core); margin:4px 0; }
+  .os-skill .d { font-size:11px; color:var(--muted); }
+  .os-skill .m { font-size:10px; color:var(--dim); margin-top:8px; border-top:1px solid var(--hairline); padding-top:8px; }
+  .os-badge { font-size:9px; letter-spacing:.12em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--hairline2); color:var(--muted); }
+  .os-badge.sop { color:var(--tool); border-color:var(--tool); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">SKILLS & SOPs</h1>
+    <div class="os-stats" id="os-stats"></div>
+    <div class="os-skills" id="os-skills"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    // Skill library (static metadata — the real playbooks live in 04-skills/)
+    const SKILLS = [
+      { t: "Outreach DM", c: "Sales", d: "Referral requests + lead follow-up in your voice. Uses the referral template.", f: "skill.md", agent: "job_hunter" },
+      { t: "Resume Tailor", c: "Career", d: "Rewrites bullet points to match a role, ATS-friendly, measurable impact.", f: "skill.md", agent: "job_hunter" },
+      { t: "Invoice Generation", c: "Finance", d: "Pulls client + project value, builds invoice with payment terms.", f: "skill.md", agent: "invoicing" },
+      { t: "LinkedIn Post", c: "Content", d: "Hook → problem → how it works → takeaway, on-brand, autonomy 2.", f: "skill.md", agent: "content_ops" },
+      { t: "Job Screen", c: "Ops", d: "Score a role 1–10 vs skills fit; route apply or skip with reason.", f: "skill.md", agent: "job_hunter" },
+      { t: "Email Triage", c: "SOP", d: "Pull inbox → classify → draft reply → queue for approval.", f: "sops/email-triage.md", agent: "email", sop: true },
+    ];
+    function load() {
+      document.getElementById("os-stats").innerHTML =
+        stat(SKILLS.length, "Skills") + stat(SKILLS.filter(s => s.sop).length, "SOPs") +
+        stat(new Set(SKILLS.map(s => s.c)).size, "Categories") + stat(new Set(SKILLS.map(s => s.agent)).size, "Agents");
+      document.getElementById("os-skills").innerHTML = SKILLS.map(s =>
+        '<div class="os-skill">' +
+        '<div class="t">' + s.t + '</div>' +
+        '<div class="c">' + s.c + '</div>' +
+        '<div class="d">' + s.d + '</div>' +
+        '<div class="m"><span class="os-badge ' + (s.sop ? "sop" : "") + '">' + (s.sop ? "SOP" : "skill") + '</span> · agent: ' + s.agent + ' · ' + s.f + '</div>' +
+        '</div>'
+      ).join("");
+    }
+    function stat(v, l) { return '<div class="os-stat"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }
+    load();
+    setInterval(load, 15000);
+  </script>
+</body>
+</html>
+

@@ -297,6 +297,17 @@ def agent_log(name: str):
     lines = [l for l in Path(hits[0]).read_text().splitlines() if l.strip()]
     return {"name": name, "log": lines[-6:] if lines else None}
 
+@app.post("/quick-add-task")
+def quick_add_task(title: str = ""):
+    """Create a task row (from Quick Add)."""
+    if not title:
+        return {"error": "no title"}
+    import sqlite3
+    conn = sqlite3.connect(ROOT / "06-data" / "pm.db")
+    conn.execute("INSERT INTO tasks (title, project, status, priority) VALUES (?, 'Quick Add', 'todo', 'medium')", (title,))
+    conn.commit(); conn.close()
+    return {"ok": True, "task": title}
+
 @app.get("/workflow-status")
 def workflow_status():
     """Honest per-workflow status: idle/running/error + last run."""

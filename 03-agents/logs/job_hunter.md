@@ -55,3 +55,10 @@ No job leads can be summarized from the provided OS memory. The `CURRENT DATA (c
 
 ### 💰 US / High-comp roles
 | Company | Role |
+2026-08-03 18:21:25 | job_hunter | run complete | 
+2026-08-03 18:22:36 | job_hunter | run complete | ## Current Job Leads (second_brain DB)
+
+**10 active leads captured:**
+
+| Job | Company | Status | Salary |
+|---|---|---|

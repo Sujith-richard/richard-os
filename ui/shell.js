@@ -165,7 +165,11 @@
       el.innerHTML = items.map(i => '<div data-a="' + i.a + '">' + i.l + '</div>').join("");
       el.querySelectorAll("div").forEach(d => d.addEventListener("click", () => {
         el.style.display = "none"; el.dataset.open = "0";
-        if (d.dataset.a === "task") location.href = "/ui/tasks.html";
+        if (d.dataset.a === "task") {
+        const title = prompt("New task title:");
+        if (title) fetch("/quick-add-task?title=" + encodeURIComponent(title), { method: "POST" }).then(() => location.href = "/ui/tasks.html");
+        return;
+      }
         else if (d.dataset.a === "agent") location.href = "/ui/agents.html";
         else if (d.dataset.a === "note") location.href = "/ui/";
       }));

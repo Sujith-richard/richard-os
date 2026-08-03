@@ -91,3 +91,26 @@ Set per agent in `01-root-spine/company.yaml`.
 ![Comms](docs/screenshots/06-comms.png)
 ![Social](docs/screenshots/07-social.png)
 ![Content](docs/screenshots/08-content.png)
+
+## v3.0 — Full command center
+- Sidebar v2 (18 views) + 8 themes + ⌘K palette
+- Executive mission-control dashboard (stats + charts + AI feed)
+- Communications (7 channel tabs, sentiment, AI summary, suggested replies)
+- Funnel 7-stage kanban + KPIs + conversion chart
+- Social + Content analytics (reach, likes, SEO score, reading time)
+- Finance (MRR, ARR, runway, cash-flow chart)
+- Agents roster v2 (confidence, memory, runs, Run/Logs)
+- Integrations honest board (never fakes connectivity)
+- Analytics suite (9 charts: revenue, funnel, radar, heatmap, sparklines)
+- Tasks v2 + Skills library + Org tree + Workflows builder
+- Roadmap + Reference + Personas roster pages
+
+## Screenshots
+![Dashboard](docs/screenshots/01-console.png)
+![Brain](docs/screenshots/02-brain.png)
+![Agents](docs/screenshots/03-agents.png)
+![Finances](docs/screenshots/04-finances.png)
+![Funnel](docs/screenshots/05-funnel.png)
+![Comms](docs/screenshots/06-comms.png)
+![Social](docs/screenshots/07-social.png)
+![Content](docs/screenshots/08-content.png)

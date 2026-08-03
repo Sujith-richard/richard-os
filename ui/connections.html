@@ -72,6 +72,7 @@
         <div data-tab="detail">Details</div>
       </div>
       <div class="content">
+        <div id="panel-conn">
         <div class="os-alert" id="os-alert" style="display:none"><span>⚠</span><span>Couldn't connect with these settings <b style="cursor:pointer;text-decoration:underline">More details</b></span><button id="m-retry">Retry</button></div>
         <div class="os-help"><span>Need help filling out these fields?</span><b id="m-docs">Open docs</b></div>
         <div class="os-field"><label>Provider</label><input id="f-provider" placeholder="e.g. Gmail, GitHub, Home Assistant" /></div>
@@ -79,6 +80,9 @@
         <div class="os-field"><label>API Key</label><div class="wrap"><input id="f-key" type="password" placeholder="••••••••••••••••" /><span class="ic">🔒</span></div></div>
         <div class="os-field"><label>Base URL</label><div class="wrap"><input id="f-url" placeholder="https://api.example.com" /><span class="ic">ⓘ</span></div></div>
         <div class="os-actions"><button class="btn-ghost" id="m-cancel">Cancel</button><button class="btn-primary" id="m-save">Save & Test</button></div>
+        </div>
+        <div id="panel-share" style="display:none;font-size:13px;color:var(--muted)">Sharing: this connection is private to your Richard OS instance. Keys are stored locally in <b>connections.db</b> and never committed to the repo.</div>
+        <div id="panel-detail" style="display:none;font-size:13px;color:var(--muted)">Details: saved_at, status, provider, and base_url are tracked per connection. Use TEST for an honest reachability check.</div>
       </div>
     </div>
   </div>
@@ -135,10 +139,28 @@ document.getElementById("m-save").addEventListener("click", () => {
     .then(r => r.json()).then(() => { document.getElementById("os-modal").classList.remove("open"); load(); });
 });
 document.getElementById("m-del").addEventListener("click", () => { if (editing) fetch("/connections/" + editing + "/delete", { method: "POST" }).then(() => { document.getElementById("os-modal").classList.remove("open"); load(); }); });
-document.querySelectorAll(".side div").forEach(d => d.addEventListener("click", () => { document.querySelectorAll(".side div").forEach(x => x.classList.remove("on")); d.classList.add("on"); }));
+
 document.getElementById("m-retry").addEventListener("click", () => { document.getElementById("os-alert").style.display = "none"; alert("Retry — check your base URL and key."); });
-document.getElementById("m-docs").addEventListener("click", () => { document.getElementById("os-help").textContent = "Check docs/REAL_DATA_SWAP.md for the exact steps per service."; });
+
 load();
+
+    // Delegated: sidebar tabs, Open docs, modal open — works no matter when DOM builds
+    document.addEventListener("click", e => {
+      const tab = e.target.closest ? e.target.closest(".side div") : null;
+      const docs = e.target.closest ? e.target.closest("#m-docs") : null;
+      const open = e.target.closest ? e.target.closest("#os-new, .edit") : null;
+      if (tab) {
+        document.querySelectorAll(".side div").forEach(x => x.classList.remove("on"));
+        tab.classList.add("on");
+        const t = tab.dataset.tab;
+        ["panel-conn","panel-share","panel-detail"].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = (id === "panel-conn" ? "" : id === "panel-" + t ? "" : "none"); });
+        return;
+      }
+      if (docs) {
+        window.open("/docs/real-data-swap", "_blank");
+        return;
+      }
+    });
 </script>
 </body>
 </html>

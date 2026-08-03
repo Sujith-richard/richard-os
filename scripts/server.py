@@ -163,6 +163,15 @@ def persona(name: str):
     return {"name": name, "roster": cfg}
 
 
+@app.get("/docs/real-data-swap")
+def docs_swap():
+    """Serve the real-data swap playbook as plain text."""
+    f = ROOT / "docs" / "REAL_DATA_SWAP.md"
+    if not f.exists():
+        return {"error": "docs/REAL_DATA_SWAP.md not found"}
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(f.read_text())
+
 @app.get("/connections")
 def connections_list():
     import sqlite3

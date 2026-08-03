@@ -43,6 +43,8 @@
       <div class="mc-card"><h3>AI Activity</h3><div class="mc-feed" id="os-feed"></div></div>
       <div class="mc-card"><h3>Recent Decisions</h3><div class="mc-list" id="os-dec"></div></div>
       <div class="mc-card"><h3>Knowledge Updates</h3><div class="mc-feed" id="os-know"></div></div>
+      <div class="mc-card"><h3>Automation Runs</h3><div class="mc-feed" id="os-auto"></div></div>
+      <div class="mc-card"><h3>Active Projects</h3><div class="mc-list" id="os-proj"></div></div>
     </div>
   </div>
   <script src="/ui/shell.js"></script>
@@ -127,6 +129,20 @@
         $("os-know").innerHTML = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || "")).slice(0, 8).map(([n, i]) =>
           '<div class="r"><span>' + n + ' updated</span><span>' + (i.last_run ? i.last_run.slice(0, 16) : "—") + '</span></div>'
         ).join("") || '<div class="r">no updates yet</div>';
+        // ── Automation Runs (from workflow-status) ──
+        fetch("/workflow-status").then(r => r.json()).then(wd => {
+          const wf = wd.workflows || [];
+          $("os-auto").innerHTML = wf.slice(0, 6).map(w =>
+            '<div class="r"><span>' + w.name + '</span><span>' + (w.status || "idle") + ' · ' + (w.runs || 0) + ' runs</span></div>'
+          ).join("") || '<div class="r">no workflows</div>';
+        }).catch(() => {});
+        // ── Active Projects (from pm.db) ──
+        fetch("/systems/pm").then(r => r.json()).then(pd => {
+          const proj = (pd.projects || pd.projects_scaled || []).filter(x => x.status !== "done").slice(0, 6);
+          $("os-proj").innerHTML = proj.map(x =>
+            '<div class="r"><b>' + x.name + '</b><span>' + (x.status || "active") + '</span></div>'
+          ).join("") || '<div class="r">no active projects</div>';
+        }).catch(() => {});
         // ── AI activity feed ──
         $("os-feed").innerHTML = Object.entries(st).sort((a, b) => (b[1].last_run || "").localeCompare(a[1].last_run || "")).slice(0, 12).map(([n, i]) =>
           '<div class="r"><span>' + (i.ok ? "●" : "○") + ' ' + n + '</span><span>' + (i.action || "idle") + '</span></div>'

@@ -75,13 +75,13 @@
           '<div class="r"><span><b>' + d + '</b> · ' + due[d].map(t => t.title).join(", ") + '</span><span>' + due[d].length + '</span></div>'
         ).join("") || '<div style="color:var(--dim)">no dates</div>';
         // ── AI suggestions: derived deterministically from the data ──
-        const openTasks = tasks.filter(t => t.status !== "done");
-        const high = openTasks.filter(t => t.priority === "high");
+        const openT = tasks.filter(t => t.status !== "done");
+        const highP = openT.filter(t => t.priority === "high");
         const sug = [];
-        if (high.length) sug.push("Tackle " + high.length + " high-priority open task(s): " + high.slice(0, 2).map(t => t.title).join("; "));
-        if (openTasks.length > 6) sug.push("Consider delegating or splitting tasks — you have " + openTasks.length + " open.");
-        if (!openTasks.length) sug.push("All clear — no open tasks. Great.");
-        else if (!high.length) sug.push("No high-priority tasks right now — good time to clear medium items.");
+        if (highP.length) sug.push("Tackle " + highP.length + " high-priority open task(s): " + highP.slice(0, 2).map(t => t.title).join("; "));
+        if (openT.length > 6) sug.push("Consider delegating or splitting tasks — you have " + openT.length + " open.");
+        if (!openT.length) sug.push("All clear — no open tasks. Great.");
+        else if (!highP.length) sug.push("No high-priority tasks right now — good time to clear medium items.");
         document.getElementById("os-ai").innerHTML = sug.map(x => '<div class="r"><span>' + x + '</span></div>').join("") || '<div style="color:var(--dim)">no suggestions</div>';
       }).catch(e => console.error(e));
     }

@@ -68,7 +68,7 @@
         <div class="os-menu" id="os-menu"></div>
       </div>
       <div class="os-right">
-        <div class="os-card"><h3>Filter by type</h3><div id="os-type-filter" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
+        <div class="os-card"><h3>Filter by type</h3><div id="os-type-filter" style="display:flex;flex-wrap:wrap;gap:6px"></div><div style="margin-top:8px;display:flex;gap:6px"><button onclick="TYPES.forEach(t=>activeTypes.add(t));applyTypeFilter();document.querySelectorAll('.tf').forEach(b=>b.style.color='var(--text)')" style="background:none;border:1px solid var(--hairline2);color:var(--muted);font-family:var(--font);font-size:9px;text-transform:uppercase;padding:3px 8px;cursor:pointer">All</button><button onclick="TYPES.forEach(t=>activeTypes.delete(t));applyTypeFilter();document.querySelectorAll('.tf').forEach(b=>b.style.color='var(--dim)')" style="background:none;border:1px solid var(--hairline2);color:var(--muted);font-family:var(--font);font-size:9px;text-transform:uppercase;padding:3px 8px;cursor:pointer">None</button></div></div>
         <div class="os-card"><h3>Legend</h3><div class="os-legend" id="os-legend"></div></div>
         <div class="os-card"><h3>Directory</h3><div class="os-dir" id="os-dir"></div></div>
         <div class="os-card"><h3>Stats</h3><div id="os-stats"></div></div>
@@ -386,6 +386,12 @@
     // ── Type filter: show only selected node types ──
     const TYPES = ["core","domain","dept","employee","agent","tool","data","persona"];
     const activeTypes = new Set(TYPES);
+    function applyTypeFilter() {
+      if (!nodeSel) return;
+      nodeSel.style("display", n => activeTypes.has(n.type) ? null : "none");
+      labelSel.style("display", n => activeTypes.has(n.type) ? null : "none");
+    }
+    window.applyTypeFilter = applyTypeFilter;
     function buildTypeFilter() {
       const el = document.getElementById("os-type-filter");
       if (!el) return;
@@ -401,6 +407,21 @@
       }));
     }
     buildTypeFilter();
+
+    // ── Edge pulse: a glowing segment travels along each connection ──
+    (function edgePulse() {
+      setInterval(() => {
+        if (!allEdges.length || !linkSel) return;
+        const e = allEdges[Math.floor(Math.random() * allEdges.length)];
+        const a = e.source, b = e.target;
+        if (!a || !b || a.x === undefined || b.x === undefined) return;
+        const pulse = g.append("line")
+          .attr("x1", a.x).attr("y1", a.y).attr("x2", b.x).attr("y2", b.y)
+          .attr("stroke", "var(--tool)").attr("stroke-width", 1)
+          .attr("opacity", 0).style("pointer-events", "none");
+        pulse.transition().duration(600).attr("opacity", 0.8).transition().duration(400).attr("opacity", 0).remove();
+      }, 900);
+    })();
 </script>
 </body>
 </html>

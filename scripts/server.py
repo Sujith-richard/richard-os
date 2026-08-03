@@ -209,6 +209,35 @@ def scheduler_status():
     except Exception:
         return {"running": False}
 
+@app.get("/agent-inspect/{name}")
+def agent_inspect(name: str):
+    """Agent knowledge: sources it reads, skills connected, last memory changes."""
+    import glob, yaml as y
+    # knowledge sources: systems it maps to (from agents_runner table map)
+    table_map = {
+        "job_hunter": "second_brain.db", "content_ops": "creator.db",
+        "freelance_biz": "finance.db", "pm_assistant": "pm.db",
+        "portfolio_builder": "pm.db", "reading_agent": "reading.db",
+        "email": "second_brain.db", "calendar": "second_brain.db",
+        "reminders": "pm.db", "backend": "pm.db", "invoicing": "finance.db",
+        "living_room": "home", "security": "home",
+    }
+    # skills it owns (from 04-skills/)
+    owned = []
+    skills_dir = ROOT / "04-skills"
+    for sf in sorted(skills_dir.rglob("*.md")):
+        content = sf.read_text().lower()
+        if name in content:
+            owned.append(sf.parent.name if sf.parent.name != "04-skills" else sf.stem)
+    return {
+        "name": name,
+        "reads_from": [table_map.get(name, "core")],
+        "writes_to": [f"03-agents/logs/{name}.md"],
+        "skills": owned[:6],
+        "model": "deepseek-v4-flash-free (opencode proxy)",
+        "autonomy": "see company.yaml",
+    }
+
 @app.get("/agent-log/{name}")
 def agent_log(name: str):
     """Return the last lines of an agent's run log."""
@@ -228,6 +257,35 @@ def scheduler_status():
         return {"running": bool(r.stdout.strip())}
     except Exception:
         return {"running": False}
+
+@app.get("/agent-inspect/{name}")
+def agent_inspect(name: str):
+    """Agent knowledge: sources it reads, skills connected, last memory changes."""
+    import glob, yaml as y
+    # knowledge sources: systems it maps to (from agents_runner table map)
+    table_map = {
+        "job_hunter": "second_brain.db", "content_ops": "creator.db",
+        "freelance_biz": "finance.db", "pm_assistant": "pm.db",
+        "portfolio_builder": "pm.db", "reading_agent": "reading.db",
+        "email": "second_brain.db", "calendar": "second_brain.db",
+        "reminders": "pm.db", "backend": "pm.db", "invoicing": "finance.db",
+        "living_room": "home", "security": "home",
+    }
+    # skills it owns (from 04-skills/)
+    owned = []
+    skills_dir = ROOT / "04-skills"
+    for sf in sorted(skills_dir.rglob("*.md")):
+        content = sf.read_text().lower()
+        if name in content:
+            owned.append(sf.parent.name if sf.parent.name != "04-skills" else sf.stem)
+    return {
+        "name": name,
+        "reads_from": [table_map.get(name, "core")],
+        "writes_to": [f"03-agents/logs/{name}.md"],
+        "skills": owned[:6],
+        "model": "deepseek-v4-flash-free (opencode proxy)",
+        "autonomy": "see company.yaml",
+    }
 
 @app.get("/agent-log/{name}")
 def agent_log(name: str):

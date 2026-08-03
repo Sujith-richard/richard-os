@@ -75,7 +75,7 @@
             '<div class="r"><span>Success</span><b>' + okRate + '%</b></div>' +
             '<div class="r"><span>Status</span><b>' + (info.ok ? "ok" : "error") + '</b></div>' +
           '</div>' +
-          '<div class="btns"><button class="run">RUN</button><button class="logs">LOGS</button></div>' +
+          '<div class="btns"><button class="run">RUN</button><button class="logs">LOGS</button><button class="inspect">INSPECT</button></div>' +
           '<div class="os-log"></div>';
         el.querySelector(".run").addEventListener("click", () => {
           const log = el.querySelector(".os-log");
@@ -85,6 +85,19 @@
             log.textContent = d.output || d.error || "done";
             setTimeout(poll, 1000);
           }).catch(e => log.textContent = "error: " + e);
+        });
+        el.querySelector(".inspect").addEventListener("click", () => {
+          const log = el.querySelector(".os-log");
+          log.classList.toggle("open");
+          if (log.classList.contains("open")) {
+            fetch("/agent-inspect/" + encodeURIComponent(a.name)).then(r => r.json()).then(d => {
+              log.textContent = "reads from: " + (d.reads_from || []).join(", ") + "\n" +
+                "writes to: " + (d.writes_to || []).join(", ") + "\n" +
+                "skills: " + (d.skills && d.skills.length ? d.skills.join(", ") : "—") + "\n" +
+                "model: " + (d.model || "—") + "\n" +
+                "autonomy: " + (d.autonomy || "see company.yaml");
+            }).catch(e => log.textContent = "error: " + e);
+          }
         });
         el.querySelector(".logs").addEventListener("click", () => {
           const log = el.querySelector(".os-log");

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard OS — Roadmap</title>
+<script>window.PAGE = { title: "Roadmap", crumb: ["System", "Roadmap"] };</script>
+<style>
+  .os-phase { margin-bottom:24px; }
+  .os-phase h3 { font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .os-phase h3 span { color:var(--core); }
+  .os-item { background:var(--surface); border:1px solid var(--hairline); padding:12px 14px; margin-bottom:8px; }
+  .os-item .t { font-size:12px; font-weight:600; }
+  .os-item .d { font-size:10px; color:var(--dim); margin-top:2px; }
+  .os-bar { height:6px; background:var(--surface2); border-radius:3px; margin-top:8px; overflow:hidden; }
+  .os-bar .fill { height:100%; background:var(--core); }
+  .os-tag { font-size:9px; letter-spacing:.12em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--hairline2); color:var(--muted); margin-left:8px; }
+  .os-tag.done { color:var(--ok); border-color:var(--ok); }
+</style>
+</head>
+<body>
+  <div class="os-page">
+    <h1 class="os-h1">ROADMAP</h1>
+    <div id="os-roadmap"></div>
+  </div>
+  <script src="/ui/shell.js"></script>
+  <script>
+    const PHASES = [
+      { name: "Now", items: [
+        { t: "Persona teams run for real", d: "Specialists with defined jobs + SOPs + schedules", pct: 100, done: true },
+        { t: "Approval queue UI", d: "One-click approve/reject for autonomy-2 drafts", pct: 100, done: true },
+        { t: "Backup & restore", d: "os export / os import, newest-snapshot auto-pick", pct: 100, done: true },
+        { t: "Analytics suite", d: "9 charts: revenue, funnel, radar, heatmap, sparklines", pct: 100, done: true }
+      ]},
+      { name: "Next", items: [
+        { t: "Real-data swap", d: "Gmail, GitHub, Home Assistant, MySQL — at the very end", pct: 0 },
+        { t: "Personas deep-dive", d: "give each specialist richer knowledge + tools", pct: 10 },
+        { t: "Semantic search", d: "lexical embedding stand-in on the Brain", pct: 0 }
+      ]},
+      { name: "Later", items: [
+        { t: "MySQL backend", d: "DB_ENGINE=mysql option behind SQLite default", pct: 0 },
+        { t: "Mobile pass", d: "responsive pass for all pages", pct: 0 },
+        { t: "True multi-user auth", d: "beyond the single-operator token", pct: 0 }
+      ]}
+    ];
+    function render() {
+      document.getElementById("os-roadmap").innerHTML = PHASES.map(p =>
+        '<div class="os-phase"><h3>' + p.name + ' <span>(' + p.items.length + ')</span></h3>' +
+        p.items.map(it =>
+          '<div class="os-item"><div class="t">' + it.t + (it.done ? '<span class="os-tag done">done</span>' : '') + '</div>' +
+          '<div class="d">' + it.d + '</div><div class="os-bar"><div class="fill" style="width:' + it.pct + '%"></div></div></div>'
+        ).join("") + '</div>'
+      ).join("");
+    }
+    render();
+  </script>
+</body>
+</html>
+

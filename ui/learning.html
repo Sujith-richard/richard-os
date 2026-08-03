@@ -8,18 +8,21 @@
 <body>
 <div class="os-page">
 <h1 class="os-h1">LEARNING OS</h1>
-<div id="os-learn" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
+<div id="os-learn" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px"></div>
 </div>
 <script src="/ui/shell.js"></script>
 <script>
-fetch("/systems/learning").then(r=>r.json()).then(d=>{
-  const c=d.courses||[];
-  document.getElementById("os-learn").innerHTML=c.map(x=>
-    '<div class="os-card"><div style="font-size:13px;font-weight:700">'+x.title+'</div>'+
-    '<div style="font-size:10px;color:var(--muted);margin:4px 0">'+x.platform+' · '+x.status+'</div>'+
-    '<div style="height:8px;background:var(--surface2)"><div style="height:100%;width:'+(x.progress||0)+'%;background:var(--core)"></div></div>'+
-    '<div style="font-size:10px;color:var(--dim);margin-top:4px">'+x.progress+'%</div></div>'
-  ).join("");
+Promise.all([fetch("/systems/learning").then(r=>r.json()).catch(()=>({}))]).then(([d])=>{
+  const courses=d.courses||[], topics=d.topics||[];
+  document.getElementById("os-learn").innerHTML=courses.map(c=>{
+    const ts=topics.filter(t=>t.course_id===c.id);
+    const done=ts.filter(t=>t.status==="done").length;
+    return '<div class="os-card"><div style="font-size:13px;font-weight:700">'+c.title+'</div>'+
+      '<div style="font-size:10px;color:var(--muted);margin:4px 0">'+c.platform+' · '+c.status+' · '+done+'/'+ts.length+' topics done</div>'+
+      '<div style="height:8px;background:var(--surface2)"><div style="height:100%;width:'+(c.progress||0)+'%;background:var(--core)"></div></div>'+
+      '<div style="margin-top:8px">'+ts.map(t=>'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:1px solid var(--hairline)"><span>'+(t.status==="done"?"✓ ":"· ")+t.title+'</span><span>'+t.status+'</span></div>').join("")+'</div>'+
+      '</div>';
+  }).join("");
 }).catch(()=>{});
 </script>
 </body>

@@ -163,6 +163,18 @@ def persona(name: str):
     return {"name": name, "roster": cfg}
 
 
+@app.get("/approval-count")
+def approval_count():
+    """Real pending approval count (feeds the NOTIFY badge)."""
+    import sqlite3
+    try:
+        conn = sqlite3.connect(ROOT / "06-data" / "approvals.db")
+        n = conn.execute("SELECT COUNT(*) FROM approvals WHERE status='pending'").fetchone()[0]
+        conn.close()
+        return {"pending": n}
+    except Exception:
+        return {"pending": 0}
+
 @app.get("/approvals")
 def approvals_list():
     """List pending approval drafts."""
@@ -351,7 +363,7 @@ def system(name: str):
         "reading": ("reading.db", ["links"]),
         "creator": ("creator.db", ["content","performance"]),
         "social": ("social.db", ["stats"]),
-        "learning": ("learning.db", ["courses"]),
+        "learning": ("learning.db", ["courses","topics"]),
         "deals": ("deals.db", ["ledger"]),
         "pm": ("pm.db", ["tasks","projects"]),
         "finance": ("finance.db", ["accounts","transactions","invoices","subscriptions","bills","categories"]),

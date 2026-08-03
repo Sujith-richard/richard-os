@@ -75,7 +75,7 @@
             '<div class="r"><span>Success</span><b>' + okRate + '%</b></div>' +
             '<div class="r"><span>Status</span><b>' + (info.ok ? "ok" : "error") + '</b></div>' +
           '</div>' +
-          '<div class="btns"><button class="run">RUN</button><button class="logs">LOGS</button><button class="inspect">INSPECT</button></div>' +
+          '<div class="btns"><button class="run">RUN</button><button class="logs">LOGS</button><button class="inspect">INSPECT</button><button class="chat">CHAT</button></div>' +
           '<div class="os-log"></div>';
         el.querySelector(".run").addEventListener("click", () => {
           const log = el.querySelector(".os-log");
@@ -122,6 +122,22 @@
     function poll() { fetch("/agent-status").then(r => r.json()).then(st => render(st)).catch(() => {}); }
     poll();
     setInterval(poll, 8000);
-  </script>
+  
+    document.addEventListener("click", e => {
+      const chat = e.target.closest ? e.target.closest(".chat") : null;
+      if (!chat) return;
+      const card = chat.closest(".os-agent");
+      const name = card ? card.querySelector("h3").textContent : "";
+      const log = card ? card.querySelector(".os-log") : null;
+      if (!log) return;
+      log.classList.add("open");
+      const ask = prompt("Ask " + name + " (demo via proxy):");
+      if (!ask) return;
+      log.textContent = "asking: " + ask + "...";
+      fetch("/api/run?cmd=" + encodeURIComponent("agents_runner.py " + name.split(" ")[0])).then(r => r.json()).then(d => {
+        log.textContent = (d.output || d.error || "no reply").slice(0, 400);
+      }).catch(e => log.textContent = "error: " + e);
+    });
+</script>
 </body>
 </html>

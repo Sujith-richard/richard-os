@@ -209,6 +209,7 @@
           e.stopPropagation();
           if (e.altKey || e.metaKey) { showDetail(d); return; }
           applyFocus(d, true);
+          showDetail(d);
           if (d.type === "persona") loadPersona(d.label);
           if (d.type === "employee" && d.label) loadSpecialistLog(d.label);
           if (d.type === "agent" && d.label) loadAgentLog(d.label);

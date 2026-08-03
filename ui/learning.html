@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Richard OS — Learning</title><script>window.PAGE={title:"Learning",crumb:["System","Learning"]};</script></head>
-<body><div class="os-page">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Learning</title>
+<script>window.PAGE={title:"Learning",crumb:["System","Learning"]};</script>
+</head>
+<body>
+<div class="os-page">
 <h1 class="os-h1">LEARNING OS</h1>
-<div class="os-content2" id="os-learn" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
+<div id="os-learn" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px"></div>
 </div>
 <script src="/ui/shell.js"></script>
 <script>
@@ -12,9 +17,10 @@ fetch("/systems/learning").then(r=>r.json()).then(d=>{
   document.getElementById("os-learn").innerHTML=c.map(x=>
     '<div class="os-card"><div style="font-size:13px;font-weight:700">'+x.title+'</div>'+
     '<div style="font-size:10px;color:var(--muted);margin:4px 0">'+x.platform+' · '+x.status+'</div>'+
-    '<div class="os-bar" style="height:8px;background:var(--surface2)"><div style="height:100%;width:'+(x.progress||0)+'%;background:var(--core)"></div></div>'+
+    '<div style="height:8px;background:var(--surface2)"><div style="height:100%;width:'+(x.progress||0)+'%;background:var(--core)"></div></div>'+
     '<div style="font-size:10px;color:var(--dim);margin-top:4px">'+x.progress+'%</div></div>'
   ).join("");
 }).catch(()=>{});
 </script>
-</body></html>
+</body>
+</html>

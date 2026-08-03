@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Richard OS — Deals</title><script>window.PAGE={title:"Deals",crumb:["System","Deals"]};</script></head>
-<body><div class="os-page">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Deals</title>
+<script>window.PAGE={title:"Deals",crumb:["System","Deals"]};</script>
+</head>
+<body>
+<div class="os-page">
 <h1 class="os-h1">DEALS OS</h1>
 <div class="os-tx" id="os-deals"></div>
 </div>
@@ -10,8 +15,9 @@
 fetch("/systems/deals").then(r=>r.json()).then(d=>{
   const l=d.ledger||[];
   document.getElementById("os-deals").innerHTML=l.map(x=>
-    '<div class="r" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--hairline);font-size:12px;color:var(--muted)"><span>'+x.title+' <span style="color:var(--dim)">· '+x.client+'</span></span><span>'+x.stage+' · $'+(x.value||0).toLocaleString()+'</span></div>'
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--hairline);font-size:12px;color:var(--muted)"><span>'+x.title+' <span style="color:var(--dim)">· '+x.client+'</span></span><span>'+x.stage+' · $'+(x.value||0).toLocaleString()+'</span></div>'
   ).join("");
 }).catch(()=>{});
 </script>
-</body></html>
+</body>
+</html>

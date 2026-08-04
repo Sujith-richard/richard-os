@@ -13,3 +13,4 @@
     "from": "recruiter@stripe.com",
     "subject": "Interview scheduling",
     "reply": "I'm available next week. 
+2026-08-04 17:01:02 | personal/email | triage | [{"from": "recruiter@stripe.com", "subject": "Interview scheduling", "reply": "Yes, I'm available next week—could you se

@@ -15,9 +15,43 @@ def q(db_name, sql):
     conn.close()
     return [dict(r) for r in rows]
 
+
+def _read_inbox():
+    """Read real Gmail if a GMAIL connection is saved; else fall back to fake inbox."""
+    try:
+        import sqlite3, os as _os
+        c = sqlite3.connect(Path(__file__).resolve().parent.parent / "06-data" / "connections.db")
+        c.row_factory = sqlite3.Row
+        row = c.execute("SELECT api_key, base_url FROM connections WHERE upper(provider)='GMAIL'").fetchone()
+        c.close()
+    except Exception:
+        row = None
+    if row and row["base_url"]:
+        import imaplib, email as em
+        user = row["base_url"]
+        token = row["api_key"] or ""
+        try:
+            imap = imaplib.IMAP4_SSL("imap.gmail.com")
+            imap.login(user, token)
+            imap.select("INBOX")
+            _, ids = imap.search(None, "ALL")
+            out = []
+            for num in ids[0].split()[:5]:
+                _, data = imap.fetch(num, "(RFC822)")
+                msg = em.message_from_bytes(data[0][1])
+                out.append({"from_addr": msg["From"], "subject": msg["Subject"], "body": str(msg.get_payload())[:200], "status": "unread"})
+            imap.logout()
+            if out:
+                print("(real Gmail inbox — " + str(len(out)) + " emails)")
+                return out
+        except Exception as e:
+            print("(Gmail connect failed, using fake:", str(e)[:80], ")")
+    # fake fallback
+    return q("second_brain.db", "SELECT * FROM inbox ORDER BY id LIMIT 10")
+
 def triage_email():
     """Email agent: read inbox, flag what needs you (autonomy 2)."""
-    emails = q("second_brain.db", "SELECT * FROM inbox ORDER BY id LIMIT 10")
+    emails = _read_inbox()
     mem = read_memory()[:1200]
     prompt = (
         "You are the email triage agent. Autonomy 2 (recommend only).\n"

@@ -83,12 +83,12 @@
         const okAgents = Object.values(st).filter(v => v.ok).length;
         const totalAgents = Object.keys(st).length;
         $("os-stats").innerHTML =
-          stat("$" + income.toLocaleString(), "Revenue (3mo)", income + " income") +
-          stat("$" + pipe.toLocaleString(), "Pipeline", deals.length + " deals") +
-          stat(open, "Open Tasks", "pm.db") +
-          stat(unread, "Unread Inbox", "needs triage") +
-          stat(content, "Content Items", "creator.db") +
-          stat(okAgents + "/" + totalAgents, "Agents OK", "honest status");
+          stat("$" + income.toLocaleString(), "Revenue (3mo)", income + " income", "/ui/finances.html") +
+          stat("$" + pipe.toLocaleString(), "Pipeline", deals.length + " deals", "/ui/funnel.html") +
+          stat(open, "Open Tasks", "pm.db", "/ui/tasks.html") +
+          stat(unread, "Unread Inbox", "needs triage", "/ui/comms.html") +
+          stat(content, "Content Items", "creator.db", "/ui/social.html") +
+          stat(okAgents + "/" + totalAgents, "Agents OK", "honest status", "/ui/agents.html");
         // ── charts ──
         // revenue by month (approximate: group income txs by month of date)
         const months = {};
@@ -149,7 +149,9 @@
         ).join("") || '<div class="r">no agent runs yet</div>';
       }).catch(e => { $("os-stats").innerHTML = '<div style="color:var(--err)">error: ' + e + '</div>'; });
     }
-    function stat(v, l, sub) { return '<div class="mc-stat"><div class="v">' + v + '</div><div class="l">' + l + '</div><div class="sub">' + sub + '</div></div>'; }
+    function stat(v, l, sub, href) {
+      return '<div class="mc-stat" style="cursor:pointer" onclick="location.href=\'' + (href || "") + '\'" title="Open ' + l + '"><div class="v">' + v + '</div><div class="l">' + l + '</div><div class="sub">' + sub + '</div></div>';
+    }
     load();
     setInterval(load, 10000);
   </script>

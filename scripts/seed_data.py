@@ -456,6 +456,22 @@ conn = sqlite3.connect(DATA / "connections.db")
 conn.execute("CREATE TABLE IF NOT EXISTS connections (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, provider TEXT, api_key TEXT, base_url TEXT, status TEXT DEFAULT 'not_configured', saved_at TEXT DEFAULT CURRENT_TIMESTAMP)")
 conn.commit(); conn.close()
 
+
+# ── spread income across 0..130 days so period toggle scopes revenue visibly ──
+import random as _p, sqlite3 as _sq, os as _os
+from datetime import date as _d2, timedelta as _t2
+import random as _RAND
+_RAND.seed(5)
+_pconn = _sq.connect('06-data/finance.db')
+from pathlib import Path as _P
+_pconn = _sq.connect(str(_P(__file__).resolve().parent.parent / '06-data' / 'finance.db'))
+_today = _d2.today()
+for _i in range(50):
+    _dago = _RAND.randint(0, 130)
+    _pconn.execute("INSERT INTO transactions (kind, account, amount, note, date) VALUES ('income','Payoneer',?,?,?)",
+                   (_RAND.randint(800, 5000), 'period-test', (_today - _t2(days=_dago)).isoformat()))
+_pconn.commit(); _pconn.close()
+
 print("✓ Seeded fake data into all 5 systems of record:")
 print("  second_brain: 10 job leads (salary + applied dates)")
 print("  pm:           5 projects, 5 tasks")

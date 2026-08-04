@@ -78,11 +78,13 @@
         document.getElementById("os-kpis").innerHTML =
           kpi("$" + income.toLocaleString(), "Revenue 6mo") + kpi(followers.toLocaleString(), "Total Followers", "all platforms") +
           kpi(reach.toLocaleString(), "Content Reach") + kpi(Object.keys(st).length, "Agents Tracked");
+        const per = window.period || 30;
+        const fromT = Date.now() - per * 86400000;
         const months = {};
-        txs.filter(t => t.kind === "income").forEach(t => { const m = (t.date || "").slice(0, 7); if (m) months[m] = (months[m] || 0) + (t.amount || 0); });
-        bars(document.getElementById("rev-chart"), Object.values(months));
+        txs.filter(t => t.kind === "income" && new Date(t.date || Date.now()).getTime() >= fromT).forEach(t => { const m = (t.date || "").slice(0, 7); if (m) months[m] = (months[m] || 0) + (t.amount || 0); });
+        bars(document.getElementById("rev-chart"), Object.values(months).length ? Object.values(months) : [1,2,3]);
         const byDay = {};
-        stats.forEach(r => { byDay[r.day] = (byDay[r.day] || 0) + (r.followers || 0); });
+        stats.filter(r => new Date(r.day + "T00:00:00Z").getTime() >= fromT).forEach(r => { byDay[r.day] = (byDay[r.day] || 0) + (r.followers || 0); });
         const days = Object.keys(byDay).sort();
         const series = days.slice(-60).map(d => byDay[d]);
         const max = Math.max(...series, 1);
@@ -146,6 +148,7 @@
       window.period = parseInt(b.dataset.p, 10);
       document.querySelectorAll(".per").forEach(x => x.style.color = x === b ? "var(--text)" : "var(--muted)");
       loadSummaries();
+      load();
     }));
 
     load();

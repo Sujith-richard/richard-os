@@ -31,6 +31,7 @@
 <body>
   <div class="os-page">
     <h1 class="os-h1">ANALYTICS</h1>
+    <div style="margin-bottom:16px"><button id="os-csv" style="background:none;border:1px solid var(--tool);color:var(--tool);font-family:var(--font);font-size:11px;padding:6px 14px;border-radius:6px;cursor:pointer">Download CSV</button></div>
     <div id="os-period" style="display:flex;gap:6px;margin-bottom:16px">
       <button class="per" data-p="7" style="background:none;border:1px solid var(--hairline2);color:var(--text);font-family:var(--font);font-size:10px;text-transform:uppercase;padding:4px 12px;cursor:pointer">Week</button>
       <button class="per" data-p="30" style="background:none;border:1px solid var(--hairline2);color:var(--text);font-family:var(--font);font-size:10px;text-transform:uppercase;padding:4px 12px;cursor:pointer">Month</button>
@@ -195,6 +196,22 @@
       }).catch(() => {});
     }
     retention();
+
+    document.getElementById("os-csv").addEventListener("click", () => {
+      const rows = [["metric", "value"]];
+      const kpiEl = document.getElementById("os-kpis");
+      if (kpiEl) kpiEl.querySelectorAll(".os-kpi").forEach(k => {
+        const v = k.querySelector(".v") ? k.querySelector(".v").textContent : "";
+        const l = k.querySelector(".l") ? k.querySelector(".l").textContent : "";
+        rows.push([l, v]);
+      });
+      const csv = rows.map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "richard-analytics.csv";
+      a.click();
+    });
 </script>
 </body>
 </html>

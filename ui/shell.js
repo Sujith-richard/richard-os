@@ -54,7 +54,7 @@
     main.innerHTML =
       '<header class="os-topbar">' +
         '<div class="os-crumb">' + PAGE.crumb.map((c, i) => '<span>' + c + '</span>' + (i < PAGE.crumb.length - 1 ? '<span class="sep">/</span>' : "")).join("") + '</div>' +
-        '<div class="os-sync"><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span></button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><kbd>CMD K</kbd></div>' +
+        '<div class="os-sync"><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span> <span id="notify-count" style="color:var(--ok)"></span><span id="notify-badge" style="display:none;background:var(--err);color:var(--bg);border-radius:8px;font-size:9px;padding:0 5px;font-weight:700"></span></button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><kbd>CMD K</kbd></div>' +
       '</header>' +
       '<div class="os-content" id="os-content"></div>';
 
@@ -193,7 +193,21 @@
       el.dataset.owner = qa ? "qa" : "nb";
       el.dataset.open = "1";
     });
-
+    (function badgeUpdater() {
+      function upd() {
+        const badge = document.getElementById("notify-badge");
+        if (!badge) return;
+        fetch("/approval-count").then(r => r.json()).then(d => {
+          const n = d.pending || 0;
+          if (n) { badge.textContent = n; badge.style.display = "inline-block"; }
+          else { badge.style.display = "none"; }
+        }).catch(() => {});
+      }
+      upd();
+      // re-check right after the DOM is built, so the badge shows immediately
+      setTimeout(upd, 300);
+      setInterval(upd, 8000);
+    })();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();

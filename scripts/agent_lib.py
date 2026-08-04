@@ -19,6 +19,20 @@ def load_env():
             if line and not line.startswith("#") and "=" in line:
                 k, v = line.split("=", 1)
                 os.environ.setdefault(k.strip(), v.strip())
+    # Also pull keys saved via the Connections UI (local, never committed)
+    try:
+        import sqlite3
+        conn = sqlite3.connect(ROOT / "06-data" / "connections.db")
+        conn.row_factory = sqlite3.Row
+        for r in conn.execute("SELECT provider, api_key, base_url FROM connections").fetchall():
+            prov = (r["provider"] or "").upper()
+            if r["api_key"]:
+                os.environ.setdefault(f"{prov}_API_KEY", r["api_key"])
+            if r["base_url"]:
+                os.environ.setdefault(f"{prov}_URL", r["base_url"])
+        conn.close()
+    except Exception:
+        pass
 
 def read_memory():
     """Read the root spine + any memory files so agents never re-explain."""

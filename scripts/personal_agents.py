@@ -39,7 +39,18 @@ def _read_inbox():
             for num in ids[0].split()[:5]:
                 _, data = imap.fetch(num, "(RFC822)")
                 msg = em.message_from_bytes(data[0][1])
-                out.append({"from_addr": msg["From"], "subject": msg["Subject"], "body": str(msg.get_payload())[:200], "status": "unread"})
+                body = ""
+            try:
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        if part.get_content_type() == "text/plain":
+                            body = part.get_payload(decode=True).decode("utf-8", "ignore")[:500]
+                            break
+                else:
+                    body = str(msg.get_payload())[:500]
+            except Exception:
+                body = str(msg.get_payload())[:500]
+            out.append({"from_addr": msg["From"], "subject": msg["Subject"], "body": body, "status": "unread"})
             imap.logout()
             if out:
                 print("(real Gmail inbox — " + str(len(out)) + " emails)")

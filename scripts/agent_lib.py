@@ -19,7 +19,6 @@ def load_env():
             if line and not line.startswith("#") and "=" in line:
                 k, v = line.split("=", 1)
                 os.environ.setdefault(k.strip(), v.strip())
-    # Also pull keys saved via the Connections UI (local, never committed)
     try:
         import sqlite3
         conn = sqlite3.connect(ROOT / "06-data" / "connections.db")

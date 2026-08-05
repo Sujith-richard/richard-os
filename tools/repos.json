@@ -121,24 +121,24 @@
       "url": "https://github.com/Open-Dev-Society/OpenStock",
       "purpose": "Open-source stock/trading platform \u2014 verify before wiring",
       "status": "not_configured",
-      "verified": false,
-      "note": "pending verification \u2014 clone + read README before wiring"
+      "verified": true,
+      "note": "Market platform, AGPL-3.0 copyleft \u2014 private-use OK; wire later"
     },
     {
       "name": "automaton",
       "url": "https://github.com/Conway-Research/automaton",
       "purpose": "Automation tool (in links collection) \u2014 verify",
       "status": "not_configured",
-      "verified": false,
-      "note": "pending verification \u2014 clone + read README before wiring"
+      "verified": true,
+      "note": "Autonomous self-funding AI agent (on-chain/wallet) \u2014 HIGH-RISK, do not wire into OS"
     },
     {
       "name": "modly",
       "url": "https://github.com/lightningpixel/modly",
       "purpose": "Unverified \u2014 check before wiring",
       "status": "not_configured",
-      "verified": false,
-      "note": "pending verification \u2014 clone + read README before wiring"
+      "verified": true,
+      "note": "Image-to-3D mesh generator (local GPU) \u2014 content-company tool; bridge when installed"
     }
   ]
 }

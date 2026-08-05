@@ -120,19 +120,25 @@
       "name": "OpenStock",
       "url": "https://github.com/Open-Dev-Society/OpenStock",
       "purpose": "Open-source stock/trading platform \u2014 verify before wiring",
-      "status": "not_configured"
+      "status": "not_configured",
+      "verified": false,
+      "note": "pending verification \u2014 clone + read README before wiring"
     },
     {
       "name": "automaton",
       "url": "https://github.com/Conway-Research/automaton",
       "purpose": "Automation tool (in links collection) \u2014 verify",
-      "status": "not_configured"
+      "status": "not_configured",
+      "verified": false,
+      "note": "pending verification \u2014 clone + read README before wiring"
     },
     {
       "name": "modly",
       "url": "https://github.com/lightningpixel/modly",
       "purpose": "Unverified \u2014 check before wiring",
-      "status": "not_configured"
+      "status": "not_configured",
+      "verified": false,
+      "note": "pending verification \u2014 clone + read README before wiring"
     }
   ]
 }

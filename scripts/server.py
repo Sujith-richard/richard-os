@@ -172,6 +172,17 @@ def docs_swap():
     from fastapi.responses import PlainTextResponse
     return PlainTextResponse(f.read_text())
 
+@app.get("/memory-status")
+def memory_status():
+    """Shared-memory provider status (cognee honest check)."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from cognee_bridge import status
+        return status()
+    except Exception:
+        return {"provider": "cognee", "status": "error", "detail": "bridge import failed"}
+
 @app.get("/repos")
 def repos_list():
     """The open-source tool registry (honest status, from tools/repos.json)."""

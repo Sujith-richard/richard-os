@@ -73,6 +73,7 @@
         <div class="os-card"><h3>Directory</h3><div class="os-dir" id="os-dir"></div></div>
         <div class="os-card"><h3>Stats</h3><div id="os-stats"></div></div>
         <div class="os-card"><h3>Persona Roster</h3><div class="os-dir" id="os-persona" style="max-height:220px"><div style="color:var(--dim)">click a persona node</div></div></div>
+        <div class="os-card"><h3>Shared Memory</h3><div id="os-mem" style="font-size:11px;color:var(--muted)">checking...</div></div>
         <div class="os-card"><h3>Agent Activity</h3><div class="os-act" id="os-act"></div></div>
       </div>
     </div>
@@ -422,6 +423,12 @@
         pulse.transition().duration(600).attr("opacity", 0.8).transition().duration(400).attr("opacity", 0).remove();
       }, 900);
     })();
+
+    // Shared-memory provider status (cognee) — honest line in the right panel
+    fetch("/memory-status").then(r => r.json()).then(m => {
+      const el = document.getElementById("os-mem");
+      if (el) el.innerHTML = '<span style="color:' + (m.status === "connected" ? "var(--ok)" : "var(--warn)") + '">●</span> memory: ' + m.provider + ' · ' + (m.status || "?");
+    }).catch(() => {});
 </script>
 </body>
 </html>

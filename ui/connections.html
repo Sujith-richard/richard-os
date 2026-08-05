@@ -82,6 +82,7 @@
             <option value="GITHUB">GitHub</option>
             <option value="HOME_ASSISTANT">Home Assistant</option>
             <option value="MYSQL">MySQL</option>
+            <option value="LLM">LLM (OpenAI-style — cognee shared memory)</option>
             <option value="CUSTOM">Custom</option>
           </select>
         </div>
@@ -139,9 +140,10 @@ document.getElementById("f-tpl").addEventListener("change", () => {
     GITHUB: "https://api.github.com",
     HOME_ASSISTANT: "http://homeassistant.local:8123",
     MYSQL: "localhost:3306",
+    LLM: "https://api.openai.com/v1",
     CUSTOM: ""
   };
-  const keys = { GMAIL: "16-char app password", GITHUB: "ghp_...", HOME_ASSISTANT: "long-lived token", MYSQL: "db password", CUSTOM: "" };
+  const keys = { GMAIL: "16-char app password", GITHUB: "ghp_...", HOME_ASSISTANT: "long-lived token", MYSQL: "db password", LLM: "sk-... (OpenAI key)", CUSTOM: "" };
   document.getElementById("f-provider").value = t === "CUSTOM" ? "" : t.toLowerCase();
   document.getElementById("f-url").value = urls[t] || "";
   document.getElementById("f-key").placeholder = keys[t] || "••••••••";

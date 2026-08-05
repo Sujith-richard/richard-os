@@ -185,15 +185,24 @@ def governance_status():
 
 @app.get("/memory-status")
 def memory_status():
-    """Shared-memory provider status (cognee honest check)."""
-    import sys
+    """Shared-memory provider status (cognee honest check + real-key slot)."""
+    import sys, sqlite3
     sys.path.insert(0, str(ROOT / "tools"))
     try:
         from cognee_bridge import status
-        return status()
+        out = status()
+        spine = ROOT / "01-root-spine"
+        out["docs_indexed"] = len(list(spine.glob("*.md"))) if spine.exists() else 0
+        try:
+            c = sqlite3.connect(ROOT / "06-data" / "connections.db")
+            llm = c.execute("SELECT COUNT(*) FROM connections WHERE upper(provider) IN ('LLM','OPENAI')").fetchone()[0]
+            c.close()
+            out["real_key_slot"] = bool(llm)
+        except Exception:
+            out["real_key_slot"] = False
+        return out
     except Exception:
         return {"provider": "cognee", "status": "error", "detail": "bridge import failed"}
-
 @app.get("/cloud-status")
 def cloud_status():
     """Cloud utilities (OmniCloud, 9drive, WebToApp) honest status."""

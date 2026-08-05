@@ -51,19 +51,22 @@
       "name": "9drive",
       "url": "https://github.com/zenhosta/9drive",
       "purpose": "Cloud/file storage helper",
-      "status": "not_configured"
+      "status": "not_configured",
+      "detail": "clone into vendor/ to enable (cloud_bridge.py)"
     },
     {
       "name": "OmniCloud",
       "url": "https://github.com/dimartarmizi/OmniCloud",
       "purpose": "Multi-cloud utility",
-      "status": "not_configured"
+      "status": "not_configured",
+      "detail": "clone into vendor/ to enable (cloud_bridge.py)"
     },
     {
       "name": "WebToApp",
       "url": "https://github.com/shiaho777/WebToApp",
       "purpose": "Web \u2192 app wrapper",
-      "status": "not_configured"
+      "status": "not_configured",
+      "detail": "clone into vendor/ to enable (cloud_bridge.py)"
     }
   ],
   "niche": [

@@ -194,6 +194,17 @@ def memory_status():
     except Exception:
         return {"provider": "cognee", "status": "error", "detail": "bridge import failed"}
 
+@app.get("/cloud-status")
+def cloud_status():
+    """Cloud utilities (OmniCloud, 9drive, WebToApp) honest status."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from cloud_bridge import status
+        return status()
+    except Exception:
+        return {"provider": "cloud-utilities", "status": "error"}
+
 @app.get("/site-downloader-status")
 def site_downloader_status():
     """Website-downloader tool availability (honest)."""

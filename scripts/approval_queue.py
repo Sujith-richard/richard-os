@@ -40,6 +40,13 @@ def approve(approval_id):
     payload = json.loads(row[3])
     conn.execute("UPDATE approvals SET status='approved' WHERE id=?", (approval_id,))
     conn.commit(); conn.close()
+    try:
+        import sys as _s
+        _s.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+        from governance_bridge import audit
+        audit(row[1], row[2], row[3], True)
+    except Exception:
+        pass
     print(f"✅ Approved {row[1]} → {row[2]}")
     print(f"   Execute: {payload.get('execute', 'no action defined')}")
     # TODO: wire execute hook (send email, create invoice, etc.)
@@ -48,6 +55,13 @@ def reject(approval_id):
     conn = _conn()
     conn.execute("UPDATE approvals SET status='rejected' WHERE id=?", (approval_id,))
     conn.commit(); conn.close()
+    try:
+        import sys as _s
+        _s.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+        from governance_bridge import audit
+        audit(row[1], row[2], row[3], False)
+    except Exception:
+        pass
     print(f"❌ Rejected approval {approval_id}")
 
 def main():

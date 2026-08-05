@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Tool Repos</title>
+<script>window.PAGE={title:"Repos",crumb:["System","Repos"]};</script>
+</head>
+<body>
+<div class="os-page">
+<h1 class="os-h1">TOOL REPOS</h1>
+<div style="font-size:11px;color:var(--muted);margin-bottom:16px">Open-source integrations for the AI content company — honest status, wired at the real-data swap.</div>
+<div id="os-repos"></div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+fetch("/repos").then(r=>r.json()).then(d=>{
+  const cats=d.repos||{};
+  let html="";
+  Object.keys(cats).forEach(cat=>{
+    const items=cats[cat]||[];
+    html+='<div style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--core);margin:18px 0 8px">'+cat+' ('+items.length+')</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">';
+    html+=items.map(x=>
+      '<div class="os-card"><div style="font-size:13px;font-weight:600">'+x.name+'</div>'+
+      '<div style="font-size:10px;color:var(--muted);margin:4px 0">'+x.purpose+'</div>'+
+      '<div style="font-size:10px;color:var(--dim)"><a href="'+x.url+'" target="_blank" style="color:var(--tool)">'+x.url+'</a></div>'+
+      '<div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-top:8px;color:'+(x.status==="planned"?"var(--warn)":x.status==="not_configured"?"var(--dim)":"var(--ok)")+'">'+x.status+'</div>'+
+      '</div>'
+    ).join("");
+    html+='</div>';
+  });
+  document.getElementById("os-repos").innerHTML=html||'<div style="color:var(--dim)">no repos</div>';
+}).catch(()=>{});
+</script>
+</body>
+</html>

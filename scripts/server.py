@@ -172,6 +172,15 @@ def docs_swap():
     from fastapi.responses import PlainTextResponse
     return PlainTextResponse(f.read_text())
 
+@app.get("/repos")
+def repos_list():
+    """The open-source tool registry (honest status, from tools/repos.json)."""
+    import json as j
+    f = ROOT / "tools" / "repos.json"
+    if not f.exists():
+        return {"repos": []}
+    return {"repos": j.loads(f.read_text())}
+
 @app.get("/connections")
 def connections_list():
     import sqlite3

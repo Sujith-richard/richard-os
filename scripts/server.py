@@ -382,6 +382,20 @@ def reports_zip():
     )
 
 
+@app.post("/stt")
+async def stt_upload(file):
+    """Transcribe an uploaded audio file with openai-whisper (free, local).
+    Honest: returns an error if whisper isn't installed."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from voice_bridge import stt
+        tmp = ROOT / "06-data" / "tmp_input.wav"
+        tmp.write_bytes(await file.read())
+        return stt(str(tmp))
+    except Exception as e:
+        return {"error": str(e)[:150], "hint": "install openai-whisper or use browser Web Speech"}
+
 @app.post("/chat")
 def chat(msg: str = ""):
     """WhatsApp-style chat with the AI core: reads OS state, routes to an

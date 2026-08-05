@@ -19,6 +19,8 @@ def status():
         providers.append("VibeVoice")
     if _importable("voxcpm") or shutil.which("voxcpm"):
         providers.append("VoxCPM")
+    if _importable("whisper"):
+        providers.append("whisper")
     if providers:
         return {"provider": "voice", "status": "connected",
                 "detail": " + ".join(providers) + " available — CEO voice interface ready"}

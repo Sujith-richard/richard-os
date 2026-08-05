@@ -285,6 +285,15 @@ def repos_list():
         return {"repos": []}
     return {"repos": j.loads(f.read_text())}
 
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def unhandled_exception(request, exc):
+    return JSONResponse(status_code=500, content={
+        "reply": f"(server error: {type(exc).__name__}: {exc}) — honest",
+        "owner": "core",
+    })
+
 
 def make_report(topic):
     """Build a markdown report from live OS data and save it as a downloadable file."""
@@ -464,6 +473,21 @@ def chat(msg: str = ""):
     # ── 3. Action triggers (do real work when asked) ──
     action_note = ""
     low = msg.lower()
+    # ── MCP tool dispatch (AI Core chat → real tools) ──
+    mcp_note = ""
+    try:
+        import sys as _s
+        _s.path.insert(0, str(ROOT / "tools"))
+        from mcp_tools import route, status
+        tool = route(msg)
+        if tool:
+            st = status(tool)
+            mcp_note = (f"\n\n🧰 MCP tool matched: **{tool}** — " + st["status"])
+            if st["status"] == "not_configured":
+                mcp_note += " (install in vendor/ to run it — honest)"
+    except Exception:
+        mcp_note = ""
+
     if any(k in low for k in ["brief", "morning", "summary"]):
         from morning_brief import main as brief_main
         action_note = "Generated the morning brief for you below."
@@ -499,15 +523,13 @@ def chat(msg: str = ""):
         c.commit(); c.close()
     except Exception:
         pass
-
     zip_url = None
     if "zip" in low or "all reports" in low or "download all" in low:
         zip_url = "/reports/zip"
         reply = reply + "\n\n📦 All reports — **download ZIP below**."
-
     report_url = None
+    html_url = None
     if any(k in low for k in ["report", "download", "summary report", "report on"]):
-
         try:
             fname, content, html_name = make_report(msg)
             report_url = "/reports/" + fname

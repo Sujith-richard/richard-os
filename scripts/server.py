@@ -336,9 +336,50 @@ def make_report(topic):
     reports_dir = ROOT / "06-data" / "reports"
     reports_dir.mkdir(exist_ok=True)
     slug = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-") or "report"
-    fname = f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}-{slug}.md"
-    (reports_dir / fname).write_text("\n".join(lines))
-    return fname, "\n".join(lines)
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    md_name = f"{stamp}-{slug}.md"
+    html_name = f"{stamp}-{slug}.html"
+    md_text = "\n".join(lines)
+    (reports_dir / md_name).write_text(md_text)
+
+    # styled HTML twin
+    def _esc(t):
+        return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    html = """<!DOCTYPE html><html><head><meta charset="utf-8"><title>Richard OS Report</title>
+<style>body{background:#0a0a0a;color:#e8e8e8;font-family:monospace;max-width:820px;margin:40px auto;padding:0 20px}
+h1{color:#E9883A;text-transform:uppercase;letter-spacing:.06em}h2{color:#29D7F6;text-transform:uppercase;font-size:14px;margin-top:28px;border-bottom:1px solid #242424;padding-bottom:6px}
+li{color:#909090;line-height:1.7}.total{color:#48D06A;font-weight:700}</style></head><body>
+<h1>Richard OS Report</h1>
+<div style="color:#555;font-size:12px">Generated: """ + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + """</div>
+""" + "".join(
+        ("<h2>" + _esc(l[3:]) + "</h2>" if l.startswith("## ") else
+         "<h3 style='color:#B58CFF'>" + _esc(l[4:]) + "</h3>" if l.startswith("### ") else
+         "<li>" + _esc(l[2:]) + "</li>" if l.startswith("- ") else
+         ("<div class='total'>" + _esc(l) + "</div>" if l.startswith("**") else
+          ("<p>" + _esc(l) + "</p>" if l else "<br>")))
+        for l in md_text.splitlines()
+    ) + "</body></html>"
+    (reports_dir / html_name).write_text(html)
+    return md_name, md_text, html_name
+
+
+@app.get("/reports/zip")
+def reports_zip():
+    """Bundle all generated reports into one downloadable ZIP."""
+    import zipfile, io
+    reports_dir = ROOT / "06-data" / "reports"
+    reports_dir.mkdir(exist_ok=True)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        for f in sorted(reports_dir.glob("*.md")):
+            z.write(f, f.name)
+    buf.seek(0)
+    from fastapi.responses import Response
+    return Response(
+        content=buf.getvalue(),
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=richard-reports.zip"},
+    )
 
 
 @app.post("/chat")
@@ -424,16 +465,25 @@ def chat(msg: str = ""):
         c.commit(); c.close()
     except Exception:
         pass
+
+    zip_url = None
+    if "zip" in low or "all reports" in low or "download all" in low:
+        zip_url = "/reports/zip"
+        reply = reply + "\n\n📦 All reports — **download ZIP below**."
+
     report_url = None
     if any(k in low for k in ["report", "download", "summary report", "report on"]):
+
         try:
-            fname, content = make_report(msg)
+            fname, content, html_name = make_report(msg)
             report_url = "/reports/" + fname
+            html_url = "/reports/" + html_name
             reply = reply + "\n\n📄 Report ready — **download it below**."
         except Exception as e:
             report_url = None
+            html_url = None
             reply = reply + f"\n\n(Report generation failed: {e})"
-    return {"reply": reply, "owner": owner, "state": state, "report_url": report_url}
+    return {"reply": reply, "owner": owner, "state": state, "report_url": report_url, "html_url": html_url, "zip_url": zip_url}
 
 @app.get("/chat/history")
 def chat_history():

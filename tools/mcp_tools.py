@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Richard OS — MCP tool dispatcher: the AI Core chat calls these.
-Each tool reports honest status; dispatch only runs if connected."""
+Each tool reports HONEST status; dispatch only runs if connected."""
 import subprocess, shutil
 from pathlib import Path
 
@@ -13,12 +13,12 @@ TOOLS = {
         "keyword": ["screw", "cad", "3d design", "part", "bolt", "parametric"],
     },
     "WebToApp": {
-        "desc": "Turn a website URL into installable apps (iPhone/Android/Windows/macOS/Linux)",
-        "cmd": ["python", "main.py"], "cwd": VENDOR / "WebToApp",
+        "desc": "Turn a website URL into installable apps",
+        "cmd": ["python", "server/main.py"], "cwd": VENDOR / "WebToApp",
         "keyword": ["web to app", "app from site", "installable app"],
     },
     "OmniCloud": {
-        "desc": "Multi-cloud storage: list/upload/allocate across Google/OneDrive/Dropbox/MEGA/pCloud/Yandex/S3",
+        "desc": "Multi-cloud storage: list/upload/allocate (Google/OneDrive/Dropbox/MEGA/pCloud/Yandex/S3)",
         "cmd": ["npm", "run", "dev"], "cwd": VENDOR / "OmniCloud",
         "keyword": ["cloud", "upload", "storage", "drive"],
     },
@@ -39,13 +39,48 @@ TOOLS = {
     },
 }
 
+def _ready(name):
+    """Honest runtime-aware status per tool."""
+    t = TOOLS.get(name)
+    if not t:
+        return "unknown"
+    cwd = t["cwd"]
+    if not cwd.exists():
+        return "not_configured"
+
+    if name == "freecad-mcp":
+        try:
+            import FreeCAD  # noqa
+            return "connected"
+        except Exception:
+            return "error"          # folder exists but FreeCAD not installed
+
+    if name == "lingbot-map":
+        return "deferred"           # heavy GPU tool (PyTorch 2.8 + CUDA 12.8 + Kaolin) [13]
+
+    if name == "WebToApp":
+        # Python + FastAPI backend — deps in server/requirements.txt [4]
+        if (cwd / "server" / "requirements.txt").exists() or (cwd / "requirements.txt").exists():
+            return "connected"
+        return "error"
+
+    if name == "OmniCloud":
+        # Vue frontend + Express backend — npm installs live in subfolders [6]
+        if (cwd / "frontend" / "node_modules").exists() or (cwd / "backend" / "node_modules").exists():
+            return "connected"
+        return "error"
+
+    # map-to-poster [7] and Website-downloader [12]: npm install at repo root
+    if (cwd / "node_modules").exists():
+        return "connected"
+    return "error"
+
 def status(name=None):
+    """Return honest status for one tool or all."""
     if name:
-        t = TOOLS.get(name)
-        if not t: return {"tool": name, "status": "unknown"}
-        ready = (t["cwd"]).exists()
-        return {"tool": name, "desc": t["desc"], "status": "connected" if ready else "not_configured"}
-    return {n: status(n)["status"] for n in TOOLS}
+        return {"tool": name, "desc": TOOLS.get(name, {}).get("desc", ""),
+                "status": _ready(name)}
+    return {n: _ready(n) for n in TOOLS}
 
 def route(text):
     """Map a chat message to the best MCP tool (or None)."""

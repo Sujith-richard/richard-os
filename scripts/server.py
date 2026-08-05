@@ -2,7 +2,7 @@
 """Richard OS — FastAPI server: systems of record as a live API."""
 import sqlite3, json, yaml
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -383,7 +383,7 @@ def reports_zip():
 
 
 @app.post("/stt")
-async def stt_upload(file):
+async def stt_upload(file: UploadFile = File(...)):
     """Transcribe an uploaded audio file with openai-whisper (free, local).
     Honest: returns an error if whisper isn't installed."""
     import sys

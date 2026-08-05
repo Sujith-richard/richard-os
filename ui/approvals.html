@@ -26,6 +26,7 @@
   <div class="os-page">
     <h1 class="os-h1">APPROVAL QUEUE</h1>
     <div id="os-count" style="font-size:11px;color:var(--muted);margin-bottom:16px"></div>
+    <div id="os-gov" style="font-size:11px;color:var(--muted);margin-bottom:16px">governance: checking...</div>
     <div class="os-app" id="os-app"></div>
   </div>
   <script src="/ui/shell.js"></script>
@@ -57,7 +58,12 @@
     }
     load();
     setInterval(load, 8000);
-  </script>
+  
+    fetch("/governance-status").then(r => r.json()).then(g => {
+      const el = document.getElementById("os-gov");
+      if (el) el.innerHTML = '<span style="color:' + (g.status === "connected" ? "var(--ok)" : "var(--warn)") + '">●</span> governance: ' + g.provider + ' · ' + (g.status || "?") + ' — ' + (g.detail || "");
+    }).catch(() => {});
+</script>
 </body>
 </html>
 

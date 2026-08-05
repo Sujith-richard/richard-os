@@ -1,30 +1,95 @@
 {
   "memory": [
-    {"name": "cognee", "url": "https://github.com/topoteretes/cognee", "purpose": "AI memory + knowledge-graph builder for shared memory", "status": "not_configured"}
+    {
+      "name": "cognee",
+      "url": "https://github.com/topoteretes/cognee",
+      "purpose": "AI memory + knowledge-graph builder for shared memory",
+      "status": "not_configured"
+    }
   ],
   "governance": [
-    {"name": "agent-governance-toolkit", "url": "https://github.com/microsoft/agent-governance-toolkit", "purpose": "Agent guardrails + audit for approvals", "status": "not_configured"}
+    {
+      "name": "agent-governance-toolkit",
+      "url": "https://github.com/microsoft/agent-governance-toolkit",
+      "purpose": "Agent guardrails + audit for approvals",
+      "status": "not_configured"
+    }
   ],
   "skills": [
-    {"name": "book-to-skill", "url": "https://github.com/virgiliojr94/book-to-skill", "purpose": "Turn books into reusable skills", "status": "not_configured"}
+    {
+      "name": "book-to-skill",
+      "url": "https://github.com/virgiliojr94/book-to-skill",
+      "purpose": "Turn books into reusable skills",
+      "status": "connected",
+      "detail": "tool available \u2014 convert a book into a skill"
+    }
   ],
   "voice": [
-    {"name": "VibeVoice", "url": "https://github.com/microsoft/VibeVoice", "purpose": "Voice I/O for the CEO/orchestrator", "status": "not_configured"},
-    {"name": "VoxCPM", "url": "https://github.com/OpenBMB/VoxCPM", "purpose": "Voice/audio model for agents", "status": "not_configured"}
+    {
+      "name": "VibeVoice",
+      "url": "https://github.com/microsoft/VibeVoice",
+      "purpose": "Voice I/O for the CEO/orchestrator",
+      "status": "not_configured"
+    },
+    {
+      "name": "VoxCPM",
+      "url": "https://github.com/OpenBMB/VoxCPM",
+      "purpose": "Voice/audio model for agents",
+      "status": "not_configured"
+    }
   ],
   "utilities": [
-    {"name": "Website-downloader", "url": "https://github.com/AhmadIbrahiim/Website-downloader", "purpose": "Download whole sites", "status": "not_configured"},
-    {"name": "9drive", "url": "https://github.com/zenhosta/9drive", "purpose": "Cloud/file storage helper", "status": "not_configured"},
-    {"name": "OmniCloud", "url": "https://github.com/dimartarmizi/OmniCloud", "purpose": "Multi-cloud utility", "status": "not_configured"},
-    {"name": "WebToApp", "url": "https://github.com/shiaho777/WebToApp", "purpose": "Web → app wrapper", "status": "not_configured"}
+    {
+      "name": "Website-downloader",
+      "url": "https://github.com/AhmadIbrahiim/Website-downloader",
+      "purpose": "Download whole sites",
+      "status": "not_configured"
+    },
+    {
+      "name": "9drive",
+      "url": "https://github.com/zenhosta/9drive",
+      "purpose": "Cloud/file storage helper",
+      "status": "not_configured"
+    },
+    {
+      "name": "OmniCloud",
+      "url": "https://github.com/dimartarmizi/OmniCloud",
+      "purpose": "Multi-cloud utility",
+      "status": "not_configured"
+    },
+    {
+      "name": "WebToApp",
+      "url": "https://github.com/shiaho777/WebToApp",
+      "purpose": "Web \u2192 app wrapper",
+      "status": "not_configured"
+    }
   ],
   "niche": [
-    {"name": "lingbot-map", "url": "https://github.com/Robbyant/lingbot-map", "purpose": "Map tool", "status": "not_configured"},
-    {"name": "map-to-poster", "url": "https://github.com/dimartarmizi/map-to-poster", "purpose": "Map → poster export", "status": "not_configured"},
-    {"name": "Bonsai-demo", "url": "https://github.com/PrismML-Eng/Bonsai-demo", "purpose": "Demo reference", "status": "not_configured"}
+    {
+      "name": "lingbot-map",
+      "url": "https://github.com/Robbyant/lingbot-map",
+      "purpose": "Map tool",
+      "status": "not_configured"
+    },
+    {
+      "name": "map-to-poster",
+      "url": "https://github.com/dimartarmizi/map-to-poster",
+      "purpose": "Map \u2192 poster export",
+      "status": "not_configured"
+    },
+    {
+      "name": "Bonsai-demo",
+      "url": "https://github.com/PrismML-Eng/Bonsai-demo",
+      "purpose": "Demo reference",
+      "status": "not_configured"
+    }
   ],
   "content_company": [
-    {"name": "meme-studio", "url": "local", "purpose": "Meme/edit pipeline for the AI content company (future)", "status": "planned"}
+    {
+      "name": "meme-studio",
+      "url": "local",
+      "purpose": "Meme/edit pipeline for the AI content company (future)",
+      "status": "planned"
+    }
   ]
 }
-

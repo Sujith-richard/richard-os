@@ -172,6 +172,17 @@ def docs_swap():
     from fastapi.responses import PlainTextResponse
     return PlainTextResponse(f.read_text())
 
+@app.get("/governance-status")
+def governance_status():
+    """Governance provider status (honest)."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from governance_bridge import status
+        return status()
+    except Exception:
+        return {"provider": "agent-governance-toolkit", "status": "error", "detail": "bridge import failed"}
+
 @app.get("/memory-status")
 def memory_status():
     """Shared-memory provider status (cognee honest check)."""
@@ -182,6 +193,17 @@ def memory_status():
         return status()
     except Exception:
         return {"provider": "cognee", "status": "error", "detail": "bridge import failed"}
+
+@app.get("/book-to-skill-status")
+def book_skill_status():
+    """book-to-skill tool availability (honest)."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from book_to_skill import __doc__
+        return {"provider": "book-to-skill", "status": "connected", "detail": "tool available — convert a book into a skill"}
+    except Exception:
+        return {"provider": "book-to-skill", "status": "not_configured", "detail": "tool missing"}
 
 @app.get("/repos")
 def repos_list():

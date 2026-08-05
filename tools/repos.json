@@ -105,15 +105,9 @@
   ],
   "new_integrations": [
     {
-      "name": "openai-whisper",
-      "url": "https://github.com/openai/whisper",
-      "purpose": "Local speech-to-text \u2014 upgrade the chat mic",
-      "status": "not_configured"
-    },
-    {
       "name": "freecad-mcp",
       "url": "https://github.com/neka-nat/freecad-mcp",
-      "purpose": "MCP server for FreeCAD (CAD automation for Dev agent)",
+      "purpose": "MCP server for FreeCAD \u2014 CAD automation for the Dev agent",
       "status": "not_configured"
     },
     {
@@ -125,13 +119,13 @@
     {
       "name": "OpenStock",
       "url": "https://github.com/Open-Dev-Society/OpenStock",
-      "purpose": "Open-source stock/trading platform",
+      "purpose": "Open-source stock/trading platform \u2014 verify before wiring",
       "status": "not_configured"
     },
     {
       "name": "automaton",
       "url": "https://github.com/Conway-Research/automaton",
-      "purpose": "Automation tool (in links collection)",
+      "purpose": "Automation tool (in links collection) \u2014 verify",
       "status": "not_configured"
     },
     {

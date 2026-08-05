@@ -214,6 +214,16 @@ def cloud_status():
     except Exception:
         return {"provider": "cloud-utilities", "status": "error"}
 
+@app.get("/freecad-status")
+def freecad_status():
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from freecad_bridge import status
+        return status()
+    except Exception:
+        return {"provider": "freecad-mcp", "status": "error", "detail": "bridge import failed"}
+
 @app.get("/site-downloader-status")
 def site_downloader_status():
     """Website-downloader tool availability (honest)."""

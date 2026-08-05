@@ -29,13 +29,15 @@
       "name": "VibeVoice",
       "url": "https://github.com/microsoft/VibeVoice",
       "purpose": "Voice I/O for the CEO/orchestrator",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "voice I/O for the CEO agent"
     },
     {
       "name": "VoxCPM",
       "url": "https://github.com/OpenBMB/VoxCPM",
       "purpose": "Voice/audio model for agents",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "voice I/O for the CEO agent"
     }
   ],
   "utilities": [

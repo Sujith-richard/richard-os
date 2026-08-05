@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — CEO Brief</title>
+<script>window.PAGE={title:"CEO Brief",crumb:["Operate","CEO Brief"]};</script>
+<style>
+  .os-ceo { max-width:760px; }
+  .os-brief { background:var(--surface); border:1px solid var(--hairline); padding:20px; font-size:13px; color:var(--muted); line-height:1.7; white-space:pre-wrap; }
+  .os-brief h1, .os-brief h2 { color:var(--text); }
+  .os-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .os-kpi { background:var(--surface); border:1px solid var(--hairline); padding:14px; }
+  .os-kpi .v { font-size:20px; font-weight:700; }
+  .os-kpi .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
+</style>
+</head>
+<body>
+<div class="os-page">
+<h1 class="os-h1">CEO BRIEF</h1>
+<div class="os-kpis" id="os-kpis"></div>
+    <div id="os-voice" style="font-size:11px;color:var(--muted);margin-bottom:16px">voice: checking...</div>
+<div class="os-ceo"><div class="os-brief" id="os-brief">loading...</div></div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+function load() {
+  fetch("/ceo-brief").then(r => r.json()).then(d => {
+    const s = d.state || {};
+    document.getElementById("os-kpis").innerHTML =
+      kpi(s.pending_approvals, "Pending approvals") + kpi(s.high_priority_tasks, "High-priority tasks") +
+      kpi(s.open_tasks, "Open tasks") + kpi(s.agent_runs_today, "Agent runs today");
+    document.getElementById("os-brief").textContent = d.brief || "(no brief)";
+  }).catch(e => { document.getElementById("os-brief").textContent = "error: " + e; });
+}
+function kpi(v, l) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }
+load();
+setInterval(load, 15000);
+
+    fetch("/voice-status").then(r => r.json()).then(v => {
+      const el = document.getElementById("os-voice");
+      if (el) el.innerHTML = '<span style="color:' + (v.status === "connected" ? "var(--ok)" : "var(--warn)") + '">●</span> voice: ' + (v.detail || v.status || "?");
+    }).catch(() => {});
+</script>
+</body>
+</html>

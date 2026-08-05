@@ -3,6 +3,7 @@
   const NAV = [
     { group: "OPERATE", items: [
       { label: "Dashboard", href: "/ui/", ic: "\u25C9" },
+      { label: "CEO Brief", href: "/ui/ceo.html", ic: "\u2605" },
       { label: "Brain", href: "/ui/brain.html", ic: "\u2B61" },
       { label: "Agents", href: "/ui/agents.html", ic: "\u25CF" },
       { label: "Tasks", href: "/ui/tasks.html", ic: "\u2610" },

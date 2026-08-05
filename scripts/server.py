@@ -194,6 +194,37 @@ def memory_status():
     except Exception:
         return {"provider": "cognee", "status": "error", "detail": "bridge import failed"}
 
+@app.get("/site-downloader-status")
+def site_downloader_status():
+    """Website-downloader tool availability (honest)."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from site_downloader_bridge import status
+        return status()
+    except Exception:
+        return {"provider": "website-downloader", "status": "error", "detail": "bridge import failed"}
+
+@app.get("/voice-status")
+def voice_status():
+    """Voice provider status (honest)."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from voice_bridge import status
+        return status()
+    except Exception:
+        return {"provider": "voice", "status": "error", "detail": "bridge import failed"}
+
+@app.get("/ceo-brief")
+def ceo_brief():
+    """CEO agent: the decision layer — what needs attention first."""
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from ceo_agent import collect_state, build_brief
+    state = collect_state()
+    return {"brief": build_brief(state), "state": state}
+
 @app.get("/book-to-skill-status")
 def book_skill_status():
     """book-to-skill tool availability (honest)."""

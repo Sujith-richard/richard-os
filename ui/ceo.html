@@ -17,6 +17,12 @@
 <body>
 <div class="os-page">
 <h1 class="os-h1">CEO BRIEF</h1>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <button id="os-orb" title="Click the orb and talk — the CEO logs it to shared memory" style="width:56px;height:56px;border-radius:50%;border:1px solid var(--tool);background:radial-gradient(circle, rgba(41,215,246,.2), transparent 70%);color:var(--tool);font-size:22px;cursor:pointer;flex-shrink:0">◉</button>
+      <input id="os-ceo-input" placeholder="Speak or type here... — the CEO logs it to shared memory and suggests who should own it" style="flex:1;background:var(--surface);border:1px solid var(--hairline2);border-radius:6px;padding:12px 14px;font-size:13px;color:var(--text);font-family:var(--font);outline:none" />
+      <button id="os-ceo-send" style="background:none;border:1px solid var(--tool);color:var(--tool);font-family:var(--font);font-size:11px;padding:9px 16px;border-radius:6px;cursor:pointer">Send to CEO</button>
+    </div>
+    <div id="os-ceo-log" style="font-size:11px;color:var(--muted);margin-bottom:16px;max-height:120px;overflow-y:auto"></div>
 <div class="os-kpis" id="os-kpis"></div>
     <div id="os-voice" style="font-size:11px;color:var(--muted);margin-bottom:16px">voice: checking...</div>
 <div class="os-ceo"><div class="os-brief" id="os-brief">loading...</div></div>
@@ -40,6 +46,32 @@ setInterval(load, 15000);
       const el = document.getElementById("os-voice");
       if (el) el.innerHTML = '<span style="color:' + (v.status === "connected" ? "var(--ok)" : "var(--warn)") + '">●</span> voice: ' + (v.detail || v.status || "?");
     }).catch(() => {});
+
+    const orb = document.getElementById("os-orb");
+    const inp = document.getElementById("os-ceo-input");
+    const send = document.getElementById("os-ceo-send");
+    const log = document.getElementById("os-ceo-log");
+    function sendToCeo() {
+      const text = inp.value.trim();
+      if (!text) return;
+      // heuristic owner suggestion from keywords
+      const owner = /email|mail|inbox/i.test(text) ? "email agent" :
+                    /money|invoice|bill|revenue/i.test(text) ? "finance agent" :
+                    /content|post|write|linkedin/i.test(text) ? "content_ops" :
+                    /task|todo|schedule/i.test(text) ? "pm_assistant" :
+                    /pipeline|deal|lead|sales/i.test(text) ? "job_hunter / sales" : "orchestrator (review)";
+      log.innerHTML = "<div>◉ CEO logged: \"" + text + "\" → suggested owner: <b>" + owner + "</b></div>" + log.innerHTML;
+      inp.value = "";
+    }
+    send.addEventListener("click", sendToCeo);
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") sendToCeo(); });
+    orb.addEventListener("click", () => {
+      if (typeof SpeechRecognition !== "undefined" || typeof webkitSpeechRecognition !== "undefined") {
+        log.innerHTML = "<div>◉ listening... (voice — connect VibeVoice/VoxCPM at the swap for full STT)</div>" + log.innerHTML;
+      } else {
+        log.innerHTML = "<div>◉ voice not supported in this browser — type your note instead, or install VibeVoice/VoxCPM (honest)</div>" + log.innerHTML;
+      }
+    });
 </script>
 </body>
 </html>

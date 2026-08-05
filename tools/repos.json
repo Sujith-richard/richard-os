@@ -140,5 +140,43 @@
       "verified": true,
       "note": "Image-to-3D mesh generator (local GPU) \u2014 content-company tool; bridge when installed"
     }
+  ],
+  "mcp_tools": [
+    {
+      "name": "freecad-mcp",
+      "url": "https://github.com/neka-nat/freecad-mcp",
+      "purpose": "CAD automation \u2014 parametric 3D design (screw in 1mm)",
+      "status": "not_configured"
+    },
+    {
+      "name": "WebToApp",
+      "url": "https://github.com/shiaho777/WebToApp",
+      "purpose": "Turn any website into installable apps",
+      "status": "not_configured"
+    },
+    {
+      "name": "OmniCloud",
+      "url": "https://github.com/dimartarmizi/OmniCloud",
+      "purpose": "Multi-cloud storage (Google/OneDrive/Dropbox/MEGA/pCloud/Yandex/S3)",
+      "status": "not_configured"
+    },
+    {
+      "name": "map-to-poster",
+      "url": "https://github.com/dimartarmizi/map-to-poster",
+      "purpose": "Map \u2192 poster generator",
+      "status": "not_configured"
+    },
+    {
+      "name": "Website-downloader",
+      "url": "https://github.com/AhmadIbrahiim/Website-downloader",
+      "purpose": "Download complete websites",
+      "status": "not_configured"
+    },
+    {
+      "name": "lingbot-map",
+      "url": "https://github.com/Robbyant/lingbot-map",
+      "purpose": "Streaming 3D reconstruction from images",
+      "status": "not_configured"
+    }
   ]
 }

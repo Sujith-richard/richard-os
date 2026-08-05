@@ -50,10 +50,16 @@ def _ready(name):
 
     if name == "freecad-mcp":
         try:
-            import FreeCAD  # noqa
-            return "connected"
+            import subprocess, os
+            env = dict(os.environ)
+            env["PYTHONPATH"] = "/home/sujith-richard/miniconda3/lib"
+            env["LD_LIBRARY_PATH"] = "/home/sujith-richard/miniconda3/lib"
+            r = subprocess.run(
+                ["/home/sujith-richard/miniconda3/bin/python", "-c", "import FreeCAD"],
+                capture_output=True, timeout=60, env=env)
+            return "connected" if r.returncode == 0 else "error"
         except Exception:
-            return "error"          # folder exists but FreeCAD not installed
+            return "error"
 
     if name == "lingbot-map":
         return "deferred"           # heavy GPU tool (PyTorch 2.8 + CUDA 12.8 + Kaolin) [13]
@@ -65,7 +71,10 @@ def _ready(name):
         return "error"
 
     if name == "OmniCloud":
-        # Vue frontend + Express backend — npm installs live in subfolders [6]
+        # Root-workspace layout (root package.json + npm run dev) [6]
+        if (cwd / "node_modules").exists():
+            return "connected"
+        # Older subfolder installs [11]
         if (cwd / "frontend" / "node_modules").exists() or (cwd / "backend" / "node_modules").exists():
             return "connected"
         return "error"

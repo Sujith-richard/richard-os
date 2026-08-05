@@ -214,6 +214,16 @@ def cloud_status():
     except Exception:
         return {"provider": "cloud-utilities", "status": "error"}
 
+@app.get("/codegraph-status")
+def codegraph_status():
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from codegraph_bridge import status
+        return status()
+    except Exception:
+        return {"provider": "codegraph-rust", "status": "error", "detail": "bridge import failed"}
+
 @app.get("/freecad-status")
 def freecad_status():
     import sys

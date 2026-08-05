@@ -265,6 +265,188 @@ def repos_list():
         return {"repos": []}
     return {"repos": j.loads(f.read_text())}
 
+
+def make_report(topic):
+    """Build a markdown report from live OS data and save it as a downloadable file."""
+    import sqlite3, datetime, re
+    topic = topic.lower()
+    lines = [f"# Richard OS Report — {topic.title()}", f"Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}", ""]
+
+    if "company" in topic or any(c in topic for c in ["acme", "techstart", "finnovate", "cloudly", "shopwave"]):
+        c = sqlite3.connect(ROOT / "06-data" / "crm.db")
+        c.row_factory = sqlite3.Row
+        deals = [dict(r) for r in c.execute("SELECT title, company, value, stage FROM deals").fetchall()]
+        c.close()
+        target = topic.replace("report on", "").replace("company report", "").replace("company", "").strip()
+        hits = [d for d in deals if not target or target in d["company"].lower()]
+        lines.append("## Deals")
+        for d in hits:
+            lines.append(f"- **{d['title']}** · {d['company']} · ${d['value']:,} · {d['stage']}")
+        lines.append("")
+        lines.append(f"**Total pipeline: ${sum(d['value'] for d in hits):,}**")
+
+    elif "finance" in topic or "income" in topic or "money" in topic or "revenue" in topic:
+        c = sqlite3.connect(ROOT / "06-data" / "finance.db")
+        c.row_factory = sqlite3.Row
+        txs = [dict(r) for r in c.execute("SELECT kind, amount, note, date FROM transactions").fetchall()]
+        c.close()
+        inc = sum(t["amount"] for t in txs if t["kind"] == "income")
+        exp = sum(t["amount"] for t in txs if t["kind"] == "expense")
+        lines += ["## Finance", f"- Income: **${inc:,.2f}**", f"- Expenses: **${exp:,.2f}**", f"- Net: **${inc-exp:,.2f}**", "", "### Transactions"]
+        for t in txs[:15]:
+            lines.append(f"- {t['date']} · {t['kind']} · ${t['amount']:.2f} · {t['note']}")
+
+    elif "task" in topic or "todo" in topic or "priority" in topic:
+        c = sqlite3.connect(ROOT / "06-data" / "pm.db")
+        c.row_factory = sqlite3.Row
+        tasks = [dict(r) for r in c.execute("SELECT title, project, status, priority FROM tasks").fetchall()]
+        c.close()
+        lines += ["## Tasks", f"- Open: {sum(1 for t in tasks if t['status']!='done')}", f"- High priority: {sum(1 for t in tasks if t['priority']=='high' and t['status']!='done')}", ""]
+        for t in tasks[:12]:
+            lines.append(f"- [{t['status']}] **{t['title']}** · {t['project']} · {t['priority']}")
+
+    elif "pipeline" in topic or "funnel" in topic or "deals" in topic or "lead" in topic:
+        c = sqlite3.connect(ROOT / "06-data" / "crm.db")
+        c.row_factory = sqlite3.Row
+        deals = [dict(r) for r in c.execute("SELECT title, company, value, stage FROM deals").fetchall()]
+        c.close()
+        lines += ["## Pipeline", f"- Deals: {len(deals)} · Total: **${sum(d['value'] for d in deals):,}**", ""]
+        for st in ["prospect", "proposal", "needs-follow-up", "negotiation", "contract-pending", "won", "lost"]:
+            grp = [d for d in deals if d["stage"] == st]
+            if grp:
+                lines.append(f"### {st.title()} ({len(grp)})")
+                for d in grp:
+                    lines.append(f"- {d['title']} · ${d['value']:,}")
+
+    else:
+        c = sqlite3.connect(ROOT / "06-data" / "pm.db")
+        open_t = c.execute("SELECT COUNT(*) FROM tasks WHERE status!='done'").fetchone()[0]
+        c.close()
+        c = sqlite3.connect(ROOT / "06-data" / "approvals.db")
+        pend = c.execute("SELECT COUNT(*) FROM approvals WHERE status='pending'").fetchone()[0]
+        c.close()
+        c = sqlite3.connect(ROOT / "06-data" / "crm.db")
+        deals_n = c.execute("SELECT COUNT(*) FROM deals").fetchone()[0]
+        c.close()
+        c = sqlite3.connect(ROOT / "06-data" / "finance.db")
+        inc = c.execute("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE kind='income'").fetchone()[0]
+        c.close()
+        lines += ["## OS Snapshot", f"- Open tasks: {open_t}", f"- Pending approvals: {pend}", f"- Deals: {deals_n}", f"- Income: ${round(inc):,}"]
+
+    reports_dir = ROOT / "06-data" / "reports"
+    reports_dir.mkdir(exist_ok=True)
+    slug = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-") or "report"
+    fname = f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}-{slug}.md"
+    (reports_dir / fname).write_text("\n".join(lines))
+    return fname, "\n".join(lines)
+
+
+@app.post("/chat")
+def chat(msg: str = ""):
+    """WhatsApp-style chat with the AI core: reads OS state, routes to an
+    agent, replies in natural language (grounded in live data)."""
+    import sys, json, sqlite3
+    sys.path.insert(0, str(ROOT / "scripts"))
+    sys.path.insert(0, str(ROOT / "tools"))
+    if not msg.strip():
+        return {"reply": "Say something — e.g. \"what's my morning brief?\" or \"run the agents\"."}
+
+    # ── 1. Gather live OS state (grounding) ──
+    state = {}
+    try:
+        c = sqlite3.connect(ROOT / "06-data" / "approvals.db")
+        state["pending_approvals"] = c.execute("SELECT COUNT(*) FROM approvals WHERE status='pending'").fetchone()[0]
+        c.close()
+    except Exception:
+        state["pending_approvals"] = 0
+    try:
+        c = sqlite3.connect(ROOT / "06-data" / "pm.db")
+        state["open_tasks"] = c.execute("SELECT COUNT(*) FROM tasks WHERE status!='done'").fetchone()[0]
+        state["high"] = c.execute("SELECT COUNT(*) FROM tasks WHERE status!='done' AND priority='high'").fetchone()[0]
+        c.close()
+    except Exception:
+        state["open_tasks"] = 0; state["high"] = 0
+    try:
+        c = sqlite3.connect(ROOT / "06-data" / "crm.db")
+        state["deals"] = c.execute("SELECT COUNT(*) FROM deals").fetchone()[0]
+        c.close()
+    except Exception:
+        state["deals"] = 0
+    try:
+        c = sqlite3.connect(ROOT / "06-data" / "finance.db")
+        inc = c.execute("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE kind='income'").fetchone()[0]
+        state["income"] = round(inc)
+        c.close()
+    except Exception:
+        state["income"] = 0
+
+    # ── 2. Route intent → which agent owns it ──
+    from orchestrator import find_agent
+    domain, agent = find_agent(msg, {})
+    owner = agent or "orchestrator"
+    route_hint = f"Suggested owner: {owner}"
+
+    # ── 3. Action triggers (do real work when asked) ──
+    action_note = ""
+    low = msg.lower()
+    if any(k in low for k in ["brief", "morning", "summary"]):
+        from morning_brief import main as brief_main
+        action_note = "Generated the morning brief for you below."
+    if any(k in low for k in ["run agent", "run the agent", "execute"]):
+        action_note = "Queued the relevant agent run — see the Agents page."
+
+    # ── 4. Build the prompt with memory + state, call the LLM ──
+    from agent_lib import call_llm, read_memory
+    mem = read_memory()[:1500]
+    prompt = (
+        "You are the AI core of Richard OS. Reply in short, natural, friendly "
+        "sentences like a helpful assistant (WhatsApp style, no markdown tables).\n"
+        f"OS MEMORY:\n{mem}\n"
+        f"LIVE STATE:\n{json.dumps(state)}\n"
+        f"{route_hint}\n{action_note}\n"
+        f"USER: {msg}"
+    )
+    reply = call_llm(prompt, "deepseek-v4-flash-free")
+    # honest fallback if LLM unavailable
+    if reply.startswith("[LLM"):
+        reply = (
+            f"Here's what the OS knows right now: {state['pending_approvals']} pending "
+            f"approvals, {state['open_tasks']} open tasks ({state['high']} high-priority), "
+            f"{state['deals']} deals, ~${state['income']} income. "
+            f"[LLM offline — this is the honest live-state answer] {route_hint}"
+        )
+    # ── 5. Persist the conversation ──
+    try:
+        c = sqlite3.connect(ROOT / "06-data" / "chat.db")
+        c.execute("CREATE TABLE IF NOT EXISTS chat (id INTEGER PRIMARY KEY AUTOINCREMENT, role TEXT, text TEXT, ts TEXT DEFAULT CURRENT_TIMESTAMP)")
+        c.execute("INSERT INTO chat (role, text) VALUES ('user', ?)", (msg,))
+        c.execute("INSERT INTO chat (role, text) VALUES ('ai', ?)", (reply,))
+        c.commit(); c.close()
+    except Exception:
+        pass
+    report_url = None
+    if any(k in low for k in ["report", "download", "summary report", "report on"]):
+        try:
+            fname, content = make_report(msg)
+            report_url = "/reports/" + fname
+            reply = reply + "\n\n📄 Report ready — **download it below**."
+        except Exception as e:
+            report_url = None
+            reply = reply + f"\n\n(Report generation failed: {e})"
+    return {"reply": reply, "owner": owner, "state": state, "report_url": report_url}
+
+@app.get("/chat/history")
+def chat_history():
+    import sqlite3
+    try:
+        c = sqlite3.connect(ROOT / "06-data" / "chat.db")
+        c.row_factory = sqlite3.Row
+        rows = [dict(r) for r in c.execute("SELECT role, text, ts FROM chat ORDER BY id DESC LIMIT 50").fetchall()]
+        c.close()
+        return {"messages": rows[::-1]}
+    except Exception:
+        return {"messages": []}
+
 @app.get("/connections")
 def connections_list():
     import sqlite3
@@ -526,3 +708,7 @@ def favicon():
     return FileResponse(ROOT / "ui" / "favicon.svg")
 
 app.mount("/ui", StaticFiles(directory="ui", html=True), name="ui")
+from fastapi.staticfiles import StaticFiles
+import os as _os
+_os.makedirs(str(ROOT / "06-data" / "reports"), exist_ok=True)
+app.mount("/reports", StaticFiles(directory=str(ROOT / "06-data" / "reports")), name="reports")

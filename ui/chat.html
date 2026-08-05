@@ -83,36 +83,31 @@ function ask(text) {
   typing.textContent = "● ● ●";
   msgs.appendChild(typing);
   msgs.scrollTop = msgs.scrollHeight;
-  fetch("/chat?msg=" + encodeURIComponent(text), { method: "POST" })
-    .then(r => r.json())
-    .then(d => {
-      typing.remove();
-      const b = addBubble("ai", d.reply || "(no reply)", d.owner || "orchestrator");
-      if (d.zip_url) {
-        const a = document.createElement("a");
-        a.className = "os-dl";
-        a.href = d.zip_url;
-        a.textContent = "📦 Download all as ZIP";
-        a.setAttribute("download", "");
-        b.appendChild(a);
-      }
-      if (d.html_url) {
-        const a = document.createElement("a");
-        a.className = "os-dl";
-        a.href = d.html_url;
-        a.textContent = "⬇ Download HTML report";
-        a.setAttribute("download", "");
-        b.appendChild(a);
-      } else if (d.report_url) {
-        const a = document.createElement("a");
-        a.className = "os-dl";
-        a.href = d.report_url;
-        a.textContent = "⬇ Download report";
-        a.setAttribute("download", "");
-        b.appendChild(a);
-      }
-    })
-    .catch(e => { typing.remove(); addBubble("ai", "error: " + e); });
+    fetch("/chat?msg=" + encodeURIComponent(text), { method: "POST" })
+      .then(r => r.text())                       // read as text first
+      .then(t => {
+        let d;
+        try { d = JSON.parse(t); }
+        catch (e) {
+          typing.remove();
+          addBubble("ai", "Got a non-JSON response (server reloading?) — " + t.slice(0, 120) + " (honest)");
+          return;
+        }
+        typing.remove();
+        const b = addBubble("ai", d.reply || "(no reply)", d.owner || "orchestrator");
+        if (d.zip_url) {
+          const a = document.createElement("a");
+          a.className = "os-dl"; a.href = d.zip_url; a.textContent = "📦 Download all as ZIP"; a.setAttribute("download", ""); b.appendChild(a);
+        }
+        if (d.html_url) {
+          const a = document.createElement("a");
+          a.className = "os-dl"; a.href = d.html_url; a.textContent = "⬇ Download HTML report"; a.setAttribute("download", ""); b.appendChild(a);
+        } else if (d.report_url) {
+          const a = document.createElement("a");
+          a.className = "os-dl"; a.href = d.report_url; a.textContent = "⬇ Download report"; a.setAttribute("download", ""); b.appendChild(a);
+        }
+      })
+      .catch(e => { typing.remove(); addBubble("ai", "error: " + e); });
 }
 send.addEventListener("click", () => ask(input.value));
 input.addEventListener("keydown", e => { if (e.key === "Enter") ask(input.value); });
@@ -135,16 +130,43 @@ fetch("/chat/history").then(r => r.json()).then(d => {
       }
     }
     const mic = document.getElementById("os-mic");
-    if (mic) mic.addEventListener("click", () => {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { addBubble("ai", "Voice not supported in this browser — type instead, or install VibeVoice-ASR for long-form speech [3]. (honest)"); return; }
-      const rec = new SR();
-      rec.lang = "en-US";
-      rec.onresult = e => { input.value = e.results[0][0].transcript; ask(input.value); };
-      rec.onerror = e => addBubble("ai", "Mic error: " + e.error + " — VibeVoice-ASR handles this more robustly [3]. (honest)");
-      mic.textContent = "◉"; rec.start();
-      setTimeout(() => { mic.textContent = "🎤"; }, 8000);
+    mic.addEventListener("click", () => {
+      // 1. Try whisper (local, free) via /stt first — honest if not available
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          const mr = new MediaRecorder(stream);
+          const chunks = [];
+          mr.ondataavailable = e => chunks.push(e.data);
+          mr.onstop = () => {
+            const blob = new Blob(chunks, { type: "audio/webm" });
+            const fd = new FormData();
+            fd.append("file", blob, "input.webm");
+            addBubble("ai", "Transcribing with whisper (local, free)...");
+            fetch("/stt", { method: "POST", body: fd })
+              .then(r => r.json())
+              .then(d => {
+                if (d.text) { input.value = d.text; ask(d.text); }
+                else { input.value = ""; addBubble("ai", "Whisper returned nothing — " + (d.error || "try again") + " (honest)"); }
+              })
+              .catch(() => addBubble("ai", "Whisper unavailable — using browser speech instead (honest)"));
+          };
+          mic.textContent = "◉"; mr.start();
+          setTimeout(() => { mr.stop(); stream.getTracks().forEach(t => t.stop()); mic.textContent = "🎤"; }, 6000);
+        }).catch(() => {
+          // 2. Browser Web Speech fallback (honest)
+          const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SR) { addBubble("ai", "No mic permission & no browser speech — type instead, or check whisper [3]. (honest)"); return; }
+          const rec = new SR();
+          rec.lang = "en-US";
+          rec.onresult = e => { input.value = e.results[0][0].transcript; ask(input.value); };
+          rec.onerror = e => addBubble("ai", "Mic error: " + e.error + " (honest)");
+          rec.start();
+        });
+      } else {
+        addBubble("ai", "Voice not supported in this browser — type instead, or install whisper for local STT [3]. (honest)");
+      }
     });
+
 
 </script>
 </body>

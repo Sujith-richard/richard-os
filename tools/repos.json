@@ -4,7 +4,8 @@
       "name": "cognee",
       "url": "https://github.com/topoteretes/cognee",
       "purpose": "AI memory + knowledge-graph builder for shared memory",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     }
   ],
   "governance": [
@@ -12,7 +13,8 @@
       "name": "agent-governance-toolkit",
       "url": "https://github.com/microsoft/agent-governance-toolkit",
       "purpose": "Agent guardrails + audit for approvals",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     }
   ],
   "skills": [
@@ -21,7 +23,7 @@
       "url": "https://github.com/virgiliojr94/book-to-skill",
       "purpose": "Turn books into reusable skills",
       "status": "connected",
-      "detail": "tool available \u2014 convert a book into a skill"
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     }
   ],
   "voice": [
@@ -30,14 +32,14 @@
       "url": "https://github.com/microsoft/VibeVoice",
       "purpose": "Voice I/O for the CEO/orchestrator",
       "status": "connected",
-      "detail": "voice I/O for the CEO agent"
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     },
     {
       "name": "VoxCPM",
       "url": "https://github.com/OpenBMB/VoxCPM",
       "purpose": "Voice/audio model for agents",
       "status": "connected",
-      "detail": "voice I/O for the CEO agent"
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     }
   ],
   "utilities": [
@@ -45,28 +47,29 @@
       "name": "Website-downloader",
       "url": "https://github.com/AhmadIbrahiim/Website-downloader",
       "purpose": "Download whole sites",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     },
     {
       "name": "9drive",
       "url": "https://github.com/zenhosta/9drive",
       "purpose": "Cloud/file storage helper",
-      "status": "not_configured",
-      "detail": "clone into vendor/ to enable (cloud_bridge.py)"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     },
     {
       "name": "OmniCloud",
       "url": "https://github.com/dimartarmizi/OmniCloud",
       "purpose": "Multi-cloud utility",
-      "status": "not_configured",
-      "detail": "clone into vendor/ to enable (cloud_bridge.py)"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     },
     {
       "name": "WebToApp",
       "url": "https://github.com/shiaho777/WebToApp",
       "purpose": "Web \u2192 app wrapper",
-      "status": "not_configured",
-      "detail": "clone into vendor/ to enable (cloud_bridge.py)"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     }
   ],
   "niche": [
@@ -74,19 +77,22 @@
       "name": "lingbot-map",
       "url": "https://github.com/Robbyant/lingbot-map",
       "purpose": "Map tool",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     },
     {
       "name": "map-to-poster",
       "url": "https://github.com/dimartarmizi/map-to-poster",
       "purpose": "Map \u2192 poster export",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     },
     {
       "name": "Bonsai-demo",
       "url": "https://github.com/PrismML-Eng/Bonsai-demo",
       "purpose": "Demo reference",
-      "status": "not_configured"
+      "status": "connected",
+      "detail": "installed in vendor/ \u2014 wired to the bridge"
     }
   ],
   "content_company": [
@@ -95,6 +101,44 @@
       "url": "local",
       "purpose": "Meme/edit pipeline for the AI content company (future)",
       "status": "planned"
+    }
+  ],
+  "new_integrations": [
+    {
+      "name": "openai-whisper",
+      "url": "https://github.com/openai/whisper",
+      "purpose": "Local speech-to-text \u2014 upgrade the chat mic",
+      "status": "not_configured"
+    },
+    {
+      "name": "freecad-mcp",
+      "url": "https://github.com/neka-nat/freecad-mcp",
+      "purpose": "MCP server for FreeCAD (CAD automation for Dev agent)",
+      "status": "not_configured"
+    },
+    {
+      "name": "codegraph-rust",
+      "url": "https://github.com/Jakedismo/codegraph-rust",
+      "purpose": "Code/dependency graph visualizer",
+      "status": "not_configured"
+    },
+    {
+      "name": "OpenStock",
+      "url": "https://github.com/Open-Dev-Society/OpenStock",
+      "purpose": "Open-source stock/trading platform",
+      "status": "not_configured"
+    },
+    {
+      "name": "automaton",
+      "url": "https://github.com/Conway-Research/automaton",
+      "purpose": "Automation tool (in links collection)",
+      "status": "not_configured"
+    },
+    {
+      "name": "modly",
+      "url": "https://github.com/lightningpixel/modly",
+      "purpose": "Unverified \u2014 check before wiring",
+      "status": "not_configured"
     }
   ]
 }

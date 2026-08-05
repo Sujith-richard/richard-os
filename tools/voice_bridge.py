@@ -46,6 +46,16 @@ def stt(audio="input.wav"):
     except Exception as e:
         return {"error": str(e)[:150]}
 
+def stt(audio="input.wav"):
+    """Speech-to-text via openai-whisper (free, local). Honest fallback."""
+    try:
+        import whisper
+        model = whisper.load_model("base")   # base is fast + free; upgrade to small/medium if GPU
+        result = model.transcribe(audio)
+        return {"ok": True, "text": result["text"], "provider": "whisper"}
+    except Exception as e:
+        return {"error": str(e)[:150], "hint": "pip install openai-whisper, or use browser Web Speech fallback"}
+
 if __name__ == "__main__":
     import json
     print(json.dumps(status(), indent=2))

@@ -39,6 +39,7 @@
   </div>
   <div class="os-msgs" id="os-msgs"></div>
   <div class="os-inputrow">
+    <button id="os-mic" title="Speak your request" style="background:none;border:1px solid var(--hairline2);color:var(--muted);font-family:var(--font);font-size:13px;padding:10px 14px;border-radius:20px;cursor:pointer">🎤</button>
     <input id="os-in" placeholder="Chat with your AI core..." autocomplete="off" />
     <button class="os-send" id="os-send">Send</button>
   </div>
@@ -62,6 +63,13 @@ function addBubble(role, text, owner) {
   msgs.appendChild(b);
   msgs.scrollTop = msgs.scrollHeight;
   return b;
+      if (role === "ai") {
+        const sp = document.createElement("button");
+        sp.textContent = "🔊";
+        sp.style.cssText = "background:none;border:none;color:var(--dim);cursor:pointer;font-size:11px;margin-top:4px;display:block;";
+        sp.onclick = () => speak(b.textContent.replace("● ", ""));
+        b.appendChild(sp);
+      }
 }
 function escapeHtml(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
@@ -114,6 +122,30 @@ document.querySelectorAll(".os-chip").forEach(c => c.addEventListener("click", (
 fetch("/chat/history").then(r => r.json()).then(d => {
   (d.messages || []).forEach(m => addBubble(m.role === "user" ? "user" : "ai", m.text, m.role === "ai" ? "core" : null));
 });
+
+    // ── Voice: mic (STT) + speaker (TTS) — honest fallback ──
+    function speak(text) {
+      const clean = text.replace(/<br>/g, " ").replace(/[#*_~`]/g, "");
+      if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(clean);
+        u.rate = 1; u.pitch = 1;
+        window.speechSynthesis.speak(u);
+      } else {
+        addBubble("ai", "No TTS available — install VibeVoice-Realtime [3] or VoxCPM [5] for spoken replies. (honest)");
+      }
+    }
+    const mic = document.getElementById("os-mic");
+    if (mic) mic.addEventListener("click", () => {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { addBubble("ai", "Voice not supported in this browser — type instead, or install VibeVoice-ASR for long-form speech [3]. (honest)"); return; }
+      const rec = new SR();
+      rec.lang = "en-US";
+      rec.onresult = e => { input.value = e.results[0][0].transcript; ask(input.value); };
+      rec.onerror = e => addBubble("ai", "Mic error: " + e.error + " — VibeVoice-ASR handles this more robustly [3]. (honest)");
+      mic.textContent = "◉"; rec.start();
+      setTimeout(() => { mic.textContent = "🎤"; }, 8000);
+    });
+
 </script>
 </body>
 </html>

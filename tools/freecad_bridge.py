@@ -1,28 +1,27 @@
 #!/usr/bin/env python3
-"""Richard OS — freecad-mcp bridge (MCP server for FreeCAD CAD automation).
+"""Richard OS — codegraph-rust bridge (code/dependency graph visualizer).
 Honest status: connected / not_configured / error. Never fakes."""
 import shutil
 from pathlib import Path
 
-VENDOR = Path(__file__).resolve().parent.parent / "vendor" / "freecad-mcp"
+VENDOR = Path(__file__).resolve().parent.parent / "vendor" / "codegraph-rust"
 
 def status():
-    if VENDOR.exists() or shutil.which("freecad"):
-        return {"provider": "freecad-mcp", "status": "connected",
-                "detail": "FreeCAD MCP available — Dev agent can automate CAD/parametric design via MCP"}
-    return {"provider": "freecad-mcp", "status": "not_configured",
-            "detail": "clone into vendor/freecad-mcp (or install FreeCAD) to enable CAD automation"}
+    if VENDOR.exists() and (VENDOR / "Cargo.toml").exists() or shutil.which("codegraph"):
+        return {"provider": "codegraph-rust", "status": "connected",
+                "detail": "codegraph available — Dev agent can visualize code/dependency graphs"}
+    return {"provider": "codegraph-rust", "status": "not_configured",
+            "detail": "clone into vendor/codegraph-rust (cargo build) to enable code-graph rendering"}
 
-def run(script):
-    """Send a CAD operation script to FreeCAD via MCP (if available)."""
+def run(repo_path="."):
+    """Analyze a repo and emit a dependency graph (if available)."""
     if status()["status"] != "connected":
-        return {"error": "freecad-mcp not configured (honest)"}
+        return {"error": "codegraph-rust not configured (honest)"}
     try:
-        # MCP stdio call to the FreeCAD server — adapt to the repo's server entrypoint
         import subprocess
-        r = subprocess.run(["python", str(VENDOR / "server.py"), "--script", script],
-                           capture_output=True, text=True, timeout=120)
-        return {"ok": r.returncode == 0, "detail": (r.stdout or r.stderr)[:200]}
+        r = subprocess.run(["cargo", "run", "--release", "--", str(repo_path)],
+                           cwd=str(VENDOR), capture_output=True, text=True, timeout=180)
+        return {"ok": r.returncode == 0, "detail": (r.stdout or r.stderr)[:300]}
     except Exception as e:
         return {"error": str(e)[:150]}
 

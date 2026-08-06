@@ -108,3 +108,19 @@ kbd { border:1px solid var(--hairline2); border-radius:3px; padding:0 5px; font-
 /* v3.4 live pill */
 .live-pill { font-size: 10px; font-weight: 700; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); cursor: default; }
 .live-pill.on { color: #10B981; border-color: #10B98155; background: #10B98111; }
+
+/* v3.26 PWA mobile drawer */
+@media (max-width: 600px) {
+  .os-sidebar { display:flex; position:fixed; left:0; top:0; bottom:0; width:240px; z-index:100;
+    transform:translateX(-100%); transition:transform .25s ease; }
+  body.os-drawer-open .os-sidebar { transform:translateX(0); box-shadow:0 0 40px rgba(0,0,0,.6); }
+  .os-sidebar .os-brand b, .os-sidebar .os-nav a span:not(.ic), .os-sidebar .foot { display:block; }
+  .os-sidebar .os-nav a { justify-content:flex-start; }
+  .os-drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:90; display:none; }
+  body.os-drawer-open .os-drawer-backdrop { display:block; }
+}
+.os-menu-btn { display:none; }
+@media (max-width: 600px) {
+  .os-menu-btn { display:inline-block; background:none; border:1px solid var(--hairline2); color:var(--muted);
+    font-family:var(--font); font-size:12px; padding:3px 8px; cursor:pointer; }
+}

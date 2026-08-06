@@ -62,13 +62,32 @@
     main.innerHTML =
       '<header class="os-topbar">' +
         '<div class="os-crumb">' + PAGE.crumb.map((c, i) => '<span>' + c + '</span>' + (i < PAGE.crumb.length - 1 ? '<span class="sep">/</span>' : "")).join("") + '</div>' +
-        '<div class="os-sync"><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span> <span id="notify-count" style="color:var(--ok)"></span><span id="notify-badge" style="display:none;background:var(--err);color:var(--bg);border-radius:8px;font-size:9px;padding:0 5px;font-weight:700"></span></button><button class="theme-btn">THEME</button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><span id="live-pill" class="live-pill">&#9899; DEMO</span><kbd>CMD K</kbd></div>' +
+        '<div class="os-sync"><button class="os-menu-btn" id="os-menu-btn">☰</button><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span> <span id="notify-count" style="color:var(--ok)"></span><span id="notify-badge" style="display:none;background:var(--err);color:var(--bg);border-radius:8px;font-size:9px;padding:0 5px;font-weight:700"></span></button><button class="theme-btn">THEME</button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><span id="live-pill" class="live-pill">&#9899; DEMO</span><kbd>CMD K</kbd></div>' +
       '</header>' +
       '<div class="os-content" id="os-content"></div>';
 
     while (body.firstChild) main.querySelector("#os-content").appendChild(body.firstChild);
     body.appendChild(sidebar);
     body.appendChild(main);
+    // ── Mobile drawer (v3.26): hamburger toggles sidebar on phones ──
+    var backdrop = document.createElement("div");
+    backdrop.className = "os-drawer-backdrop";
+    body.appendChild(backdrop);
+    function toggleDrawer(open) {
+      document.body.classList.toggle("os-drawer-open", open);
+    }
+    document.addEventListener("click", function(e) {
+      if (e.target.closest && e.target.closest("#os-menu-btn")) { toggleDrawer(!document.body.classList.contains("os-drawer-open")); }
+      if (e.target.closest && e.target.closest(".os-drawer-backdrop")) { toggleDrawer(false); }
+      if (e.target.closest && e.target.closest(".os-nav a")) { toggleDrawer(false); }
+    });
+    // ── PWA (v3.26): manifest + service worker ──
+    var l = document.createElement("link");
+    l.rel = "manifest"; l.href = "/ui/manifest.json";
+    document.head.appendChild(l);
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/ui/sw.js").catch(function(){});
+    }
 
     // ── Command palette ──
     const pal = document.createElement("div");

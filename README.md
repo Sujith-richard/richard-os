@@ -228,3 +228,10 @@ Routes every task to the best model — real per-task selection, not a hardcoded
 - **Wired everywhere:** `agent_lib.call_llm(prompt, task_type=..., agent=...)` routes through the orchestrator by default; per-agent overrides supported
 - **API:** `GET /api/v1/models/status` · `GET /available` · `GET /route/{task_type}?agent=` · `POST /route` (set)
 - **UI:** `ui/models.html` — routing table with live availability + per-task route editor
+
+## v3.26.0 — PWA + Mobile Drawer (#18 mobile)
+Richard OS is now installable and phone-navigable.
+
+- **PWA:** `ui/manifest.json` (standalone, theme #0A101F) + `ui/sw.js` service worker (cache shell, offline fallback) + icons 192/512
+- **Mobile drawer:** at ≤600px the sidebar becomes a slide-in drawer with ☰ hamburger in the topbar + backdrop tap-to-close
+- **Registration:** shell.js injects the manifest link + registers the SW on every shell page

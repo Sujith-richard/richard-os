@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Doc Chat + Vision</title>
+<script>window.PAGE={title:"Doc Chat",crumb:["System","Doc Chat"]};</script>
+<style>
+  .dc-wrap { max-width: 860px; }
+  .dc-hero { margin-bottom: 1.25rem; }
+  .dc-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .dc-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .dc-upload { background: var(--card,#111827); border: 2px dashed var(--border,#1f2937); border-radius: 10px; padding: 1.25rem; text-align: center; margin-bottom: 1rem; cursor: pointer; }
+  .dc-upload:hover { border-color: var(--accent,#7C3AED); }
+  .dc-upload input { display: none; }
+  .dc-upload .u { font-size: .85rem; color: var(--muted,#94a3b8); }
+  .dc-upload .u b { color: var(--fg,#e2e8f0); }
+  .dc-bar { display: flex; gap: .5rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+  .dc-bar select { background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .45rem .6rem; font: inherit; font-size: .82rem; flex: 1; min-width: 180px; }
+  .dc-thread { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; min-height: 220px; max-height: 420px; overflow: auto; margin-bottom: 1rem; }
+  .dc-msg { margin-bottom: .8rem; font-size: .85rem; }
+  .dc-msg .who { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted,#94a3b8); margin-bottom: .2rem; }
+  .dc-msg.user .who { color: #22D3EE; }
+  .dc-msg.bot .who { color: #A78BFA; }
+  .dc-msg .txt { color: var(--fg,#e2e8f0); line-height: 1.5; }
+  .dc-msg .src { font-size: .7rem; color: var(--dim,#64748b); margin-top: .3rem; border-left: 2px solid var(--border,#1f2937); padding-left: .5rem; }
+  .dc-input { display: flex; gap: .5rem; }
+  .dc-input input { flex: 1; background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .55rem .7rem; font: inherit; font-size: .85rem; }
+  .dc-btn { background: #A78BFA; color: #0A101F; border: none; border-radius: 6px; padding: .55rem 1rem; font-weight: 700; font-size: .82rem; cursor: pointer; }
+  .dc-btn:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="dc-wrap">
+    <div class="dc-hero"><h1>📄 Doc Chat + Vision</h1><p>Upload a PDF, image, or text file — then ask questions grounded in it</p></div>
+    <div class="dc-upload" onclick="document.getElementById('dc-file').click()">
+      <input type="file" id="dc-file" accept=".pdf,.png,.jpg,.jpeg,.txt,.md"/>
+      <div class="u"><b>Click to upload</b> a document (PDF / image / text)</div>
+      <div id="dc-upload-status" style="font-size:.75rem;color:var(--muted,#94a3b8);margin-top:.4rem"></div>
+    </div>
+    <div class="dc-bar">
+      <select id="dc-docs" onchange="loadMsgs()"><option value="">— pick a document —</option></select>
+      <button class="dc-btn" style="background:transparent;border:1px solid var(--border,#1f2937);color:var(--fg,#e2e8f0)" onclick="refreshDocs()">↻</button>
+    </div>
+    <div class="dc-thread" id="dc-thread"><div style="color:var(--dim,#64748b);font-size:.8rem">Upload or pick a doc to start chatting.</div></div>
+    <div class="dc-input">
+      <input id="dc-q" placeholder="Ask about the document…" onkeydown="if(event.key==='Enter')ask()"/>
+      <button class="dc-btn" id="dc-ask-btn" onclick="ask()">Ask</button>
+    </div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let DOCS = [], curDoc = null;
+async function refreshDocs() {
+  const d = await fetch("/api/v1/docchat/docs").then(r=>r.json());
+  DOCS = d.docs || [];
+  $("dc-docs").innerHTML = '<option value="">— pick a document —</option>' +
+    DOCS.map(x => '<option value="' + x.id + '">' + x.id + ' · ' + x.name + ' (' + x.kind + ')</option>').join("");
+  if (DOCS.length && !curDoc) { $("dc-docs").value = DOCS[0].id; curDoc = DOCS[0].id; loadMsgs(); }
+}
+async function loadMsgs() {
+  curDoc = $("dc-docs").value;
+  if (!curDoc) { $("dc-thread").innerHTML = '<div style="color:var(--dim,#64748b);font-size:.8rem">Upload or pick a doc.</div>'; return; }
+  const d = await fetch("/api/v1/docchat/messages/" + curDoc).then(r=>r.json());
+  $("dc-thread").innerHTML = d.messages.length
+    ? d.messages.map(m => '<div class="dc-msg ' + m.role + '"><div class="who">' + m.role + '</div><div class="txt">' + esc(m.text) + '</div></div>').join("")
+    : '<div style="color:var(--dim,#64748b);font-size:.8rem">No messages yet — ask something.</div>';
+}
+async function uploadFile(file) {
+  $("dc-upload-status").textContent = "uploading " + file.name + "…";
+  const fd = new FormData(); fd.append("file", file);
+  const d = await fetch("/api/v1/docchat/upload", { method:"POST", body: fd }).then(r=>r.json());
+  $("dc-upload-status").textContent = d.ok ? "✓ " + d.name + " (" + d.kind + ", " + d.chunks + " chunk" + (d.chunks===1?"":"s") + ")" : "error: " + (d.error||"?");
+  if (d.ok) { await refreshDocs(); $("dc-docs").value = String(d.doc_id); curDoc = String(d.doc_id); loadMsgs(); }
+}
+async function ask() {
+  const q = $("dc-q").value.trim();
+  if (!q || !curDoc) return;
+  const btn = $("dc-ask-btn"); btn.disabled = true;
+  $("dc-thread").insertAdjacentHTML("beforeend", '<div class="dc-msg user"><div class="who">you</div><div class="txt">' + esc(q) + '</div></div>');
+  $("dc-q").value = "";
+  $("dc-thread").scrollTop = $("dc-thread").scrollHeight;
+  const d = await fetch("/api/v1/docchat/ask", { method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ doc_id: +curDoc, question: q }) }).then(r=>r.json());
+  const src = d.sources && d.sources.length ? '<div class="src">' + d.sources.map(s=>esc(s)).join("<br>") + '</div>' : "";
+  $("dc-thread").insertAdjacentHTML("beforeend", '<div class="dc-msg bot"><div class="who">richard</div><div class="txt">' + esc(d.answer||d.error) + '</div>' + src + '</div>');
+  $("dc-thread").scrollTop = $("dc-thread").scrollHeight;
+  btn.disabled = false;
+}
+function esc(s){ return (s||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+$("dc-file").addEventListener("change", e => { if (e.target.files[0]) uploadFile(e.target.files[0]); });
+refreshDocs();
+</script>
+</body>
+</html>

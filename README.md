@@ -204,3 +204,11 @@ Agents share through the graph, not point-to-point.
 - **Live edges:** `06-data/collab.db` edges table — message counts + last activity per sender→recipient
 - **API:** `GET /api/v1/collab/graph` · `GET /agents` · `POST /message` · `GET /inbox/{agent}` · `POST /validate`
 - **UI:** `ui/collab.html` — live collaboration edges, message composer, validation, agent inbox
+
+## v3.23.0 — Doc Chat + Vision (#18)
+Upload a document — then ask questions grounded in it.
+
+- **Doc-chat:** `scripts/doc_chat.py` — PDF text extraction (pypdf), text upload, chunking + lexical search, grounded Q&A via `agent_lib.call_llm`
+- **Vision:** image upload → base64 → Model Orchestrator routing (gemini-3.5-flash → gpt-oss-120b → default), honest fallback if no vision-capable model
+- **API:** `POST /api/v1/docchat/upload` (multipart) · `POST /ask` · `GET /docs` · `GET /messages/{id}`
+- **UI:** `ui/docchat.html` — upload zone, doc picker, chat thread with source chunks

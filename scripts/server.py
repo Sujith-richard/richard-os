@@ -1165,3 +1165,35 @@ async def api_collab_validate(payload: dict = None):
 @app.post("/api/v1/collab/seed")
 async def api_collab_seed():
     return {"ok": True, "seeded": _collab_seed()}
+
+# ===== #18 Doc-chat + Vision (v3.23) =====
+import sys as _dc1, pathlib as _dc2
+_dc1.path.insert(0, str(_dc2.Path(__file__).resolve().parent))
+from doc_chat import upload_doc as _doc_upload, ask as _doc_ask, list_docs as _doc_list, doc_messages as _doc_msgs
+
+@app.post("/api/v1/docchat/upload")
+async def api_docchat_upload(file: UploadFile = File(...)):
+    try:
+        data = await file.read()
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+    name = file.filename or "upload.bin"
+    ext = name.rsplit(".", 1)[-1].lower() if "." in name else "text"
+    kind = "pdf" if ext == "pdf" else "image" if ext in ("png", "jpg", "jpeg", "gif", "webp") else "text"
+    return _doc_upload(name, data, kind)
+
+@app.post("/api/v1/docchat/ask")
+async def api_docchat_ask(payload: dict = None):
+    payload = payload or {}
+    doc_id = payload.get("doc_id"); q = (payload.get("question") or "").strip()
+    if not doc_id or not q:
+        return {"ok": False, "error": "doc_id + question required"}
+    return _doc_ask(int(doc_id), q)
+
+@app.get("/api/v1/docchat/docs")
+async def api_docchat_docs():
+    return _doc_list()
+
+@app.get("/api/v1/docchat/messages/{doc_id}")
+async def api_docchat_messages(doc_id: int):
+    return _doc_msgs(doc_id)

@@ -897,13 +897,16 @@ def quick_add_task(title: str = ""):
 
 @app.get("/workflow-status")
 def workflow_status():
-    """Honest per-workflow status: idle/running/error + last run."""
-    return {"workflows": [
-        {"name": "New Job Lead → Pipeline", "status": "idle", "last": "2h ago", "runs": 14, "errors": 0},
-        {"name": "Email → Triage → Reply", "status": "running", "last": "just now", "runs": 9, "errors": 1},
-        {"name": "Daily Brief", "status": "idle", "last": "7:00 AM", "runs": 60, "errors": 0},
-        {"name": "Content Pipeline", "status": "error", "last": "failed", "runs": 5, "errors": 2},
-    ]}
+    """Real per-workflow status from the workflow engine DB."""
+    try:
+        import sys as _ws, pathlib as _wp
+        _ws.path.insert(0, str(_wp.Path(__file__).resolve().parent))
+        from workflow_engine import list_workflows
+        d = list_workflows()
+        return {"workflows": [{"name": w["title"], "status": w["status"], "last": w["last_run"] or "never",
+                               "runs": w["runs"], "errors": w["errors"]} for w in d["workflows"]]}
+    except Exception as e:
+        return {"workflows": [], "error": str(e)}
 
 @app.get("/agent-status")
 def agent_status():
@@ -1059,3 +1062,34 @@ async def api_departments_file(name: str, path: str = ""):
     ext = f.suffix.lower()
     content = f.read_text(errors="replace")
     return {"ok": True, "path": str(f.relative_to(root)), "ext": ext, "content": content}
+
+# ===== #10 Planner AI + Workflow Engine (v3.20) =====
+import sys as _w1, pathlib as _w2
+_w1.path.insert(0, str(_w2.Path(__file__).resolve().parent))
+from workflow_engine import list_workflows as _wf_list, workflow_detail as _wf_detail, \
+    run_workflow as _wf_run, seed as _wf_seed
+from planner import plan_from_goal
+
+@app.get("/api/v1/workflows")
+async def api_workflows_list():
+    return _wf_list()
+
+@app.get("/api/v1/workflows/{name}")
+async def api_workflows_detail(name: str):
+    return _wf_detail(name)
+
+@app.post("/api/v1/workflows/plan")
+async def api_workflows_plan(payload: dict = None):
+    payload = payload or {}
+    goal = (payload.get("goal") or "").strip()
+    if not goal:
+        return {"ok": False, "error": "goal required"}
+    return {"ok": True, "plan": plan_from_goal(goal)}
+
+@app.post("/api/v1/workflows/{name}/run")
+async def api_workflows_run(name: str):
+    return _wf_run(name)
+
+@app.post("/api/v1/workflows/seed")
+async def api_workflows_seed():
+    return {"ok": True, "seeded": _wf_seed()}

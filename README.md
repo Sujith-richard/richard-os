@@ -169,3 +169,12 @@ Every department is now a real, self-contained unit with a full 16-item spine.
 - **API:** `GET /api/v1/departments` · `GET /api/v1/departments/{name}` · `GET .../{name}/file?path=` · `POST /api/v1/departments/generate`
 - **UI:** `ui/departments.html` — dept cards → spine explorer → file viewer
 - **Org tree** now reads the live spec (was 19 hardcoded, now spec-driven)
+
+## v3.20.0 — Planner AI + Workflow Engine (#10)
+Goals become runnable workflows — real state machines, not static cards.
+
+- **Planner AI:** `scripts/planner.py` turns a goal into a step plan (trigger/agent/data/approve/action)
+- **Workflow Engine:** `scripts/workflow_engine.py` executes workflows step-by-step, tracks status (idle/running/done/error), persists runs + step logs to `06-data/workflows.db`
+- **API:** `GET /api/v1/workflows` · `GET /{name}` · `POST /plan` · `POST /{name}/run` · `POST /seed`
+- **UI:** `ui/workflows.html` — live workflows with real status/runs, RUN button + step log, Planner AI input (goal → plan)
+- **Honest status:** `/workflow-status` now reads the DB (was hardcoded fake)

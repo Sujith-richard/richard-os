@@ -188,3 +188,19 @@ The feedback loop: capture → dataset → fine-tune → improve core.
 - **Improve core:** repeated lessons (count ≥ 3) auto-promoted into `04-skills/`
 - **API:** `GET /api/v1/learning/overview` · `POST /capture` · `POST /dataset/generate` · `POST /fine-tune` · `POST /improve-core`
 - **UI:** `ui/learning.html` — 4-stage loop with Run buttons + top lessons
+
+## v3.22.0 — Neural Collaboration (#17)
+Agents share through the graph, not point-to-point.
+
+- **Shared bus:** `scripts/collab_engine.py` — 27 agents (core engines + company + personal + persona), send/read messages, validate each other, edge stats
+- **Live edges:** `06-data/collab.db` edges table — message counts + last activity per sender→recipient
+- **API:** `GET /api/v1/collab/graph` · `GET /agents` · `POST /message` · `GET /inbox/{agent}` · `POST /validate`
+- **UI:** `ui/collab.html` — live collaboration edges, message composer, validation, agent inbox
+
+## v3.22.0 — Neural Collaboration (#17)
+Agents share through the graph, not point-to-point.
+
+- **Shared bus:** `scripts/collab_engine.py` — 27 agents (core engines + company + personal + persona), send/read messages, validate each other, edge stats
+- **Live edges:** `06-data/collab.db` edges table — message counts + last activity per sender→recipient
+- **API:** `GET /api/v1/collab/graph` · `GET /agents` · `POST /message` · `GET /inbox/{agent}` · `POST /validate`
+- **UI:** `ui/collab.html` — live collaboration edges, message composer, validation, agent inbox

@@ -1122,3 +1122,46 @@ async def api_learning_finetune(payload: dict = None):
 async def api_learning_improve(payload: dict = None):
     payload = payload or {}
     return _learn_improve(int(payload.get("threshold", 3)))
+
+# ===== #17 Neural Collaboration (v3.22) =====
+import sys as _n1, pathlib as _n2
+_n1.path.insert(0, str(_n2.Path(__file__).resolve().parent))
+from collab_engine import collab_graph as _collab_graph, send_message as _collab_send, \
+    inbox as _collab_inbox, mark_read as _collab_read, validate as _collab_validate, seed as _collab_seed
+
+@app.get("/api/v1/collab/graph")
+async def api_collab_graph():
+    return _collab_graph()
+
+@app.get("/api/v1/collab/agents")
+async def api_collab_agents():
+    g = _collab_graph()
+    return {"ok": True, "agents": g["nodes"]}
+
+@app.post("/api/v1/collab/message")
+async def api_collab_message(payload: dict = None):
+    payload = payload or {}
+    s = payload.get("sender", "").strip(); r = payload.get("recipient", "").strip()
+    subj = payload.get("subject", "").strip()
+    if not s or not r or not subj:
+        return {"ok": False, "error": "sender, recipient, subject required"}
+    return _collab_send(s, r, subj, payload.get("body", ""))
+
+@app.get("/api/v1/collab/inbox/{agent}")
+async def api_collab_inbox(agent: str):
+    return _collab_inbox(agent)
+
+@app.post("/api/v1/collab/read")
+async def api_collab_read(payload: dict = None):
+    payload = payload or {}
+    return _collab_read(int(payload.get("message_id", 0)))
+
+@app.post("/api/v1/collab/validate")
+async def api_collab_validate(payload: dict = None):
+    payload = payload or {}
+    return _collab_validate(payload.get("validator", ""), payload.get("target", ""),
+                            payload.get("verdict", ""), payload.get("note", ""))
+
+@app.post("/api/v1/collab/seed")
+async def api_collab_seed():
+    return {"ok": True, "seeded": _collab_seed()}

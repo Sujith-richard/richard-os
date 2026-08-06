@@ -11,6 +11,7 @@
       { label: "Skills", href: "/ui/skills.html", ic: "\u2318" },
       { label: "Approvals", href: "/ui/approvals.html", ic: "\u2713" },
       { label: "Workflows", href: "/ui/workflows.html", ic: "\u21BA" },
+      { label: "Collaboration", href: "/ui/collab.html", ic: "\uD83E\uDDE0" },
       { label: "Organization", href: "/ui/org.html", ic: "\u26DB" },
       { label: "Departments", href: "/ui/departments.html", ic: "\uD83C\uDFE2" },
       { label: "Personas", href: "/ui/personas.html", ic: "\u263A" },

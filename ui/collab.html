@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Neural Collaboration</title>
+<script>window.PAGE={title:"Neural Collaboration",crumb:["System","Collaboration"]};</script>
+<style>
+  .nb-wrap { max-width: 1000px; }
+  .nb-hero { margin-bottom: 1.25rem; }
+  .nb-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .nb-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .nb-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; }
+  @media (max-width: 800px) { .nb-grid { grid-template-columns: 1fr; } }
+  .nb-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+  .nb-card h2 { font-size: .95rem; margin: 0 0 .75rem; }
+  .nb-edge { display: flex; justify-content: space-between; font-size: .82rem; padding: .4rem 0; border-bottom: 1px solid var(--border,#1f2937); }
+  .nb-edge .cnt { color: #10B981; font-weight: 700; }
+  .nb-form { display: grid; gap: .5rem; }
+  .nb-form select, .nb-form input, .nb-form textarea { background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .nb-form textarea { min-height: 60px; resize: vertical; }
+  .nb-btn { background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .45rem .8rem; font-size: .8rem; font-weight: 700; cursor: pointer; }
+  .nb-msg { font-size: .82rem; padding: .4rem 0; border-bottom: 1px solid var(--border,#1f2937); }
+  .nb-msg .from { color: #22D3EE; }
+  .nb-msg .valid { color: #10B981; font-size: .7rem; }
+  .nb-val { display: flex; gap: .5rem; align-items: center; font-size: .8rem; padding: .4rem 0; border-bottom: 1px solid var(--border,#1f2937); }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="nb-wrap">
+    <div class="nb-hero"><h1>🧠 Neural Collaboration</h1><p>WHO talks to WHOM — agents share through the graph, not point-to-point</p></div>
+    <div class="nb-grid">
+      <div>
+        <div class="nb-card">
+          <h2>Live collaboration edges</h2>
+          <div id="edges"></div>
+        </div>
+        <div class="nb-card">
+          <h2>Send a message</h2>
+          <div class="nb-form">
+            <select id="nb-from"></select>
+            <select id="nb-to"></select>
+            <input id="nb-subject" placeholder="Subject"/>
+            <textarea id="nb-body" placeholder="Body (optional)"></textarea>
+            <button class="nb-btn" onclick="sendMsg()">→ Send through the graph</button>
+          </div>
+        </div>
+        <div class="nb-card">
+          <h2>Validate</h2>
+          <div class="nb-form" style="grid-template-columns:1fr 1fr auto">
+            <select id="nb-val-from"></select>
+            <select id="nb-val-to"></select>
+            <button class="nb-btn" onclick="validate()">Approve</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="nb-card">
+          <h2>Inbox</h2>
+          <select id="nb-inbox-agent" style="width:100%;margin-bottom:.5rem;background:var(--bg,#0A101F);color:var(--fg,#e2e8f0);border:1px solid var(--border,#1f2937);border-radius:6px;padding:.4rem"></select>
+          <div id="nb-inbox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let AGENTS = [];
+async function api(path, opts={}) {
+  return fetch(path, { headers:{"Content-Type":"application/json"}, ...opts }).then(r=>r.json());
+}
+function fillSelect(sel, agents, placeholder) {
+  sel.innerHTML = '<option value="">' + placeholder + '</option>' +
+    agents.map(a => '<option value="' + a.id + '">' + a.label + ' (' + a.dept + ')</option>').join("");
+}
+async function load() {
+  const g = await api("/api/v1/collab/graph");
+  AGENTS = g.nodes || [];
+  // edges
+  $("edges").innerHTML = g.links.length
+    ? g.links.map(l => '<div class="nb-edge"><span>' + l.source + ' <span style="color:var(--dim)">→</span> ' + l.target + '</span><span class="cnt">' + l.value + ' msg</span></div>').join("")
+    : '<div style="color:var(--muted,#94a3b8);font-size:.82rem">no collaboration yet — send a message</div>';
+  // composer + validator + inbox selectors
+  fillSelect($("nb-from"), AGENTS, "From…");
+  fillSelect($("nb-to"), AGENTS, "To…");
+  fillSelect($("nb-val-from"), AGENTS, "Validator…");
+  fillSelect($("nb-val-to"), AGENTS, "Target…");
+  fillSelect($("nb-inbox-agent"), AGENTS, "Agent…");
+  // default inbox = first agent
+  if (AGENTS.length) { $("nb-inbox-agent").value = AGENTS[0].id; await loadInbox(); }
+}
+async function sendMsg() {
+  const sender = $("nb-from").value, recipient = $("nb-to").value, subject = $("nb-subject").value;
+  if (!sender || !recipient || !subject) { alert("pick from/to + subject"); return; }
+  await api("/api/v1/collab/message", { method:"POST", body: JSON.stringify({ sender, recipient, subject, body: $("nb-body").value }) });
+  $("nb-subject").value = ""; $("nb-body").value = "";
+  await load(); if ($("nb-inbox-agent").value === recipient) await loadInbox();
+}
+async function loadInbox() {
+  const agent = $("nb-inbox-agent").value;
+  if (!agent) return;
+  const d = await api("/api/v1/collab/inbox/" + agent);
+  $("nb-inbox").innerHTML = d.messages.length
+    ? d.messages.map(m => '<div class="nb-msg"><span class="from">' + m.sender + '</span> → ' + m.subject +
+        (m.validated ? ' <span class="valid">✓ validated</span>' : '') +
+        '<div style="color:var(--dim);font-size:.72rem">' + m.created_at + '</div></div>').join("")
+    : '<div style="color:var(--muted,#94a3b8);font-size:.82rem">empty inbox</div>';
+}
+async function validate() {
+  const validator = $("nb-val-from").value, target = $("nb-val-to").value;
+  if (!validator || !target) { alert("pick validator + target"); return; }
+  await api("/api/v1/collab/validate", { method:"POST", body: JSON.stringify({ validator, target, verdict:"approved", note:"approved via UI" }) });
+  await load();
+}
+$("nb-inbox-agent").addEventListener("change", loadInbox);
+load();
+</script>
+</body>
+</html>

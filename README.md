@@ -273,3 +273,10 @@ GitHub repos become part of Richard OS — not external references.
 - **Ingested for real:** awesome-claude-skills (Skill Library, 10 skills) · BlueTeam-Tools (Tool Collection, 11 skills) · superpowers (Skill Library)
 - **API:** `POST /api/v1/repo/ingest` · `GET /api/v1/repo/intel` · `GET /api/v1/repo/intel/{name}`
 - **UI:** `ui/repo-intel.html` — ingest box + repo cards with extraction tree + dept mapping
+
+## v3.32.0 — Execution Engine (v4.0 #2)
+Workflow says WHAT. Execution does it — queue, retry, parallel, dependencies, progress.
+
+- **Engine:** `scripts/execution_engine.py` — job queue (execution.db), background threads, dependency resolution (steps wait for deps), parallel step groups, auto-retry (max_retries), progress %, completion
+- **API:** `POST /api/v1/execution/run` · `GET /status/{job_id}` · `GET /queue` · `POST /retry/{job_id}`
+- **UI:** `ui/execution.html` — live queue with progress bars, step diagrams (parallel + deps), retry buttons

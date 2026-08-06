@@ -1342,3 +1342,33 @@ async def api_repo_intel():
 async def api_repo_intel_detail(name: str):
     d = _ri_detail(name)
     return {"ok": True, "repo": d} if d else {"ok": False, "error": "not found"}
+
+# ===== v4.0 Execution Engine (v3.32) =====
+import sys as _ex1, pathlib as _ex2
+_ex1.path.insert(0, str(_ex2.Path(__file__).resolve().parent))
+from execution_engine import enqueue as _ex_enqueue, execute_async as _ex_run, \
+    job_status as _ex_status, queue as _ex_queue, retry as _ex_retry
+
+@app.post("/api/v1/execution/run")
+async def api_execution_run(payload: dict = None):
+    payload = payload or {}
+    name = (payload.get("name") or "").strip()
+    steps = payload.get("steps") or []
+    if not name or not steps:
+        return {"ok": False, "error": "name + steps required"}
+    r = _ex_enqueue(name, steps, int(payload.get("max_retries", 2)))
+    if r.get("ok"):
+        _ex_run(r["job_id"])
+    return r
+
+@app.get("/api/v1/execution/status/{job_id}")
+async def api_execution_status(job_id: int):
+    return _ex_status(job_id)
+
+@app.get("/api/v1/execution/queue")
+async def api_execution_queue():
+    return _ex_queue()
+
+@app.post("/api/v1/execution/retry/{job_id}")
+async def api_execution_retry(job_id: int):
+    return _ex_retry(job_id)

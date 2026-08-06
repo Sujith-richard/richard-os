@@ -48,3 +48,4 @@ Miniconda3-latest-Linux-x86_64.sh
 06-data/resource_packages.db
 06-data/repo_intel/
 vendor/
+06-data/execution.db

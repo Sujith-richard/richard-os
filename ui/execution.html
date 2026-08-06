@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Execution Engine</title>
+<script>window.PAGE={title:"Execution",crumb:["System","Execution"]};</script>
+<style>
+  .ex-wrap { max-width: 1000px; }
+  .ex-hero { margin-bottom: 1.25rem; }
+  .ex-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .ex-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .ex-run { display: flex; gap: .5rem; margin-bottom: 1.25rem; align-items: center; flex-wrap: wrap; }
+  .ex-run input { flex: 1; min-width: 200px; background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .ex-btn { background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .5rem .9rem; font-weight: 700; font-size: .8rem; cursor: pointer; }
+  .ex-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+  .ex-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+  .ex-head h2 { font-size: .95rem; margin: 0; }
+  .ex-tag { font-size: .7rem; padding: .2rem .5rem; border-radius: 999px; }
+  .ex-tag.done { color: #10B981; border: 1px solid #10B98155; }
+  .ex-tag.running { color: #F59E0B; border: 1px solid #F59E0B55; }
+  .ex-tag.error { color: #ef4444; border: 1px solid #ef444455; }
+  .ex-bar { height: 6px; background: var(--bg,#0A101F); border-radius: 3px; overflow: hidden; margin: .5rem 0; }
+  .ex-bar i { display: block; height: 100%; background: #10B981; }
+  .ex-steps { display: flex; gap: .4rem; flex-wrap: wrap; font-size: .7rem; }
+  .ex-step { padding: .25rem .5rem; border-radius: 6px; border: 1px solid var(--border,#1f2937); color: var(--dim,#64748b); }
+  .ex-step.done { color: #10B981; border-color: #10B98155; }
+  .ex-step.running { color: #F59E0B; border-color: #F59E0B55; }
+  .ex-step.error { color: #ef4444; border-color: #ef444455; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="ex-wrap">
+    <div class="ex-hero"><h1>⚙️ Execution Engine</h1><p>Queue · retry · parallel · dependencies · progress — Workflow says WHAT, Execution does it</p></div>
+    <div class="ex-run">
+      <input id="ex-name" placeholder="Job name — e.g. ecommerce-build"/>
+      <button class="ex-btn" onclick="runDemo()">Run demo job</button>
+      <button class="ex-btn" style="background:transparent;border:1px solid var(--border,#1f2937);color:var(--fg)" onclick="load()">↻</button>
+    </div>
+    <div id="ex-list"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/execution/queue");
+  $("ex-list").innerHTML = (d.jobs || []).map(j =>
+    '<div class="ex-card"><div class="ex-head"><h2>⚡ ' + j.name + '</h2><span class="ex-tag ' + j.status + '">' + j.status + '</span></div>' +
+    '<div class="ex-bar"><i style="width:' + (j.progress||0) + '%"></i></div>' +
+    '<div style="font-size:.78rem;color:var(--dim);margin-bottom:.5rem">progress: ' + (j.progress||0) + '% · attempts: ' + j.attempts + (j.error ? ' · <span style="color:var(--err)">' + j.error + '</span>' : '') + '</div>' +
+    (j.status === "error" ? '<button class="ex-btn" onclick="retry(' + j.id + ')">↻ Retry</button>' : '') +
+    '<button class="ex-btn" style="background:transparent;border:1px solid var(--border,#1f2937);color:var(--fg);padding:.35rem .6rem;font-size:.72rem" onclick="detail(' + j.id + ')">steps</button>' +
+    '<div id="exd-' + j.id + '"></div></div>').join("") || '<div style="color:var(--dim)">queue empty — run a demo job</div>';
+}
+async function detail(id) {
+  const d = await api("/api/v1/execution/status/" + id);
+  if (!d.ok) return;
+  $("exd-" + id).innerHTML = '<div class="ex-steps">' + (d.steps || []).map(s =>
+    '<span class="ex-step ' + s.status + '">' + s.title + '</span>').join("") + '</div>';
+}
+async function retry(id) {
+  await api("/api/v1/execution/retry/" + id, { method:"POST" });
+  setTimeout(load, 500);
+}
+async function runDemo() {
+  const name = $("ex-name").value.trim() || "demo-job";
+  const steps = [
+    { k:"agent", t:"Frontend builds UI", parallel:1 },
+    { k:"agent", t:"Backend builds API", parallel:1 },
+    { k:"data", t:"Merge outputs", deps:[0,1] },
+    { k:"action", t:"Deploy", deps:[2] },
+  ];
+  await api("/api/v1/execution/run", { method:"POST", body: JSON.stringify({ name, steps }) });
+  $("ex-name").value = "";
+  setTimeout(load, 400);
+}
+load(); setInterval(load, 2000);
+</script>
+</body>
+</html>

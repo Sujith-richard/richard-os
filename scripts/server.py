@@ -595,6 +595,24 @@ def connections_delete(cid: int):
     conn.commit(); conn.close()
     return {"ok": True}
 
+@app.get("/resource-packages")
+def resource_packages():
+    """Registered resource packages (the ingestion pipeline output) [17]."""
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from repo_ingest import list_packages
+    return {"packages": list_packages()}
+
+@app.post("/resource-packages/ingest")
+def resource_ingest(url: str = ""):
+    """Analyze a GitHub repo → register it as a resource package [17]."""
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from repo_ingest import analyze
+    if not url:
+        return {"error": "no url"}
+    return analyze(url)
+
 @app.get("/approval-count")
 def approval_count():
     """Real pending approval count (feeds the NOTIFY badge)."""

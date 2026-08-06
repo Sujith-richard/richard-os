@@ -1,0 +1,44 @@
+# 02-blocks/company/web-dev.yaml — Web Development Department
+# #15 Project Generation Engine: brief → route → scaffold → review → secure → qualify → package → deliver → learn
+department: web-dev
+head: project_engine
+status: active
+pipeline: [brief-intake, route, scaffold, review-fix, security, quality, package, deliver, learning]
+
+sub-departments:
+  frontend:
+    lead: frontend-lead
+    specialists: [react-builder, vue-builder, next-builder, ui-impl]
+    stacks: [react, vue, nextjs, tailwind, typescript]
+    skills: [frontend-scaffold, ui-impl, responsive-check]
+  backend:
+    lead: backend-lead
+    specialists: [api-builder, db-designer, auth-impl, test-eng]
+    stacks: [fastapi, django, node, express, postgres, mongodb]
+    skills: [api-scaffold, db-schema, auth-scan, api-test]
+  fullstack:
+    lead: fullstack-lead
+    specialists: [frontend-lead, backend-lead, devops-eng]
+    stacks: [any]
+    skills: [fullstack-orchestrate, env-setup, deploy-readiness]
+
+decision-rules:
+  - rule: "route by stack keywords in brief — react/vue/next → frontend; fastapi/django/node/api/db → backend; both/missing → fullstack"
+  - rule: "review-fix loop runs max 3 iterations; escalate to human if issues persist"
+  - rule: "security stage blocks delivery on hardcoded secrets or known-vulnerable dep versions"
+  - rule: "quality gate requires ≥ 80% structure completeness score"
+  - rule: "every deliverable ships with README + .env.example + delivery manifest"
+
+autonomy:
+  scaffold: 3        # acts, flags exceptions
+  review-fix: 2      # recommends fixes, needs approval for structural changes
+  security: 2        # reports findings, blocks on critical
+  quality: 3         # runs checks autonomously
+  package: 3
+  deliver: 2         # staging review before final delivery
+
+learning-engine:
+  enabled: true
+  captures: [what-worked, what-broke, client-notes, speed-metrics]
+  writes-to: projects.learnings
+  skill-update: "promote repeated lesson into 04-skills/ when seen 3+ times"

@@ -137,3 +137,16 @@ Set per agent in `01-root-spine/company.yaml`.
 ![Comms](docs/screenshots/06-comms.png)
 ![Social](docs/screenshots/07-social.png)
 ![Content](docs/screenshots/08-content.png)
+
+## v3.3.0 — Project Generation Engine (#15)
+Turn a plain-English brief into a delivered, scored project scaffold.
+
+- **Pipeline:** brief-intake → route → scaffold → review-fix → security → quality → package → deliver → learning
+- **Routing:** word-boundary keyword match → frontend / backend / fullstack (web-dev.yaml)
+- **Scaffolding:** React+Vite, FastAPI, or fullstack docker-compose trees in `06-data/generated_projects/`
+- **Gates:** review-fix loop (max 3 iters) · security scan · quality score (≥80%)
+- **Delivery:** `.zip` archive + `delivery_manifest.json` per project
+- **Learning engine:** repeatable lessons auto-promote (count ≥3 → skill)
+- **API:** `POST /api/v1/project/generate` · `GET /api/v1/project/status/{id}` · `GET /api/v1/project/list`
+- **UI:** `ui/project-gen.html` — stage chips, file tree, learning log, history
+- **Dept block:** `02-blocks/company/web-dev.yaml`

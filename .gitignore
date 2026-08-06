@@ -22,3 +22,8 @@ dist/
 .DS_Store
 06-data/backups/
 main
+
+# Project Engine build artifacts (regenerated via seed_data.py / project_engine.py --demo)
+06-data/generated_projects/
+06-data/project_engine.db
+Miniconda3-latest-Linux-x86_64.sh

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Project Engine — Richard OS</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+  .pg-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .pg-hero { margin-bottom: 2rem; }
+  .pg-hero h1 { font-size: 1.8rem; margin: 0 0 .25rem; }
+  .pg-hero p { color: var(--muted, #94a3b8); margin: 0; }
+  .pg-form { display: grid; gap: .75rem; background: var(--card, #111827); border: 1px solid var(--border, #1f2937); border-radius: 12px; padding: 1.25rem; margin-bottom: 2rem; }
+  .pg-form textarea { width: 100%; min-height: 110px; background: var(--bg, #0A101F); color: var(--fg, #e2e8f0); border: 1px solid var(--border, #1f2937); border-radius: 8px; padding: .75rem; font: inherit; resize: vertical; }
+  .pg-form input { width: 100%; background: var(--bg, #0A101F); color: var(--fg, #e2e8f0); border: 1px solid var(--border, #1f2937); border-radius: 8px; padding: .6rem .75rem; font: inherit; }
+  .pg-actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+  .pg-btn { background: var(--accent, #7C3AED); color: #fff; border: none; border-radius: 8px; padding: .6rem 1.1rem; font-weight: 600; cursor: pointer; }
+  .pg-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .pg-secondary { background: transparent; color: var(--fg, #e2e8f0); border: 1px solid var(--border, #1f2937); }
+  .pg-status { font-size: .85rem; color: var(--muted, #94a3b8); }
+  .pg-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem; }
+  @media (max-width: 800px) { .pg-grid { grid-template-columns: 1fr; } }
+  .pg-card { background: var(--card, #111827); border: 1px solid var(--border, #1f2937); border-radius: 12px; padding: 1.25rem; }
+  .pg-card h2 { font-size: 1.05rem; margin: 0 0 1rem; }
+  .pg-stages { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .pg-stage { display: inline-flex; align-items: center; gap: .4rem; font-size: .78rem; padding: .35rem .7rem; border-radius: 999px; border: 1px solid var(--border, #1f2937); color: var(--muted, #94a3b8); }
+  .pg-stage.done { color: #10B981; border-color: #10B98155; background: #10B98111; }
+  .pg-stage.active { color: var(--accent, #7C3AED); border-color: var(--accent, #7C3AED); background: var(--accent, #7C3AED)11; }
+  .pg-stage.fail { color: #ef4444; border-color: #ef444455; background: #ef444411; }
+  .pg-meta { display: grid; gap: .4rem; font-size: .85rem; margin: 1rem 0; }
+  .pg-meta b { color: var(--fg, #e2e8f0); }
+  .pg-tree { font-family: ui-monospace, monospace; font-size: .8rem; line-height: 1.7; color: var(--muted, #94a3b8); max-height: 380px; overflow: auto; background: var(--bg, #0A101F); border: 1px solid var(--border, #1f2937); border-radius: 8px; padding: .9rem; }
+  .pg-tree .dir { color: #22D3EE; }
+  .pg-tree .file { color: #A78BFA; }
+  .pg-learn { display: grid; gap: .5rem; }
+  .pg-lesson { display: flex; justify-content: space-between; font-size: .85rem; border: 1px solid var(--border, #1f2937); border-radius: 8px; padding: .55rem .8rem; }
+  .pg-lesson .cnt { color: #10B981; font-weight: 700; }
+  .pg-hist { display: grid; gap: .5rem; }
+  .pg-row { display: flex; justify-content: space-between; font-size: .85rem; border: 1px solid var(--border, #1f2937); border-radius: 8px; padding: .55rem .8rem; }
+  .pg-row .dep { color: #22D3EE; }
+  .pg-row .scr { color: #10B981; font-weight: 700; }
+  .pg-error { color: #ef4444; font-size: .85rem; margin-top: .5rem; }
+</style>
+</head>
+<body>
+<div class="pg-wrap">
+  <div class="pg-hero">
+    <h1>⚙️ Project Generation Engine</h1>
+    <p>Brief → route → scaffold → review → secure → qualify → package → deliver → learn</p>
+  </div>
+  <div class="pg-form">
+    <textarea id="brief" placeholder="Describe the project. First line = title. Example:&#10;Build: SaaS dashboard&#10;React frontend with FastAPI backend, Postgres schema, docker-compose."></textarea>
+    <input id="client" placeholder="Client name (optional, default: self)"/>
+    <div class="pg-actions">
+      <button class="pg-btn" id="btnRun">▶ Generate project</button>
+      <button class="pg-btn pg-secondary" id="btnDemo">Load demo brief</button>
+      <button class="pg-btn pg-secondary" id="btnRefresh">↻ Refresh history</button>
+      <span class="pg-status" id="pgStatus"></span>
+    </div>
+    <div class="pg-error" id="pgError"></div>
+  </div>
+  <div class="pg-grid">
+    <div>
+      <div class="pg-card">
+        <h2>Pipeline</h2>
+        <div class="pg-stages" id="stages"></div>
+        <div class="pg-meta" id="pgMeta"></div>
+        <div class="pg-tree" id="pgTree">— no project yet —</div>
+      </div>
+    </div>
+    <div>
+      <div class="pg-card" style="margin-bottom:1.5rem">
+        <h2>Learning engine</h2>
+        <div class="pg-learn" id="pgLearn"><div style="color:var(--muted,#94a3b8);font-size:.85rem">Loading…</div></div>
+      </div>
+      <div class="pg-card">
+        <h2>Recent projects</h2>
+        <div class="pg-hist" id="pgHist"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES = ["brief-intake","route","scaffold","review-fix","security","quality","package","deliver","learning"];
+const $ = id => document.getElementById(id);
+
+function stageClass(s, proj) {
+  const st = (proj && proj.status) || "";
+  const done = STAGES.indexOf(s) < STAGES.indexOf(proj && proj.stage || "");
+  if (proj && proj.stage === s) return "active";
+  if (done && st !== "held") return "done";
+  if (s === "security" && proj && proj.security && proj.security.length) return "fail";
+  return "";
+}
+
+function renderStages(proj) {
+  $("stages").innerHTML = STAGES.map(s => `<span class="pg-stage ${stageClass(s, proj)}">${s.replace("-", " ")}</span>`).join("");
+}
+
+function treeHTML(files) {
+  if (!files || !files.length) return "— no files —";
+  const lines = [];
+  for (const f of files) {
+    const parts = f.split("/");
+    if (parts.length > 1) {
+      const dirs = parts.slice(0, -1).map((d, i) => `<span class="dir">${"  ".repeat(i)}${d}/</span>`).join("<br>");
+      lines.push(dirs + `<br><span class="file">${"  ".repeat(parts.length - 1)}${parts[parts.length-1]}</span>`);
+    } else {
+      lines.push(`<span class="file">${f}</span>`);
+    }
+  }
+  return lines.join("<br>");
+}
+
+function renderMeta(proj) {
+  if (!proj) { $("pgMeta").innerHTML = ""; return; }
+  $("pgMeta").innerHTML =
+    `<div><b>${proj.title}</b></div>` +
+    `<div>Department: <b>${proj.department}</b> · Client: <b>${proj.client || "self"}</b></div>` +
+    `<div>Status: <b>${proj.status}</b> · Score: <b>${proj.score ?? "—"}%</b></div>` +
+    (proj.zip ? `<div>📦 <a href="#" onclick="window.open('file://${proj.zip}')" style="color:#22D3EE">${proj.zip.split("/").pop()}</a></div>` : "");
+}
+
+function renderLearnings(learns) {
+  if (!learns || !learns.length) { $("pgLearn").innerHTML = "<div style='color:var(--muted,#94a3b8);font-size:.85rem'>No lessons yet</div>"; return; }
+  $("pgLearn").innerHTML = learns.map(l => `<div class="pg-lesson"><span>${l.lesson}</span><span class="cnt">×${l.count}</span></div>`).join("");
+}
+
+function renderHistory(projects) {
+  if (!projects || !projects.length) { $("pgHist").innerHTML = "<div style='color:var(--muted,#94a3b8);font-size:.85rem'>No projects yet</div>"; return; }
+  $("pgHist").innerHTML = projects.map(p =>
+    `<div class="pg-row"><span>${p.title}</span><span class="dep">${p.department}</span><span>${p.status}</span><span class="scr">${p.score ?? "—"}%</span></div>`
+  ).join("");
+}
+
+async function runPipeline() {
+  const brief = $("brief").value.trim();
+  if (!brief) { $("pgError").textContent = "Enter a brief first."; return; }
+  $("pgError").textContent = "";
+  $("btnRun").disabled = true;
+  $("pgStatus").textContent = "Running pipeline…";
+  try {
+    const r = await fetch("/api/v1/project/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ brief, client: $("client").value.trim() || "self" })
+    }).then(res => res.json());
+    if (!r.ok) throw new Error(r.error || "generate failed");
+    renderStages(r);
+    renderMeta(r);
+    $("pgTree").innerHTML = treeHTML(r.files);
+    $("pgStatus").textContent = `done in ${r.review ? r.review.iterations + " review pass" : ""}`;
+    await loadList(); await loadLearn();
+  } catch (e) {
+    $("pgError").textContent = "Error: " + e.message;
+  } finally {
+    $("btnRun").disabled = false;
+  }
+}
+
+async function loadLearn() {
+  const r = await fetch("/api/v1/project/list").then(res => res.json());
+  if (r.ok && r.projects && r.projects.length) {
+    const pid = r.projects[0].id;
+    const s = await fetch(`/api/v1/project/status/${pid}`).then(res => res.json());
+    if (s.ok) renderLearnings(s.learnings);
+  }
+}
+
+async function loadList() {
+  const r = await fetch("/api/v1/project/list").then(res => res.json());
+  if (r.ok) renderHistory(r.projects);
+}
+
+$("btnRun").addEventListener("click", runPipeline);
+$("btnRefresh").addEventListener("click", async () => { await loadList(); await loadLearn(); });
+$("btnDemo").addEventListener("click", () => {
+  $("brief").value = "Build: SaaS dashboard\nReact frontend with FastAPI backend, Postgres schema, docker-compose.";
+  $("client").value = "demo-client";
+});
+
+loadList(); loadLearn();
+renderStages(null);
+</script>
+
+</body>
+</html>

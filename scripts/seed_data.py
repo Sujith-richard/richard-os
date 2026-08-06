@@ -480,3 +480,21 @@ print("  crm:          5 contacts, 10 deals")
 print("  creator:      15 content items + 60 performance rows")
 print("  reading:      23 curated links")
 print("\nRun agents now — they'll work against rich fake data.")
+
+# ===== #15 Project Generation Engine seed (v3.2) =====
+def seed_project_engine():
+    import sys, pathlib, sqlite3
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from project_engine import init_db, run_pipeline, DEMO_BRIEFS, DB_PATH
+    init_db()
+    c = sqlite3.connect(DB_PATH)
+    n = c.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
+    c.close()
+    if n >= len(DEMO_BRIEFS):
+        print(f"[project-engine] already seeded ({n} projects), skipping")
+        return
+    for b in DEMO_BRIEFS:
+        r = run_pipeline(b, client="seed")
+        print(f"[project-engine] seeded: {r['title']} ({r['department']}, {r['score']}%)")
+
+seed_project_engine()

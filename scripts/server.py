@@ -946,3 +946,39 @@ from fastapi.staticfiles import StaticFiles
 import os as _os
 _os.makedirs(str(ROOT / "06-data" / "reports"), exist_ok=True)
 app.mount("/reports", StaticFiles(directory=str(ROOT / "06-data" / "reports")), name="reports")
+
+# ===== #15 Project Generation Engine (v3.2) =====
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
+from project_engine import run_pipeline, init_db, _conn
+
+@app.post("/api/v1/project/generate")
+async def api_project_generate(payload: dict = None):
+    payload = payload or {}
+    brief = (payload.get("brief") or "").strip()
+    if not brief:
+        return {"ok": False, "error": "brief required"}
+    try:
+        r = run_pipeline(brief, client=payload.get("client", "self"))
+        return {"ok": True, **r}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+@app.get("/api/v1/project/status/{pid}")
+async def api_project_status(pid: str):
+    init_db()
+    c = _conn()
+    row = c.execute("SELECT * FROM projects WHERE id=?", (pid,)).fetchone()
+    learns = c.execute("SELECT lesson, count FROM learnings ORDER BY count DESC").fetchall()
+    c.close()
+    if not row:
+        return {"ok": False, "error": "project not found"}
+    return {"ok": True, "project": dict(row), "learnings": [dict(x) for x in learns]}
+
+@app.get("/api/v1/project/list")
+async def api_project_list():
+    init_db()
+    c = _conn()
+    rows = c.execute("SELECT id,title,client,department,status,score,created_at FROM projects ORDER BY created_at DESC").fetchall()
+    c.close()
+    return {"ok": True, "projects": [dict(r) for r in rows]}

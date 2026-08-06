@@ -235,3 +235,11 @@ Richard OS is now installable and phone-navigable.
 - **PWA:** `ui/manifest.json` (standalone, theme #0A101F) + `ui/sw.js` service worker (cache shell, offline fallback) + icons 192/512
 - **Mobile drawer:** at ≤600px the sidebar becomes a slide-in drawer with ☰ hamburger in the topbar + backdrop tap-to-close
 - **Registration:** shell.js injects the manifest link + registers the SW on every shell page
+
+## v3.27.0 — Real Fine-Tune Hook (#16)
+The learning loop's fine-tune stage now actually trains.
+
+- **Real trainer:** `scripts/train_lora.py` — trains a tiny causal LM (sshleifer/tiny-gpt2) on our JSONL dataset (instruction/input/output) with real loss/gradients, checkpoints to `06-data/models/`, logs to `06-data/train_logs/`
+- **Wired:** `learning_engine.fine_tune()` runs the trainer via subprocess (status training → done/error, real checkpoint path)
+- **Auto-device:** uses CUDA automatically when the NVIDIA driver is present (RTX 3050 in this laptop — driver pending), CPU otherwise
+- **Honest:** tiny model + small steps = real but modest (fits CPU/15GB); scale model+steps when GPU is live

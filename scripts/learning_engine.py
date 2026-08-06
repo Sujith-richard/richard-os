@@ -139,7 +139,9 @@ def generate_dataset(name="richard-core-v1"):
     return {"dataset": name, "samples": len(rows), "path": str(path), "dataset_id": ds_id}
 
 # ---------- fine-tune ----------
-def fine_tune(model="qwen3-32b", dataset_name="richard-core-v1"):
+def fine_tune(model="sshleifer/tiny-gpt2", dataset_name="richard-core-v1", steps=6):
+    """Actually run the real trainer (train_lora.py) — a genuine fine-tune on our dataset."""
+    import subprocess, sys
     init_db()
     c = _conn()
     ds = c.execute("SELECT * FROM datasets WHERE name=? ORDER BY id DESC LIMIT 1", (dataset_name,)).fetchone()
@@ -147,13 +149,24 @@ def fine_tune(model="qwen3-32b", dataset_name="richard-core-v1"):
         c.close()
         return {"ok": False, "error": "dataset not found — generate first"}
     c.execute("""INSERT INTO fine_tunes (dataset_id, model, samples, status, created_at)
-                 VALUES (?,?,?, 'done', ?)""", (ds["id"], model, ds["samples"], _now()))
+                 VALUES (?,?,?, 'training', ?)""", (ds["id"], model, ds["samples"], _now()))
+    c.commit(); c.close()
+    cmd = [sys.executable, str(ROOT / "scripts" / "train_lora.py"),
+           "--dataset", dataset_name, "--model", model, "--steps", str(steps)]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "training timed out (300s)", "status": "error"}
+    ok = r.returncode == 0 and '"ok": true' in r.stdout
+    c = _conn()
+    c.execute("UPDATE fine_tunes SET status=? WHERE id=(SELECT MAX(id) FROM fine_tunes)", ("done" if ok else "error",))
     c.commit()
     ft = c.execute("SELECT * FROM fine_tunes ORDER BY id DESC LIMIT 1").fetchone()
     c.close()
-    return {"ok": True, "model": model, "dataset": dataset_name,
-            "samples": ft["samples"], "status": ft["status"],
-            "note": "simulated fine-tune — real hook via models integration (v3.18)"}
+    return {"ok": ok, "model": model, "dataset": dataset_name, "samples": ft["samples"],
+            "status": "done" if ok else "error",
+            "checkpoint": str(ROOT / "06-data" / "models" / f"richard-{dataset_name}-tiny"),
+            "stdout_tail": r.stdout[-300:] if r.stdout else r.stderr[-300:]}
 
 # ---------- improve core ----------
 def improve_core(threshold=3):

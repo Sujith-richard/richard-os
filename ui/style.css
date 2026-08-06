@@ -104,3 +104,7 @@ kbd { border:1px solid var(--hairline2); border-radius:3px; padding:0 5px; font-
 }
 /* align chart accent colors to spec where possible */
 .os-bar .b{ background:var(--acc-orange); }
+
+/* v3.4 live pill */
+.live-pill { font-size: 10px; font-weight: 700; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); cursor: default; }
+.live-pill.on { color: #10B981; border-color: #10B98155; background: #10B98111; }

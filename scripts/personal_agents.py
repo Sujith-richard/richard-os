@@ -18,6 +18,24 @@ def q(db_name, sql):
 
 def _read_inbox():
     """Read real Gmail if a GMAIL connection is saved; else fall back to fake inbox."""
+    # v3.4 hub-first: use live_gmail.json when the Gmail integration is LIVE
+    try:
+        from integrations import resolve_source
+        live = resolve_source("gmail")
+    except Exception:
+        live = None
+    if live:
+        try:
+            import json as j
+            d = j.loads(live.read_text())
+            msgs = d.get("messages", [])
+            out = [{"from_addr": m.get("from", ""), "subject": m.get("subject", ""),
+                    "body": m.get("date", ""), "status": "unread"} for m in msgs]
+            if out:
+                print("(live Gmail via hub - " + str(len(out)) + " emails)")
+                return out
+        except Exception as e:
+            print("(live gmail parse failed, using fake:", str(e)[:80], ")")
     try:
         import sqlite3, os as _os
         c = sqlite3.connect(Path(__file__).resolve().parent.parent / "06-data" / "connections.db")

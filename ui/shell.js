@@ -4,6 +4,7 @@
     { group: "OPERATE", items: [
       { label: "Dashboard", href: "/ui/", ic: "\u25C9" },
       { label: "CEO Brief", href: "/ui/ceo.html", ic: "\u2605" },
+      { label: "AI Core", href: "/ui/chat.html", ic: "\uD83D\uDCAC" },
       { label: "Brain", href: "/ui/brain.html", ic: "\u2B61" },
       { label: "Agents", href: "/ui/agents.html", ic: "\u25CF" },
       { label: "Tasks", href: "/ui/tasks.html", ic: "\u2610" },
@@ -49,14 +50,14 @@
         '<div class="group">' + g.group + '</div>' +
         g.items.map(i => '<a href="' + i.href + '" class="' + (i.href === location.pathname ? "active" : "") + '"><span class="ic">' + i.ic + '</span>' + i.label + '</a>').join("")
       ).join("") + '</nav>' +
-      '<div class="foot">DATA_MODE · FAKE<br>v2.0 · files you own</div>';
+      '<div class="foot">DATA_MODE · FAKE<br>v3 · files you own</div>';
 
     const main = document.createElement("main");
     main.className = "os-main";
     main.innerHTML =
       '<header class="os-topbar">' +
         '<div class="os-crumb">' + PAGE.crumb.map((c, i) => '<span>' + c + '</span>' + (i < PAGE.crumb.length - 1 ? '<span class="sep">/</span>' : "")).join("") + '</div>' +
-        '<div class="os-sync"><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span> <span id="notify-count" style="color:var(--ok)"></span><span id="notify-badge" style="display:none;background:var(--err);color:var(--bg);border-radius:8px;font-size:9px;padding:0 5px;font-weight:700"></span></button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><kbd>CMD K</kbd></div>' +
+        '<div class="os-sync"><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span> <span id="notify-count" style="color:var(--ok)"></span><span id="notify-badge" style="display:none;background:var(--err);color:var(--bg);border-radius:8px;font-size:9px;padding:0 5px;font-weight:700"></span></button><button class="theme-btn">THEME</button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><span id="live-pill" class="live-pill">&#9899; DEMO</span><kbd>CMD K</kbd></div>' +
       '</header>' +
       '<div class="os-content" id="os-content"></div>';
 
@@ -64,45 +65,31 @@
     body.appendChild(sidebar);
     body.appendChild(main);
 
-    // Theme switcher
-    const THEMES = ["dark", "midnight", "graphite", "oled", "nord", "dracula", "tokyo", "catppuccin"];
-    function applyTheme(t) {
-      document.documentElement.setAttribute("data-theme", t);
-      localStorage.setItem("richard-theme", t);
-    }
-    applyTheme(localStorage.getItem("richard-theme") || "dark");
-    const thBtn = document.createElement("button");
-    thBtn.textContent = "THEME";
-    thBtn.style.cssText = "background:none;border:1px solid var(--hairline2);color:var(--muted);font-family:var(--font);font-size:10px;padding:3px 10px;cursor:pointer;letter-spacing:.1em;";
-    thBtn.addEventListener("click", () => {
-      const cur = document.documentElement.getAttribute("data-theme") || "dark";
-      const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
-      applyTheme(next);
-    });
-    document.querySelector(".os-sync").prepend(thBtn);
+    // ── Command palette ──
     const pal = document.createElement("div");
     pal.className = "os-palette"; pal.id = "os-palette";
-    pal.innerHTML = '<div class="box"><input id="os-pal-input" placeholder="Jump to a view\u2026"><div class="res"></div></div>';
+    pal.innerHTML = '<div class="box"><input id="os-pal-input" placeholder="Jump to a view…"><div class="res"></div></div>';
     body.appendChild(pal);
+    // -- Live pill (v3.4): polls /api/v1/integrations every 30s
+    (async function livePill() {
+      var el = document.getElementById("live-pill");
+      if (!el) return;
+      async function tick() {
+        try {
+          var d = await (await fetch("/api/v1/integrations")).json();
+          var live = Object.values(d.integrations || {}).filter(function(v){ return v.status === "live"; }).length;
+          el.textContent = live ? "LIVE " + live : "DEMO";
+          el.className = "live-pill" + (live ? " on" : "");
+        } catch (e) { el.textContent = "DEMO"; }
+      }
+      tick(); setInterval(tick, 30000);
+    })();
+
     const input = pal.querySelector("input"), res = pal.querySelector(".res");
     function show(q) {
       const f = all.filter(i => i.label.toLowerCase().includes(q.toLowerCase()));
       res.innerHTML = f.map(i => '<a href="' + i.href + '"><span class="ic">' + i.ic + '</span><span>' + i.label + '</span><span style="margin-left:auto;color:var(--dim)">' + i.group + '</span></a>').join("") || '<a style="color:var(--dim)">no match</a>';
     }
-    // Scheduler status LED: green = running, amber = idle
-    function pollScheduler() {
-      fetch("/scheduler-status").then(r => r.json()).then(d => {
-        const led = document.querySelector(".os-sync .led");
-        if (led) {
-          led.style.background = d.running ? "var(--ok)" : "#ffb000";
-          led.style.boxShadow = d.running ? "0 0 8px var(--ok)" : "0 0 8px #ffb000";
-          const label = document.getElementById("sched-label");
-          if (label) label.textContent = d.running ? "SCHEDULER ON" : "SCHEDULER OFF";
-        }
-      }).catch(() => {});
-    }
-    setInterval(pollScheduler, 5000);
-    pollScheduler();
     document.addEventListener("keydown", e => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -113,103 +100,75 @@
     });
     input.addEventListener("input", e => show(e.target.value));
     pal.addEventListener("click", e => { if (e.target === pal) pal.classList.remove("open"); });
-  }
-  // Make the ⌘K chip clickable (opens the palette)
-  const kbdChip = document.querySelector(".os-sync kbd");
-  if (kbdChip) {
-    kbdChip.style.cursor = "pointer";
-    kbdChip.addEventListener("click", () => {
-      const pal = document.getElementById("os-palette");
-      if (pal) {
-        pal.classList.toggle("open");
-        const inp = document.getElementById("os-pal-input");
-        if (pal.classList.contains("open") && inp) { inp.value = ""; show(""); setTimeout(() => inp.focus(), 10); }
-      }
+
+    // ── Theme switcher (8 themes) ──
+    const THEMES = ["dark", "midnight", "graphite", "oled", "nord", "dracula", "tokyo", "catppuccin"];
+    function applyTheme(t) { document.documentElement.setAttribute("data-theme", t); localStorage.setItem("richard-theme", t); }
+    applyTheme(localStorage.getItem("richard-theme") || "dark");
+    document.querySelector(".theme-btn").addEventListener("click", () => {
+      const cur = document.documentElement.getAttribute("data-theme") || "dark";
+      applyTheme(THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length]);
     });
+
+    // ── Scheduler LED ──
+    function pollScheduler() {
+      fetch("/scheduler-status").then(r => r.json()).then(d => {
+        const led = document.querySelector(".os-sync .led");
+        const label = document.getElementById("sched-label");
+        if (led) led.style.background = d.running ? "var(--ok)" : "var(--warn)";
+        if (label) label.textContent = d.running ? "SCHEDULER ON" : "SCHEDULER OFF";
+      }).catch(() => {});
+    }
+    setInterval(pollScheduler, 5000);
+    pollScheduler();
   }
 
-  // ⌘K chip — delegated click handler (fires even though the topbar is
-  // built later by init(); no timing/scope dependency)
-  document.addEventListener("click", (e) => {
+  // ── Delegated: ⌘K chip, QUICK ADD, NOTIFY (timing-proof) ──
+  document.addEventListener("click", e => {
     const chip = e.target.closest ? e.target.closest(".os-sync kbd") : null;
-    if (!chip) return;
-    const pal = document.getElementById("os-palette");
-    if (!pal) return;
-    pal.classList.toggle("open");
-    const inp = document.getElementById("os-pal-input");
-    const res = pal.querySelector ? pal.querySelector(".res") : null;
-    if (pal.classList.contains("open") && inp && res) {
-      inp.value = "";
-      res.innerHTML = all.map(i => '<a href="' + i.href + '"><span class="ic">' + i.ic + '</span><span>' + i.label + '</span><span style="margin-left:auto;color:var(--dim)">' + i.group + '</span></a>').join("");
-      setTimeout(() => inp.focus(), 10);
+    const qa = e.target.closest ? e.target.closest(".qa-btn") : null;
+    const nb = e.target.closest ? e.target.closest(".notify-btn") : null;
+    if (!chip && !qa && !nb) return;
+    e.stopPropagation();
+    let el = document.getElementById("os-drop");
+    if (!el) { el = document.createElement("div"); el.id = "os-drop"; el.style.cssText = "position:fixed;background:var(--surface);border:1px solid var(--hairline2);padding:6px;z-index:70;min-width:200px;font-size:11px;box-shadow:0 10px 30px rgba(0,0,0,.5);"; document.body.appendChild(el); }
+    if (chip) {
+      const pal = document.getElementById("os-palette");
+      if (pal) { pal.classList.toggle("open"); const inp = document.getElementById("os-pal-input"); if (inp && pal.classList.contains("open")) { inp.value = ""; inp.focus(); } }
+      return;
     }
-    if (chip) chip.style.cursor = "pointer";
+    const items = qa ? [{ a: "task", l: "+ New task" }, { a: "agent", l: "+ Run agent" }, { a: "note", l: "+ New note" }] : [{ a: "none", l: "(no notifications — demo)" }, { a: "approvals", l: "check approval queue" }];
+    el.innerHTML = items.map(i => '<div data-a="' + i.a + '">' + i.l + '</div>').join("");
+    el.querySelectorAll("div").forEach(d => d.addEventListener("click", () => {
+      el.style.display = "none";
+      if (d.dataset.a === "task") { const t = prompt("New task title:"); if (t) fetch("/quick-add-task?title=" + encodeURIComponent(t), { method: "POST" }).then(() => location.href = "/ui/tasks.html"); }
+      else if (d.dataset.a === "agent") location.href = "/ui/agents.html";
+      else if (d.dataset.a === "note") location.href = "/ui/";
+      else if (d.dataset.a === "approvals") location.href = "/ui/approvals.html";
+    }));
+    if (nb) fetch("/approval-count").then(r => r.json()).then(x => { const b = document.getElementById("notify-badge"); if (b && x.pending) { b.textContent = x.pending; b.style.display = "inline-block"; } }).catch(() => {});
+    const b = qa || nb, r = b.getBoundingClientRect();
+    el.style.top = (r.bottom + 4) + "px"; el.style.right = (window.innerWidth - r.right) + "px"; el.style.display = "block";
+    setTimeout(() => document.addEventListener("click", function h() { el.style.display = "none"; document.removeEventListener("click", h); }), 10);
   });
 
+  // ── NOTIFY badge live count ──
+  (function badgeUpdater() {
+    function upd() {
+      const badge = document.getElementById("notify-badge");
+      const count = document.getElementById("notify-count");
+      if (!badge && !count) return;
+      fetch("/approval-count").then(r => r.json()).then(d => {
+        const n = d.pending || 0;
+        if (count) count.textContent = n ? "(" + n + ")" : "";
+        if (badge) { if (n) { badge.textContent = n; badge.style.display = "inline-block"; } else { badge.style.display = "none"; } }
+      }).catch(() => {});
+    }
+    upd();
+    setTimeout(upd, 300);
+    setInterval(upd, 8000);
+  })();
 
-
-
-    // Quick Add + Notifications — DELEGATED (works even though buttons are
-    // built later by init(); no timing/scope dependency)
-
-
-    // QUICK ADD + NOTIFY — one clean delegated dropdown
-    document.addEventListener("click", function ya(e) {
-      const qa = e.target.closest ? e.target.closest(".qa-btn") : null;
-      const nb = e.target.closest ? e.target.closest(".notify-btn") : null;
-      let el = document.getElementById("os-drop");
-      if (!qa && !nb) { if (el) el.style.display = "none"; return; }  // click elsewhere → close
-      e.stopPropagation();
-      if (el && el.dataset.open === "1" && el.dataset.owner === (qa ? "qa" : "nb")) {
-        el.style.display = "none"; el.dataset.open = "0"; return;   // toggle same button
-      }
-      if (!el) { el = document.createElement("div"); el.id = "os-drop"; el.className = "os-drop"; document.body.appendChild(el); }
-      const items = qa
-        ? [{ a: "task", l: "+ New task" }, { a: "agent", l: "+ Run agent" }, { a: "note", l: "+ New note" }]
-        : [{ a: "none", l: "(no notifications — demo)" }, { a: "approvals", l: "check approval queue" }];
-      if (typeof fetch !== "undefined") {
-        fetch("/approval-count").then(r => r.json()).then(d => {
-          const n = d.pending || 0;
-          if (n) {
-            const divs = el.querySelectorAll("div");
-            if (divs.length >= 2) divs[1].textContent = n + " approval draft" + (n === 1 ? "" : "s") + " pending";
-          }
-        }).catch(() => {});
-      }
-      el.innerHTML = items.map(i => '<div data-a="' + i.a + '">' + i.l + '</div>').join("");
-      el.querySelectorAll("div").forEach(d => d.addEventListener("click", () => {
-        el.style.display = "none"; el.dataset.open = "0";
-        if (d.dataset.a === "approvals") { location.href = "/ui/approvals.html"; return; }
-        if (d.dataset.a === "task") {
-        const title = prompt("New task title:");
-        if (title) fetch("/quick-add-task?title=" + encodeURIComponent(title), { method: "POST" }).then(() => location.href = "/ui/tasks.html");
-        return;
-      }
-        else if (d.dataset.a === "agent") location.href = "/ui/agents.html";
-        else if (d.dataset.a === "note") location.href = "/ui/";
-      }));
-      const b = qa || nb, r = b.getBoundingClientRect();
-      el.style.top = (r.bottom + 4) + "px";
-      el.style.right = (window.innerWidth - r.right) + "px";
-      el.style.display = "block";
-      el.dataset.owner = qa ? "qa" : "nb";
-      el.dataset.open = "1";
-    });
-    (function badgeUpdater() {
-      function upd() {
-        const badge = document.getElementById("notify-badge");
-        if (!badge) return;
-        fetch("/approval-count").then(r => r.json()).then(d => {
-          const n = d.pending || 0;
-          if (n) { badge.textContent = n; badge.style.display = "inline-block"; }
-          else { badge.style.display = "none"; }
-        }).catch(() => {});
-      }
-      upd();
-      // re-check right after the DOM is built, so the badge shows immediately
-      setTimeout(upd, 300);
-      setInterval(upd, 8000);
-    })();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();

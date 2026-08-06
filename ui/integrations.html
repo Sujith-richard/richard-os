@@ -1,71 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Richard OS — Integrations</title>
-<script>window.PAGE = { title: "Integrations", crumb: ["System", "Integrations"] };</script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Integrations — Richard OS</title>
+<link rel="stylesheet" href="style.css"/>
 <style>
-  .os-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
-  .os-kpi { background:var(--surface); border:1px solid var(--hairline); padding:12px; }
-  .os-kpi .v { font-size:18px; font-weight:700; }
-  .os-kpi .l { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim); margin-top:3px; }
-  .os-int { background:var(--surface); border:1px solid var(--hairline); padding:14px; margin-bottom:10px; display:flex; align-items:center; gap:14px; }
-  .os-int .logo { width:36px; height:36px; border:1px solid var(--hairline2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; flex-shrink:0; }
-  .os-int .body { flex:1; min-width:0; }
-  .os-int .n { font-size:13px; font-weight:700; }
-  .os-int .d { font-size:11px; color:var(--muted); }
-  .os-int .meta { font-size:10px; color:var(--dim); margin-top:4px; }
-  .os-status { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:4px 10px; border:1px solid; white-space:nowrap; flex-shrink:0; }
-  .os-status.connected { color:var(--ok); border-color:var(--ok); }
-  .os-status.not_configured { color:var(--warn); border-color:var(--warn); }
-  .os-status.error { color:var(--err); border-color:var(--err); }
-  .os-status.disabled { color:var(--dim); border-color:var(--hairline2); }
-  .os-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
-  .os-fbtn { background:none; border:1px solid var(--hairline2); color:var(--muted); font-family:var(--font); font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:5px 12px; cursor:pointer; }
-  .os-fbtn.active { color:var(--text); border-color:var(--core); }
+  .in-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .in-hero { margin-bottom: 1.5rem; }
+  .in-hero h1 { font-size: 1.8rem; margin: 0 0 .25rem; }
+  .in-hero p { color: var(--muted, #94a3b8); margin: 0; }
+  .in-summary { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .in-pill { font-size: .8rem; padding: .35rem .8rem; border-radius: 999px; border: 1px solid var(--border, #1f2937); color: var(--muted, #94a3b8); }
+  .in-pill.live { color: #10B981; border-color: #10B98155; background: #10B98111; }
+  .in-pill.fake { color: #94a3b8; }
+  .in-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
+  .in-card { background: var(--card, #111827); border: 1px solid var(--border, #1f2937); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: .75rem; }
+  .in-card-head { display: flex; justify-content: space-between; align-items: center; }
+  .in-card-title { display: flex; align-items: center; gap: .6rem; font-weight: 600; }
+  .in-badge { font-size: .7rem; font-weight: 700; padding: .25rem .6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; }
+  .in-badge.live { color: #10B981; background: #10B98122; }
+  .in-badge.fake { color: #94a3b8; background: #1f2937; }
+  .in-badge.unconfigured { color: #f59e0b; background: #f59e0b22; }
+  .in-badge.error { color: #ef4444; background: #ef444422; }
+  .in-detail { font-size: .85rem; color: var(--muted, #94a3b8); min-height: 1.2em; }
+  .in-fields { display: grid; gap: .5rem; }
+  .in-fields label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted, #94a3b8); }
+  .in-fields input { width: 100%; background: var(--bg, #0A101F); color: var(--fg, #e2e8f0); border: 1px solid var(--border, #1f2937); border-radius: 8px; padding: .5rem .6rem; font: inherit; }
+  .in-fields input.pw { -webkit-text-security: disc; }
+  .in-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: auto; }
+  .in-btn { background: var(--accent, #7C3AED); color: #fff; border: none; border-radius: 8px; padding: .45rem .8rem; font-size: .8rem; font-weight: 600; cursor: pointer; }
+  .in-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .in-btn.ghost { background: transparent; color: var(--fg, #e2e8f0); border: 1px solid var(--border, #1f2937); }
+  .in-btn.live { background: #10B981; }
+  .in-btn.fake { background: #1f2937; color: #e2e8f0; }
+  .in-meta { font-size: .72rem; color: var(--muted, #94a3b8); border-top: 1px solid var(--border, #1f2937); padding-top: .5rem; display: grid; gap: .15rem; }
 </style>
 </head>
 <body>
-  <div class="os-page">
-    <h1 class="os-h1">INTEGRATIONS</h1>
-    <div class="os-kpis" id="os-kpis"></div>
-    <div class="os-filter" id="os-filter"></div>
-    <div id="os-list"></div>
-    <div style="font-size:10px;color:var(--dim);margin-top:14px">Honest status only — no fabricated connectivity. DATA_MODE=fake: these reflect the seeded registry, not live external systems.</div>
+<div class="in-wrap">
+  <div class="in-hero">
+    <h1>🔌 Live Integrations</h1>
+    <p>Flip a source to <b style="color:#10B981">LIVE</b> to use real data · stays <b>FAKE</b> (seeded) until then</p>
   </div>
-  <script src="/ui/shell.js"></script>
-  <script>
-    let filter = "all";
-    const STATE = { connected: "🟢 Connected", not_configured: "🟡 Not Configured", error: "🔴 Error", disabled: "⚪ Disabled" };
-    const LETTERS = { Gmail: "G", GitHub: "GH", OpenCode: "O", FreeLLMAPI: "F", Home: "H", Slack: "S", Stripe: "St", Notion: "N", MySQL: "M", SQLite: "SQ", Scheduler: "⏱", Approval: "✓" };
-    function load() {
-      fetch("/systems/integrations").then(r => r.json()).then(d => {
-        const ints = d.integrations || [];
-        const c = st => ints.filter(i => i.status === st).length;
-        document.getElementById("os-kpis").innerHTML =
-          kpi(c("connected"), "Connected") + kpi(c("not_configured"), "Not Configured") +
-          kpi(c("error"), "Error") + kpi(c("disabled"), "Disabled") + kpi(ints.length, "Total");
-        const filters = ["all", "connected", "not_configured", "error", "disabled"];
-        document.getElementById("os-filter").innerHTML = filters.map(f =>
-          '<button class="os-fbtn ' + (filter === f ? "active" : "") + '" data-f="' + f + '">' + f.replace("_", " ") + '</button>'
-        ).join("");
-        document.querySelectorAll(".os-fbtn").forEach(b => b.addEventListener("click", () => { filter = b.dataset.f; load(); }));
-        const shown = filter === "all" ? ints : ints.filter(i => i.status === filter);
-        document.getElementById("os-list").innerHTML = shown.map(i =>
-          '<div class="os-int">' +
-          '<div class="logo">' + (LETTERS[i.name] || i.name.charAt(0)) + '</div>' +
-          '<div class="body"><div class="n">' + i.name + '</div><div class="d">' + i.desc + '</div><div class="meta">' + i.category + ' · last sync: ' + i.last_sync + '</div></div>' +
-          '<span class="os-status ' + i.status + '">' + (STATE[i.status] || i.status) + '</span>' +
-          '</div>'
-        ).join("") || '<div style="color:var(--dim)">no integrations</div>';
-      }).catch(e => { document.getElementById("os-list").innerHTML = '<div style="color:var(--err)">error: ' + e + '</div>'; });
-    }
-    function kpi(v, l) { return '<div class="os-kpi"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>'; }
-    load();
-    setInterval(load, 10000);
-  </script>
+  <div class="in-summary" id="summary"></div>
+  <div class="in-grid" id="grid"></div>
+</div>
+<script>
+<script>
+const ICONS = { github:"🐙", gmail:"📧", weather:"🌦️", home:"🏠", models:"🧠" };
+let state = {};
+
+async function api(path, opts={}) {
+  const r = await fetch(path, { headers: {"Content-Type":"application/json"}, ...opts });
+  return r.json();
+}
+
+function badge(status) {
+  const cls = ["live","fake","unconfigured","error"].includes(status) ? status : "fake";
+  return `<span class="in-badge ${cls}">${status}</span>`;
+}
+
+function render() {
+  const ints = state.integrations || {};
+  const entries = Object.entries(ints);
+  const live = entries.filter(([k,v]) => v.status === "live").length;
+  $("summary").innerHTML =
+    `<span class="in-pill">${live} live</span>` +
+    `<span class="in-pill">${entries.length - live} fake</span>` +
+    `<span class="in-pill">${state.updated ? "updated " + new Date(state.updated).toLocaleTimeString() : ""}</span>`;
+  $("grid").innerHTML = entries.map(([name, v]) => {
+    const fields = (v.fields || []).map(f => `
+      <div><label>${f.label}</label>
+      <input id="f-${name}-${f.key}" data-name="${name}" data-key="${f.key}"
+             class="${f.key.includes('pass') || f.key.includes('token') ? 'pw' : ''}"
+             placeholder="${f.set ? "•••••••• (set)" : "enter " + f.key.replace(/_/g,' ')}"/></div>`).join("");
+    return `<div class="in-card">
+      <div class="in-card-head">
+        <div class="in-card-title">${ICONS[name] || "🔌"} ${v.title}</div>
+        ${badge(v.status)}
+      </div>
+      <div class="in-detail">${v.last_test || "— not tested —"}</div>
+      <div class="in-fields">${fields}</div>
+      <div class="in-actions">
+        <button class="in-btn ghost" onclick="saveConfig('${name}')">💾 Save</button>
+        <button class="in-btn ghost" onclick="testSrc('${name}')">🧪 Test</button>
+        <button class="in-btn" onclick="syncSrc('${name}')">🔄 Sync</button>
+        <button class="in-btn ${v.mode === "real" ? "live" : "fake"}" onclick="toggleMode('${name}')">${v.mode === "real" ? "LIVE" : "FAKE"}</button>
+      </div>
+      <div class="in-meta">
+        <span>mode: <b>${v.mode}</b></span>
+        ${v.last_sync ? `<span>last sync: ${new Date(v.last_sync).toLocaleString()}</span>` : ""}
+        ${v.missing && v.missing.length ? `<span style="color:#f59e0b">missing: ${v.missing.join(", ")}</span>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function refresh() {
+  state = await api("/api/v1/integrations");
+  state.updated = Date.now();
+  render();
+}
+
+async function saveConfig(name) {
+  const fields = {};
+  document.querySelectorAll(`#grid input[data-name="${name}"]`).forEach(i => {
+    if (i.value) fields[i.dataset.key] = i.value;
+  });
+  await api(`/api/v1/integrations/${name}/config`, { method:"POST", body: JSON.stringify({ fields }) });
+  await refresh();
+}
+
+async function testSrc(name) {
+  await api(`/api/v1/integrations/${name}/test`, { method:"POST" });
+  await refresh();
+}
+
+async function syncSrc(name) {
+  await api(`/api/v1/integrations/${name}/sync`, { method:"POST" });
+  await refresh();
+}
+
+async function toggleMode(name) {
+  const v = state.integrations[name];
+  await api(`/api/v1/integrations/${name}/mode`, { method:"POST", body: JSON.stringify({ mode: v.mode === "real" ? "fake" : "real" }) });
+  await refresh();
+}
+
+const $ = id => document.getElementById(id);
+refresh();
+</script>
+</script>
 </body>
 </html>
-EOF
-

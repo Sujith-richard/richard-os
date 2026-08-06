@@ -150,3 +150,13 @@ Turn a plain-English brief into a delivered, scored project scaffold.
 - **API:** `POST /api/v1/project/generate` · `GET /api/v1/project/status/{id}` · `GET /api/v1/project/list`
 - **UI:** `ui/project-gen.html` — stage chips, file tree, learning log, history
 - **Dept block:** `02-blocks/company/web-dev.yaml`
+
+## v3.5.0 — Live Integrations Hub (real-data swap, UI-driven)
+Flip any data source from seeded FAKE to real LIVE — from the browser, no .env edits.
+
+- **Sources:** GitHub (public API), Gmail (IMAP app-password), Weather (Open-Meteo), Home Assistant (REST), AI Models (AI-Workspace proxy)
+- **Per-source status:** fake → unconfigured → live/error · LIVE/DEMO pill in every shell topbar
+- **UI:** `ui/integrations.html` — cards with badges, config fields, Test / Sync / mode toggle
+- **API:** `GET /api/v1/integrations` · `POST .../test|sync|mode|config`
+- **Swap:** consumers read `live_*.json` when live, seeded DBs when fake (no logic rewrites)
+- **Secrets:** config lives in `06-data/integrations.json` (gitignored, stays local)

@@ -357,12 +357,23 @@ def book_skill_status():
 
 @app.get("/repos")
 def repos_list():
-    """The open-source tool registry (honest status, from tools/repos.json)."""
+    """Open-source tool registry. Serves LIVE GitHub data when github is live, else seeded repos.json."""
     import json as j
+    try:
+        from integrations import resolve_source
+        live = resolve_source("github")
+    except Exception:
+        live = None
+    if live:
+        try:
+            d = j.loads(live.read_text())
+            return {"repos": d.get("repos", []), "source": "live-github"}
+        except Exception:
+            pass
     f = ROOT / "tools" / "repos.json"
     if not f.exists():
         return {"repos": []}
-    return {"repos": j.loads(f.read_text())}
+    return {"repos": j.loads(f.read_text()), "source": "seeded"}
 
 from fastapi.responses import JSONResponse
 
@@ -982,3 +993,31 @@ async def api_project_list():
     rows = c.execute("SELECT id,title,client,department,status,score,created_at FROM projects ORDER BY created_at DESC").fetchall()
     c.close()
     return {"ok": True, "projects": [dict(r) for r in rows]}
+
+# ===== v3.4 Live Integrations Hub =====
+import sys as _s2, pathlib as _p2
+_s2.path.insert(0, str(_p2.Path(__file__).resolve().parent))
+from integrations import (list_integrations, test_source, sync_source,
+                          set_mode, save_source_config)
+
+@app.get("/api/v1/integrations")
+async def api_integrations_list():
+    return list_integrations()
+
+@app.post("/api/v1/integrations/{name}/test")
+async def api_integrations_test(name: str):
+    return test_source(name)
+
+@app.post("/api/v1/integrations/{name}/sync")
+async def api_integrations_sync(name: str):
+    return sync_source(name)
+
+@app.post("/api/v1/integrations/{name}/mode")
+async def api_integrations_mode(name: str, payload: dict = None):
+    payload = payload or {}
+    return set_mode(name, payload.get("mode", "fake"))
+
+@app.post("/api/v1/integrations/{name}/config")
+async def api_integrations_config(name: str, payload: dict = None):
+    payload = payload or {}
+    return save_source_config(name, payload.get("fields", {}))

@@ -23,88 +23,167 @@ def root():
 
 @app.get("/graph")
 def graph():
-    """Knowledge-graph nodes + edges, built from your real data."""
+    """Richard Core v2 — the neural brain: tree = who owns what,
+    neural graph = who talks to whom [17]. Core services connect in from
+    outside; the AI model layer lives inside the brain [17]."""
     nodes, edges = [], []
-    # Core
-    nodes.append({"id": "core", "label": "Richard OS", "type": "core", "x": 0, "y": 0})
-    # Systems of record -> tool nodes
-    systems = [
-        ("second_brain", "second_brain.db", "captures", "tool"),
-        ("pm", "pm.db", "tasks", "tool"),
-        ("finance", "finance.db", "transactions", "tool"),
-        ("crm", "crm.db", "contacts", "tool"),
-        ("creator", "creator.db", "content", "tool"),
-        ("reading", "reading.db", "links", "tool"),
+    def N(nid, label, ntype, x, y, color=None):
+        nodes.append({"id": nid, "label": label, "type": ntype, "x": x, "y": y, "color": color})
+        return nid
+    def E(src, tgt, strength=1):
+        edges.append({"source": src, "target": tgt, "strength": strength})
+
+    # ── RICHARD CORE (the brain center) ──
+    core = N("core", "Richard Core", "core", 0, 0, "#ff8a3d")
+    brain_knowledge = [
+        ("shared-memory", "Shared Memory"), ("knowledge-graph", "Knowledge Graph"),
+        ("learning-engine", "Learning Engine"), ("neural-network", "Neural Network"),
+        ("context-memory", "Context Memory"), ("long-term-memory", "Long Term Memory"),
+        ("experience-memory", "Experience Memory"),
     ]
-    for i, (name, dbfile, table, ntype) in enumerate(systems):
-        nodes.append({"id": name, "label": name, "type": ntype, "x": 200, "y": (i - 2) * 140})
-        edges.append({"source": "core", "target": name, "strength": 3})
+    for nid, label in brain_knowledge:
+        N(nid, label, "knowledge", -60, 0, "#e8e8e8")
+
+    # ── AI MODEL LAYER — INSIDE the brain [17] ──
+    cloud = [("openai","OpenAI"),("anthropic","Anthropic"),("google","Google"),("deepseek","DeepSeek"),
+             ("xai","xAI"),("mistral","Mistral"),("qwen","Qwen"),("future-models","Future Models 100+")]
+    local = [("coding-model","Coding"),("vision-model","Vision"),("reasoning-model","Reasoning"),
+             ("planner-model","Planner"),("creative-model","Creative"),("research-model","Research"),
+             ("security-model","Security"),("dept-models","Department Models")]
+    N("ai-model-layer", "AI Model Layer", "dept", -180, 0, "#29D7F6")
+    N("cloud-models", "Cloud Models", "dept", -180, -80, "#29D7F6")
+    N("local-models", "Local Models", "dept", -180, 90, "#29D7F6")
+    E(core, "ai-model-layer"); E("ai-model-layer","cloud-models"); E("ai-model-layer","local-models")
+    for i,(nid,label) in enumerate(cloud):
+        N(nid, label, "model", -320, -140 + i*36, "#29D7F6"); E("cloud-models", nid)
+    for i,(nid,label) in enumerate(local):
+        N(nid, label, "model", -320, 40 + i*36, "#29D7F6"); E("local-models", nid)
+
+    # ── CORE SERVICES — connected to brain from OUTSIDE [17] ──
+    services = [
+        ("executive-ai","Executive AI"),("planner-ai","Planner AI"),("task-manager","Task Manager"),
+        ("workflow-engine","Workflow Engine"),("model-orchestrator","Model Orchestrator"),
+        ("decision-engine","Decision Engine"),("reasoning-engine","Reasoning Engine"),
+        ("automation-engine","Automation Engine"),("context-engine","Context Engine"),
+        ("memory-engine","Memory Engine"),("knowledge-engine","Knowledge Engine"),
+        ("prompt-engine","Prompt Engine"),("quality-checker","Quality Checker"),
+        ("neural-comm","Neural Comm Engine"),("event-bus","Event Bus"),
+    ]
+    N("core-services", "Core Services (outside)", "dept", 180, 0, "#B58CFF")
+    E(core, "core-services")
+    for i,(nid,label) in enumerate(services):
+        N(nid, label, "service", 320, -150 + i*22, "#B58CFF")
+        E("core-services", nid)          # services reach IN to the brain [17]
+    # neural collaboration (who talks to whom) [17]
+    E("executive-ai","planner-ai"); E("planner-ai","task-manager"); E("task-manager","workflow-engine")
+    E("model-orchestrator","ai-model-layer",2); E("neural-comm","knowledge-graph",2)
+    E("memory-engine","long-term-memory",2); E("knowledge-engine","knowledge-graph",2)
+
+    # ── CONVERSATION LAYER ──
+    convs = [("chat","Chat"),("voice","Voice"),("vision","Vision"),("doc-chat","Document Chat"),
+             ("terminal","Terminal"),("api","API"),("automation-trigger","Automation Trigger"),
+             ("mobile-app","Mobile App"),("desktop-app","Desktop App"),("web-app","Web App"),("wearables","Wearables")]
+    N("conversation", "Conversation Layer", "dept", 0, -180, "#F472B6")
+    for i,(nid,label) in enumerate(convs):
+        N(nid, label, "conv", -200 + i*40, -260, "#F472B6"); E("conversation", nid)
+    E(core, "conversation")
+
+    # ── PERSONAL ASSISTANT ──
+    pa = [("daily","Daily"),("calendar","Calendar"),("email","Email"),("notes","Notes"),("tasks","Tasks"),
+          ("finance","Finance"),("health","Health"),("travel","Travel"),("shopping","Shopping"),("smart-home","Smart Home")]
+    N("personal-assistant", "Personal Assistant", "dept", 0, 180, "#34D399")
+    for i,(nid,label) in enumerate(pa):
+        N(nid, label, "assistant", -180 + i*40, 260, "#34D399"); E("personal-assistant", nid)
+    E(core, "personal-assistant")
+    for nid,label in [("lights","Lights"),("sensors","Sensors"),("cctv","CCTV"),("ac","AC"),("door-lock","Door Lock"),("ha-auto","Automation")]:
+        N("ha-"+nid, label, "device", -320, 360, "#34D399"); E("smart-home", "ha-"+nid)
+
+    # ── CAPABILITY LAYER ──
+    caps = [("skills","Skills"),("tools-mcp","Tools / MCP"),("knowledge","Knowledge"),("departments-cap","Departments")]
+    N("capability", "Capability Layer", "dept", 380, 180, "#10B981")
+    for i,(nid,label) in enumerate(caps):
+        N(nid, label, "cap", 520, 140 + i*40, "#10B981"); E("capability", nid)
+    E(core, "capability")
+    N("skill-layer", "Skill Layer (every model + dept)", "dept", 520, 40, "#10B981")
+    E("capability", "skill-layer", 2)
+    for nid,label in [("claude-skills","Claude Skills"),("internal-skills","Internal"),("dept-skills","Department"),
+                      ("user-skills","User"),("community-skills","Community")]:
+        N(nid, label, "skill", 660, 60 + i*30, "#10B981"); E("skills", nid)
+
+    # ── RESOURCE INTELLIGENCE ──
+    regs = [("mcp-registry","MCP Registry"),("api-registry","API Registry"),("tool-registry","Tool Registry"),
+            ("plugin-registry","Plugin Registry"),("knowledge-registry","Knowledge Registry")]
+    N("resource-intel", "Resource Intelligence", "dept", -380, 180, "#D5C44B")
+    for i,(nid,label) in enumerate(regs):
+        N(nid, label, "resource", -560, 120 + i*34, "#D5C44B"); E("resource-intel", nid)
+    E(core, "resource-intel")
+    gh = [("security-repos","Security (BlueTeam-Tools, OWASP)"),("ai-repos","AI"),("frameworks","Frameworks"),
+          ("templates","Templates"),("sdks","SDKs"),("awesome","Awesome Lists"),
+          ("claude-skill-repos","Claude Skills Repo"),("prompt-libs","Prompt Libraries")]
+    N("github-intel", "GitHub Repo Intelligence", "dept", -560, -160, "#D5C44B")
+    for i,(nid,label) in enumerate(gh):
+        N(nid, label, "repo", -720, -220 + i*32, "#D5C44B"); E("github-intel", nid)
+    E("resource-intel","github-intel")
+
+    # ── DEPARTMENT LAYER ──
+    depts = [("software-eng","Software Engineering"),("web-dev","Web Development"),("mobile-dev","Mobile Development"),
+             ("ai-eng","AI Engineering"),("ml","Machine Learning"),("data-eng","Data Engineering"),
+             ("cyber-security","Cyber Security"),("cloud","Cloud"),("robotics","Robotics"),("uiux","UI/UX"),
+             ("product","Product"),("finance-dept","Finance"),("hr","HR"),("marketing","Marketing"),
+             ("creative","Creative Studio"),("video","Video"),("music","Music"),("research","Research"),("legal","Legal")]
+    N("departments", "Department Layer", "dept", 0, 380, "#60A5FA")
+    for i,(nid,label) in enumerate(depts):
+        N(nid, label, "dept", -360 + (i%7)*120, 460 + (i//7)*60, "#60A5FA"); E("departments", nid)
+    E(core, "departments")
+    for nid,label in [("frontend","Frontend"),("backend","Backend"),("database","Database"),("api-sub","API"),
+                      ("auth","Authentication"),("devops","DevOps"),("testing","Testing"),("security-sub","Security"),("docs","Documentation")]:
+        N("web-"+nid, label, "subdept", -360, 560, "#60A5FA"); E("web-dev", "web-"+nid)
+    # neural collaboration across departments [17]
+    E("web-frontend","web-backend",2); E("web-backend","web-database",2); E("web-backend","web-security-sub",2)
+    E("web-backend","web-devops",2); E("web-database","web-api-sub",2); E("web-testing","web-frontend",2)
+
+    # ── PROJECT GENERATION + CONTINUOUS LEARNING ──
+    N("project-gen", "Project Generation Engine", "engine", 380, -160, "#F26CB8")
+    for nid,label in [("req-analysis","Requirement Analysis"),("dept-select","Department Selection"),
+                      ("skill-select","Skill Selection"),("tool-select","Tool Selection"),
+                      ("knowledge-retr","Knowledge Retrieval"),("structure-select","Structure Selection"),
+                      ("agent-assign","Agent Assignment"),("file-gen","File Generation"),
+                      ("code-gen","Code Generation"),("testing-gen","Testing"),("security-review","Security Review"),
+                      ("docs-gen","Documentation"),("quality-review","Quality Review"),
+                      ("packaging","Packaging"),("delivery","Delivery")]:
+        N("pg-"+nid, label, "engine", 560, -280 + i*26, "#F26CB8"); E("project-gen", "pg-"+nid)
+    E(core, "project-gen")
+    N("continuous-learning", "Continuous Learning", "engine", 560, 260, "#F26CB8")
+    for nid,label in [("store-conv","Store Conversation"),("store-knowledge","Store Knowledge"),
+                      ("store-skills","Store Skills"),("store-workflow","Store Workflow"),
+                      ("store-project","Store Project"),("gen-dataset","Generate Dataset"),
+                      ("finetune","Fine Tune Local Models"),("improve-core","Improve Richard Core")]:
+        N("cl-"+nid, label, "engine", 740, 200 + i*30, "#F26CB8"); E("continuous-learning", "cl-"+nid)
+    E(core, "continuous-learning")
+
+    # ── KEEP existing systems of record + agents (nothing breaks) ──
+    systems = [("second_brain","second_brain.db","captures"),("pm","pm.db","tasks"),
+               ("finance","finance.db","transactions"),("crm","crm.db","contacts"),
+               ("creator","creator.db","content"),("reading","reading.db","links")]
+    for i,(name, dbfile, table) in enumerate(systems):
+        nodes.append({"id": name, "label": name, "type": "tool", "x": 200, "y": 380 + i*40})
+        edges.append({"source": core, "target": name, "strength": 3})
         try:
             rows = q(dbfile, table)
             for j, r in enumerate(rows[:5]):
                 nid = f"{name}-{r.get('id')}"
-                nodes.append({"id": nid, "label": str(r.get("title") or r.get("name") or r.get("note") or r.get("kind"))[:40], "type": "data", "x": 420, "y": (j - 2) * 90})
+                nodes.append({"id": nid, "label": str(r.get("title") or r.get("name") or r.get("note") or r.get("kind"))[:40], "type": "data", "x": 420, "y": 380 + i*40 + j*30})
                 edges.append({"source": name, "target": nid, "strength": 1})
         except Exception:
             pass
-    # Agents -> green live nodes, wired to their systems of record
-    agents = [
-        ("agent-job_hunter", "job_hunter", "second_brain"),
-        ("agent-content_ops", "content_ops", "creator"),
-        ("agent-freelance_biz", "freelance_biz", "finance"),
-        ("agent-pm_assistant", "pm_assistant", "pm"),
-        ("agent-portfolio_builder", "portfolio_builder", "crm"),
-    ]
-    for i, (aid, alabel, target) in enumerate(agents):
-        nodes.append({"id": aid, "label": alabel, "type": "agent", "x": -220, "y": (i - 2) * 120})
-        edges.append({"source": "core", "target": aid, "strength": 2})
+    agents = [("agent-job_hunter","job_hunter","second_brain"),("agent-content_ops","content_ops","creator"),
+              ("agent-freelance_biz","freelance_biz","finance"),("agent-pm_assistant","pm_assistant","pm"),
+              ("agent-portfolio_builder","portfolio_builder","crm")]
+    for i,(aid, alabel, target) in enumerate(agents):
+        nodes.append({"id": aid, "label": alabel, "type": "agent", "x": 560, "y": 380 + i*40})
+        edges.append({"source": core, "target": aid, "strength": 2})
         edges.append({"source": aid, "target": target, "strength": 2})
-    # ── Domains: company / home / personal hierarchy ──
-    DOMAIN_COLORS = {"company": "#60a5fa", "home": "#34d399", "personal": "#f472b6"}
-    domain_files = {
-        "company": ROOT / "02-blocks" / "company" / "departments.yaml",
-        "home": ROOT / "02-blocks" / "home" / "home.yaml",
-        "personal": ROOT / "02-blocks" / "personal" / "personal.yaml",
-    }
-    di = 0
-    for dname, dpath in domain_files.items():
-        try:
-            cfg = yaml.safe_load(dpath.read_text()) or {}
-        except Exception:
-            cfg = {}
-        color = DOMAIN_COLORS.get(dname, "#a78bfa")
-        nodes.append({"id": f"domain-{dname}", "label": dname, "type": "domain", "color": color, "x": -320, "y": (di - 1) * 180})
-        edges.append({"source": "core", "target": f"domain-{dname}", "strength": 2})
-        di += 1
-        subtree = cfg.get(dname, {})
-        ei = 0
-        for subname, agents in subtree.items():
-            nodes.append({"id": f"{dname}-{subname}", "label": subname, "type": "dept", "color": color, "x": -480, "y": (di - 1) * 180 + ei * 60})
-            edges.append({"source": f"domain-{dname}", "target": f"{dname}-{subname}", "strength": 1.5})
-            ei += 1
-            if isinstance(agents, list):
-                for a in agents:
-                    if isinstance(a, dict):
-                        for aname in a:
-                            nodes.append({"id": f"{dname}-{subname}-{aname}", "label": aname, "type": "employee", "color": "#10b981", "x": -640, "y": (di - 1) * 180 + ei * 60})
-                            edges.append({"source": f"{dname}-{subname}", "target": f"{dname}-{subname}-{aname}", "strength": 1})
-                            ei += 1
-    # ── Personas: the staffed companies ──
-    import glob
-    persona_files = sorted(glob.glob(str(ROOT / "02-blocks" / "personas" / "*.yaml")))
-    for fi, pf in enumerate(persona_files):
-        pname = Path(pf).stem
-        try:
-            cfg = yaml.safe_load(Path(pf).read_text()) or {}
-        except Exception:
-            cfg = {}
-        pcolor = "#f472b6"
-        nodes.append({"id": f"persona-{pname}", "label": pname, "type": "persona", "color": pcolor, "x": -820, "y": (fi - 1.5) * 160})
-        edges.append({"source": "core", "target": f"persona-{pname}", "strength": 2})
-        lead = cfg.get("ceo") or cfg.get("director")
-        if lead:
-            nodes.append({"id": f"persona-{pname}-lead", "label": str(lead), "type": "employee", "color": "#10b981", "x": -980, "y": (fi - 1.5) * 160})
-            edges.append({"source": f"persona-{pname}", "target": f"persona-{pname}-lead", "strength": 1.5})
+
     return {"nodes": nodes, "edges": edges}
 
 @app.get("/api/run")
@@ -473,6 +552,26 @@ def chat(msg: str = ""):
     # ── 3. Action triggers (do real work when asked) ──
     action_note = ""
     low = msg.lower()
+    # ── Skill Layer — every model + department can access [17] ──
+    skill_note = ""
+    if "skill" in low and any(k in low for k in ["what", "show", "list", "available", "use"]):
+        import sys as _sl
+        _sl.path.insert(0, str(ROOT / "scripts"))
+        try:
+            from skill_layer import list_skills, build
+            build()
+            sk = list_skills()
+            if "use skill" in low:
+                name = low.replace("use skill", "").strip().strip(".")
+                hit = next((x for x in sk if x["name"] in name or name in x["name"]), None)
+                skill_note = ("\n\n🔧 Skill **" + hit["name"] + "** (" + hit["category"] + ", owned by " + hit["owner_agent"] + ") — loaded for this task: " + hit["description"] + " [17]" if hit else "\n\nNo skill matched '" + name + "' — say \"what skills\" to see the library.")
+            else:
+                skill_note = "\n\n🧠 Skill Layer (every model + department can access) [17]:\n" + "\n".join("- " + x["name"] + " · " + x["category"] + " · " + x["owner_agent"] for x in sk[:20])
+                if len(sk) > 20:
+                    skill_note += "\n… and " + str(len(sk) - 20) + " more (ask 'use skill <name>')"
+        except Exception as e:
+            skill_note = "\n\n(Skill layer error: " + str(e)[:80] + " — honest)"
+
     # ── MCP tool dispatch (AI Core chat → real tools) ──
     mcp_note = ""
     try:
@@ -539,6 +638,7 @@ def chat(msg: str = ""):
             report_url = None
             html_url = None
             reply = reply + f"\n\n(Report generation failed: {e})"
+    reply = reply + skill_note
     return {"reply": reply, "owner": owner, "state": state, "report_url": report_url, "html_url": html_url, "zip_url": zip_url}
 
 @app.get("/chat/history")
@@ -594,6 +694,16 @@ def connections_delete(cid: int):
     conn.execute("DELETE FROM connections WHERE id=?", (cid,))
     conn.commit(); conn.close()
     return {"ok": True}
+
+@app.get("/skills-library")
+def skills_library():
+    """The Skill Layer — every model + department can access it [17]."""
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from skill_layer import list_skills, build
+    build()  # refresh the catalog from disk
+    dept = ""
+    return {"skills": list_skills({"department": dept} or None), "count": len(list_skills())}
 
 @app.get("/resource-packages")
 def resource_packages():

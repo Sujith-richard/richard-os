@@ -1320,3 +1320,25 @@ async def api_local_generate(payload: dict = None):
     if not prompt:
         return {"ok": False, "error": "prompt required"}
     return _li_gen(prompt, int(payload.get("max_new", 60)))
+
+# ===== v4.0 Repository Intelligence (v3.31) =====
+import sys as _ri1, pathlib as _ri2
+_ri1.path.insert(0, str(_ri2.Path(__file__).resolve().parent))
+from repo_intel import ingest as _ri_ingest, list_intel as _ri_list, intel_detail as _ri_detail
+
+@app.post("/api/v1/repo/ingest")
+async def api_repo_ingest(payload: dict = None):
+    payload = payload or {}
+    url = (payload.get("url") or "").strip()
+    if not url:
+        return {"ok": False, "error": "url required"}
+    return {"ok": True, **(_ri_ingest(url) or {"error": "ingest failed"})}
+
+@app.get("/api/v1/repo/intel")
+async def api_repo_intel():
+    return {"ok": True, "repos": _ri_list()}
+
+@app.get("/api/v1/repo/intel/{name}")
+async def api_repo_intel_detail(name: str):
+    d = _ri_detail(name)
+    return {"ok": True, "repo": d} if d else {"ok": False, "error": "not found"}

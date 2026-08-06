@@ -265,3 +265,11 @@ The Model Orchestrator now has a real LOCAL tier — the RTX 3050 serves complet
 - **API:** `GET /api/v1/models/local/status` · `POST /api/v1/models/local/generate`
 - **UI:** Local Inference panel on `ui/models.html` — status + prompt box + output
 - **Honest:** tiny model (fine-tuned on our dataset) = real local GPU inference, modest quality; swap in a bigger checkpoint anytime
+
+## v3.31.0 — Repository Intelligence (v4.0 flagship)
+GitHub repos become part of Richard OS — not external references.
+
+- **Pipeline:** `scripts/repo_intel.py` — shallow clone → README/docs → detect language/framework/type → extract skills/knowledge/workflows/templates/folder-structure/MCP/APIs → persist → register → dept-available
+- **Ingested for real:** awesome-claude-skills (Skill Library, 10 skills) · BlueTeam-Tools (Tool Collection, 11 skills) · superpowers (Skill Library)
+- **API:** `POST /api/v1/repo/ingest` · `GET /api/v1/repo/intel` · `GET /api/v1/repo/intel/{name}`
+- **UI:** `ui/repo-intel.html` — ingest box + repo cards with extraction tree + dept mapping

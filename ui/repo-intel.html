@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Repo Intelligence</title>
+<script>window.PAGE={title:"Repo Intel",crumb:["System","Repo Intel"]};</script>
+<style>
+  .ri-wrap { max-width: 1000px; }
+  .ri-hero { margin-bottom: 1.25rem; }
+  .ri-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .ri-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .ri-ingest { display: flex; gap: .5rem; margin-bottom: 1.25rem; }
+  .ri-ingest input { flex: 1; background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .55rem .7rem; font: inherit; font-size: .85rem; }
+  .ri-btn { background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .55rem 1rem; font-weight: 700; font-size: .82rem; cursor: pointer; }
+  .ri-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+  .ri-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+  .ri-head h2 { font-size: 1rem; margin: 0; }
+  .ri-tag { font-size: .68rem; padding: .2rem .5rem; border-radius: 999px; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); }
+  .ri-meta { font-size: .78rem; color: var(--dim,#64748b); margin-bottom: .75rem; }
+  .ri-tree { font-family: ui-monospace,monospace; font-size: .75rem; line-height: 1.6; color: var(--muted,#94a3b8); background: var(--bg,#0A101F); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .75rem; max-height: 260px; overflow: auto; }
+  .ri-tree .k { color: #22D3EE; }
+  .ri-tree .v { color: #A78BFA; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="ri-wrap">
+    <div class="ri-hero"><h1>🗺️ Repository Intelligence</h1><p>Clone → detect → extract skills/knowledge/workflows/templates/structure/MCP/APIs → register → available to departments</p></div>
+    <div class="ri-ingest">
+      <input id="ri-url" placeholder="GitHub repo URL — e.g. https://github.com/A-poc/BlueTeam-Tools"/>
+      <button class="ri-btn" onclick="ingest()">Ingest</button>
+    </div>
+    <div id="ri-list"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+function esc(s){ return (s||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function parseList(s){ try { return JSON.parse(s||"[]"); } catch(e){ return []; } }
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/repo/intel");
+  $("ri-list").innerHTML = (d.repos || []).map(r =>
+    '<div class="ri-card"><div class="ri-head"><h2>📦 ' + esc(r.name) + '</h2><span class="ri-tag">' + esc(r.repo_type) + ' · ' + esc(r.language) + '</span></div>' +
+    '<div class="ri-meta">framework: ' + esc(r.framework||"none") + ' · categories: ' + esc(r.categories||"-") + ' · dept: <b style="color:#22D3EE">' + esc(r.dept_mapping) + '</b></div>' +
+    '<button class="ri-btn" style="background:transparent;border:1px solid var(--border,#1f2937);color:var(--fg,#e2e8f0);padding:.35rem .7rem;font-size:.72rem" onclick="detail(\'' + r.name + '\')">extraction tree</button>' +
+    '<div id="det-' + r.name + '"></div></div>').join("") || '<div style="color:var(--dim)">no repos ingested yet — paste a GitHub URL above</div>';
+}
+async function detail(name) {
+  const d = await api("/api/v1/repo/intel/" + name);
+  if (!d.ok) return;
+  const r = d.repo;
+  const skills = parseList(r.skills), wfs = parseList(r.workflows), tmpl = parseList(r.templates),
+        mcp = parseList(r.mcp), apis = parseList(r.apis), struc = parseList(r.folder_structure);
+  const box = document.getElementById("det-" + name);
+  box.innerHTML = '<div class="ri-tree">' +
+    '<span class="k">skills</span> (' + skills.length + '): ' + esc(skills.slice(0,8).join(", ")) + '<br>' +
+    '<span class="k">workflows</span> (' + wfs.length + '): ' + esc(wfs.join(", ")) + '<br>' +
+    '<span class="k">templates</span> (' + tmpl.length + '): ' + esc(tmpl.slice(0,4).join(", ")) + '<br>' +
+    '<span class="k">mcp</span> (' + mcp.length + '): ' + esc(mcp.slice(0,4).join(", ")) + '<br>' +
+    '<span class="k">apis</span> (' + apis.length + '): ' + esc(apis.slice(0,6).join(", ")) + '<br>' +
+    '<span class="k">folder structure</span> (' + struc.length + '):<br>' + struc.slice(0,12).map(s => '&nbsp;&nbsp;' + esc(s)).join('<br>') +
+    '</div>';
+}
+async function ingest() {
+  const url = $("ri-url").value.trim();
+  if (!url) return;
+  const d = await api("/api/v1/repo/ingest", { method:"POST", body: JSON.stringify({ url }) });
+  $("ri-url").value = "";
+  await load();
+  if (d.ok && d.name) await detail(d.name);
+  else alert("ingest error: " + (d.error || "?"));
+}
+load();
+</script>
+</body>
+</html>

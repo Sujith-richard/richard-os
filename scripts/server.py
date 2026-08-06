@@ -1394,3 +1394,24 @@ async def api_validation_report(rid: int):
 @app.get("/api/v1/validation/history")
 async def api_validation_history():
     return _val_hist()
+
+# ===== v4.0 Agent Lifecycle (v3.34) =====
+import sys as _lc1, pathlib as _lc2
+_lc1.path.insert(0, str(_lc2.Path(__file__).resolve().parent))
+from agent_lifecycle import start as _lc_start, advance as _lc_adv, agent_state as _lc_state, all_states as _lc_all
+
+@app.post("/api/v1/lifecycle/start/{agent}")
+async def api_lifecycle_start(agent: str):
+    return _lc_start(agent)
+
+@app.post("/api/v1/lifecycle/advance/{agent}")
+async def api_lifecycle_advance(agent: str):
+    return _lc_adv(agent)
+
+@app.get("/api/v1/lifecycle/{agent}")
+async def api_lifecycle_agent(agent: str):
+    return _lc_state(agent)
+
+@app.get("/api/v1/lifecycle")
+async def api_lifecycle_all():
+    return _lc_all()

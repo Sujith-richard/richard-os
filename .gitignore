@@ -50,3 +50,4 @@ Miniconda3-latest-Linux-x86_64.sh
 vendor/
 06-data/execution.db
 06-data/validation.db
+06-data/lifecycle.db

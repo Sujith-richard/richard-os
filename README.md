@@ -288,3 +288,10 @@ Everything generated must pass validation — 10 dimensions, composite score, ga
 - **API:** `POST /api/v1/validation/run` (path, name, threshold) · `GET /report/{id}` · `GET /history`
 - **UI:** `ui/validation.html` — dimension bars, gate badge, history
 - **Works on:** Project Engine output, repo intel, any generated deliverable
+
+## v3.34.0 — Agent Lifecycle (v4.0 #4)
+Every agent now has a full lifecycle state machine.
+
+- **Lifecycle:** `scripts/agent_lifecycle.py` — created → assigned → thinking → uses_models → uses_skills → uses_tools → uses_knowledge → returns_result → reviewer_checks → memory_updated → sleeps (then wraps to a new cycle)
+- **API:** `POST /api/v1/lifecycle/start/{agent}` · `POST /advance/{agent}` · `GET /{agent}` · `GET /`
+- **UI:** `ui/lifecycle.html` — per-agent timeline dots, current state badge, advance/restart buttons

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Agent Lifecycle</title>
+<script>window.PAGE={title:"Lifecycle",crumb:["System","Lifecycle"]};</script>
+<style>
+  .lc-wrap { max-width: 1000px; }
+  .lc-hero { margin-bottom: 1.25rem; }
+  .lc-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .lc-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .lc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .lc-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; }
+  .lc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+  .lc-head h2 { font-size: .95rem; margin: 0; }
+  .lc-state { font-size: .72rem; padding: .25rem .6rem; border-radius: 999px; font-weight: 700; }
+  .lc-state.sleeps { color: #64748b; border: 1px solid #64748b55; }
+  .lc-state.thinking, .lc-state.assigned { color: #F59E0B; border: 1px solid #F59E0B55; }
+  .lc-state.memory_updated { color: #10B981; border: 1px solid #10B98155; }
+  .lc-timeline { display: flex; gap: .3rem; flex-wrap: wrap; margin: .5rem 0; }
+  .lc-dot { font-size: .6rem; color: var(--dim,#64748b); }
+  .lc-dot.on { color: #10B981; }
+  .lc-btn { background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .4rem .8rem; font-size: .75rem; font-weight: 700; cursor: pointer; }
+  .lc-meta { font-size: .72rem; color: var(--dim,#64748b); }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="lc-wrap">
+    <div class="lc-hero"><h1>🔄 Agent Lifecycle</h1><p>created → assigned → thinking → uses models/skills/tools/knowledge → result → reviewer → memory → sleeps</p></div>
+    <div class="lc-grid" id="lc-grid"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const STATES = ["created","assigned","thinking","uses_models","uses_skills","uses_tools","uses_knowledge","returns_result","reviewer_checks","memory_updated","sleeps"];
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/lifecycle");
+  $("lc-grid").innerHTML = (d.agents || []).map(a => {
+    const idx = a.state_idx || 0;
+    const dots = STATES.map((s, i) => '<span class="lc-dot ' + (i <= idx ? 'on' : '') + '">●</span>').join("");
+    return '<div class="lc-card"><div class="lc-head"><h2>' + a.name + '</h2><span class="lc-state ' + a.state + '">' + a.state + '</span></div>' +
+      '<div class="lc-meta">' + (a.dept||"") + ' · ' + (a.role||"") + ' · cycles ' + a.cycles + '</div>' +
+      '<div class="lc-timeline">' + dots + '</div>' +
+      '<div style="display:flex;gap:.4rem;flex-wrap:wrap">' +
+      '<button class="lc-btn" onclick="advance(\'' + a.name + '\')">→ advance</button>' +
+      (idx === 0 && a.cycles <= 1 ? '<button class="lc-btn" style="background:transparent;border:1px solid var(--border);color:var(--fg)" onclick="start(\'' + a.name + '\')">restart</button>' : '') +
+      '</div></div>';
+  }).join("") || '<div style="color:var(--dim)">no agents started — start one below</div>';
+}
+async function start(name) { await api("/api/v1/lifecycle/start/" + name, { method:"POST" }); load(); }
+async function advance(name) { await api("/api/v1/lifecycle/advance/" + name, { method:"POST" }); load(); }
+load();
+</script>
+</body>
+</html>

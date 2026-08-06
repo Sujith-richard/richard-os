@@ -243,3 +243,10 @@ The learning loop's fine-tune stage now actually trains.
 - **Wired:** `learning_engine.fine_tune()` runs the trainer via subprocess (status training → done/error, real checkpoint path)
 - **Auto-device:** uses CUDA automatically when the NVIDIA driver is present (RTX 3050 in this laptop — driver pending), CPU otherwise
 - **Honest:** tiny model + small steps = real but modest (fits CPU/15GB); scale model+steps when GPU is live
+
+## v3.28.0 — Resource Registry (#13)
+Unified view of every resource the OS can reach.
+
+- **Aggregator:** `scripts/registry.py` — tools (tools_config.json), MCP tools (mcp_tools.status), repos (live-github/repos.json), resource packages, plugins
+- **API:** `GET /api/v1/registry` · `GET /api/v1/registry/{category}`
+- **UI:** `ui/registry.html` — 5 category cards (Tools/MCP/Repos/Packages/Plugins) with counts + statuses

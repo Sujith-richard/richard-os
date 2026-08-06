@@ -33,6 +33,7 @@
       { label: "Deals", href: "/ui/deals.html", ic: "\u20BF" },
       { label: "Connections", href: "/ui/connections.html", ic: "\u21C4" },
       { label: "Tool Repos", href: "/ui/repos.html", ic: "\u2699" },
+      { label: "Registry", href: "/ui/registry.html", ic: "\uD83D\uDCC1" },
     ]},
   ];
   const PAGE = window.PAGE || { title: "Console", crumb: ["Operate", "Console"] };

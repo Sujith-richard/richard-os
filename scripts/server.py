@@ -1273,3 +1273,16 @@ async def api_models_set_route(payload: dict = None):
     payload = payload or {}
     return _mo_set(payload.get("task_type", "default"), payload.get("model", "deepseek-v4-flash-free"),
                    payload.get("tier"), payload.get("why", ""))
+
+# ===== #13 Registry (v3.28) =====
+import sys as _r1, pathlib as _r2
+_r1.path.insert(0, str(_r2.Path(__file__).resolve().parent))
+from registry import registry as _registry
+
+@app.get("/api/v1/registry")
+async def api_registry():
+    return _registry()
+
+@app.get("/api/v1/registry/{category}")
+async def api_registry_category(category: str):
+    return _registry(category)

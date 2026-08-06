@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Registry</title>
+<script>window.PAGE={title:"Registry",crumb:["System","Registry"]};</script>
+<style>
+  .rg-wrap { max-width: 1000px; }
+  .rg-hero { margin-bottom: 1.25rem; }
+  .rg-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .rg-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .rg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+  .rg-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; }
+  .rg-card h2 { font-size: .95rem; margin: 0 0 .5rem; display: flex; justify-content: space-between; align-items: center; }
+  .rg-card h2 .n { font-size: .75rem; color: #10B981; font-weight: 700; }
+  .rg-item { font-size: .8rem; padding: .35rem 0; border-bottom: 1px solid var(--border,#1f2937); display: flex; justify-content: space-between; }
+  .rg-item .st { font-size: .7rem; color: var(--muted,#94a3b8); }
+  .rg-item .ok { color: #10B981; }
+  .rg-item .defer { color: #F59E0B; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="rg-wrap">
+    <div class="rg-hero"><h1>🗂️ Resource Registry</h1><p>Tools · MCP · Repos · Packages · Plugins — unified</p></div>
+    <div class="rg-grid" id="rg-grid"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const ICONS = { tools:"🔧", mcp:"🔌", repos:"🐙", packages:"📦", plugins:"🧩" };
+async function load() {
+  const d = await fetch("/api/v1/registry").then(r => r.json());
+  const cats = d.categories || {};
+  $("rg-grid").innerHTML = Object.entries(cats).map(([k, v]) =>
+    '<div class="rg-card"><h2>' + (ICONS[k]||"") + ' ' + k.toUpperCase() + ' <span class="n">' + v.count + '</span></h2>' +
+    (v.items && v.items.length ? v.items.slice(0, 12).map(i => {
+      const name = i.name || i.title || "?";
+      const st = i.status || i.auth || "";
+      const cls = st === "connected" ? "ok" : st === "deferred" ? "defer" : "";
+      return '<div class="rg-item"><span>' + name + '</span>' + (st ? '<span class="st ' + cls + '">' + st + '</span>' : '') + '</div>';
+    }).join("") : '<div style="color:var(--dim,#64748b);font-size:.78rem">empty</div>') + '</div>'
+  ).join("");
+}
+load();
+</script>
+</body>
+</html>

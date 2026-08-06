@@ -220,3 +220,11 @@ Health · Travel · Shopping systems of record, alongside email/tasks/calendar/s
 - **API:** `GET /api/v1/life/overview` · `GET /health|trips|shopping` · `POST /health/add|trip/add|shopping/add|shopping/toggle`
 - **UI:** `ui/life.html` — 3 tracker cards with add-forms + lists
 - **Collab:** health-agent / travel-agent / shopping-agent added to the Neural Collaboration roster (30 agents)
+
+## v3.25.0 — Model Orchestrator (#11/#10)
+Routes every task to the best model — real per-task selection, not a hardcoded default.
+
+- **Orchestrator:** `scripts/model_orchestrator.py` — 11 task types (chat/plan/code/analysis/creative/reasoning/vision/research/summarize/quick/default) → tier (fast/balanced/power) → model + fallback chain
+- **Wired everywhere:** `agent_lib.call_llm(prompt, task_type=..., agent=...)` routes through the orchestrator by default; per-agent overrides supported
+- **API:** `GET /api/v1/models/status` · `GET /available` · `GET /route/{task_type}?agent=` · `POST /route` (set)
+- **UI:** `ui/models.html` — routing table with live availability + per-task route editor

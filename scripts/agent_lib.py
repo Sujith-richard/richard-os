@@ -41,8 +41,16 @@ def read_memory():
         texts.append(f"--- {f.name} ---\n" + f.read_text()[:2000])
     return "\n".join(texts)
 
-def call_llm(prompt, model="deepseek-v4-flash-free"):
-    """Call FreeLLMAPI (or OpenCode proxy) with the given prompt."""
+def call_llm(prompt, model=None, task_type="default", agent=None):
+    """Call the model layer with the given prompt, routed by the Model Orchestrator.
+    If model is None, the orchestrator picks per task_type (agent override wins)."""
+    import sys, pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from model_orchestrator import resolve_model
+    if model is None:
+        r = resolve_model(task_type, agent)
+        model = r["resolved"]
+        print(f"[orchestrator] {task_type} -> {model} (tier {r['tier']})")
     load_env()
     url = os.environ.get("FREELLMAPI_URL", "http://localhost:3001/v1")
     key = os.environ.get("FREELLMAPI_KEY", "freellmapi-c049fbfe5ac7efae7133cf8aec333d78337827c19a644ed7")

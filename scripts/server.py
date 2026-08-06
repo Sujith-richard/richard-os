@@ -1249,3 +1249,27 @@ async def api_life_shopping():
 @app.post("/api/v1/life/seed")
 async def api_life_seed():
     return {"ok": True, "seeded": _life_seed()}
+
+# ===== #11 Model Orchestrator (v3.25) =====
+import sys as _m1, pathlib as _m2
+_m1.path.insert(0, str(_m2.Path(__file__).resolve().parent))
+from model_orchestrator import status as _mo_status, route_model as _mo_route, \
+    resolve_model as _mo_resolve, set_route as _mo_set, available_models as _mo_avail
+
+@app.get("/api/v1/models/status")
+async def api_models_status():
+    return _mo_status()
+
+@app.get("/api/v1/models/available")
+async def api_models_available():
+    return {"ok": True, "models": _mo_avail()}
+
+@app.get("/api/v1/models/route/{task_type}")
+async def api_models_route(task_type: str, agent: str = ""):
+    return _mo_resolve(task_type, agent or None)
+
+@app.post("/api/v1/models/route")
+async def api_models_set_route(payload: dict = None):
+    payload = payload or {}
+    return _mo_set(payload.get("task_type", "default"), payload.get("model", "deepseek-v4-flash-free"),
+                   payload.get("tier"), payload.get("why", ""))

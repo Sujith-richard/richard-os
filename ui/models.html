@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Model Orchestrator</title>
+<script>window.PAGE={title:"Models",crumb:["System","Models"]};</script>
+<style>
+  .mo-wrap { max-width: 1000px; }
+  .mo-hero { margin-bottom: 1.25rem; }
+  .mo-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .mo-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .mo-avail { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .mo-chip { font-size: .75rem; padding: .3rem .65rem; border-radius: 999px; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); }
+  .mo-chip.on { color: #10B981; border-color: #10B98155; background: #10B98111; }
+  .mo-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+  .mo-card h2 { font-size: .95rem; margin: 0 0 .75rem; }
+  .mo-row { display: grid; grid-template-columns: 110px 1fr 90px 80px 70px; gap: .5rem; align-items: center; font-size: .82rem; padding: .45rem 0; border-bottom: 1px solid var(--border,#1f2937); }
+  .mo-row .t { color: #22D3EE; font-weight: 600; }
+  .mo-row .why { color: var(--dim,#64748b); font-size: .72rem; }
+  .mo-tier { font-size: .7rem; padding: .15rem .5rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; }
+  .mo-tier.fast { color: #10B981; border: 1px solid #10B98155; }
+  .mo-tier.balanced { color: #F59E0B; border: 1px solid #F59E0B55; }
+  .mo-tier.power { color: #A78BFA; border: 1px solid #A78BFA55; }
+  .mo-edit { display: grid; grid-template-columns: 130px 1fr 90px auto; gap: .5rem; align-items: center; }
+  .mo-edit select, .mo-edit input { background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .45rem .6rem; font: inherit; font-size: .82rem; }
+  .mo-btn { background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .45rem .8rem; font-size: .78rem; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="mo-wrap">
+    <div class="mo-hero"><h1>🧠 Model Orchestrator</h1><p>Routes each task to the best model — tier + fallback, live availability</p></div>
+    <div class="mo-avail" id="mo-avail"></div>
+    <div class="mo-card">
+      <h2>Routing table</h2>
+      <div id="mo-routes"></div>
+    </div>
+    <div class="mo-card">
+      <h2>Set a route</h2>
+      <div class="mo-edit">
+        <select id="mo-task"></select>
+        <select id="mo-model"></select>
+        <select id="mo-tier"><option value="fast">fast</option><option value="balanced">balanced</option><option value="power">power</option></select>
+        <button class="mo-btn" onclick="setRoute()">Set route</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let MODELS = [], ROUTES = [];
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const st = await api("/api/v1/models/status");
+  MODELS = st.models_available || [];
+  ROUTES = st.routes || [];
+  $("mo-avail").innerHTML = MODELS.map(m => '<span class="mo-chip on">' + m + '</span>').join("");
+  $("mo-routes").innerHTML = ROUTES.map(r =>
+    '<div class="mo-row"><span class="t">' + r.task_type + '</span>' +
+    '<span>' + r.resolved + ' <span class="why">(' + (r.why||"") + ')</span></span>' +
+    '<span class="mo-tier ' + r.tier + '">' + r.tier + '</span>' +
+    '<span>' + (r.available ? "✓" : "✗") + '</span>' +
+    '<span style="color:var(--dim)">' + (r.model===r.resolved?"":"→ "+r.resolved) + '</span></div>').join("");
+  $("mo-task").innerHTML = ROUTES.map(r => '<option value="' + r.task_type + '">' + r.task_type + '</option>').join("");
+  $("mo-model").innerHTML = MODELS.map(m => '<option value="' + m + '">' + m + '</option>').join("");
+}
+async function setRoute() {
+  await api("/api/v1/models/route", { method:"POST", body: JSON.stringify({ task_type: $("mo-task").value, model: $("mo-model").value, tier: $("mo-tier").value }) });
+  await load();
+}
+load();
+</script>
+</body>
+</html>

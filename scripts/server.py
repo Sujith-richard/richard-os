@@ -1286,3 +1286,20 @@ async def api_registry():
 @app.get("/api/v1/registry/{category}")
 async def api_registry_category(category: str):
     return _registry(category)
+
+# ===== #10 Task Manager assign (v3.29) =====
+import sys as _a1, pathlib as _a2
+_a1.path.insert(0, str(_a2.Path(__file__).resolve().parent))
+from task_assigner import assign_task as _assign, list_assignments as _assign_list
+
+@app.post("/api/v1/tasks/assign")
+async def api_tasks_assign(payload: dict = None):
+    payload = payload or {}
+    title = (payload.get("title") or "").strip()
+    if not title:
+        return {"ok": False, "error": "title required"}
+    return _assign(title, payload.get("dept"))
+
+@app.get("/api/v1/tasks/assignments")
+async def api_tasks_assignments():
+    return _assign_list()

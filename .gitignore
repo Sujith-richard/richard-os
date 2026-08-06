@@ -44,3 +44,4 @@ Miniconda3-latest-Linux-x86_64.sh
 06-data/model_routes.json
 06-data/models/
 06-data/train_logs/
+06-data/assignments.db

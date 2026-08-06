@@ -250,3 +250,10 @@ Unified view of every resource the OS can reach.
 - **Aggregator:** `scripts/registry.py` — tools (tools_config.json), MCP tools (mcp_tools.status), repos (live-github/repos.json), resource packages, plugins
 - **API:** `GET /api/v1/registry` · `GET /api/v1/registry/{category}`
 - **UI:** `ui/registry.html` — 5 category cards (Tools/MCP/Repos/Packages/Plugins) with counts + statuses
+
+## v3.29.0 — Task Manager Assign Service (#10)
+Real assignment: a task title → the best agent from the 30-agent roster.
+
+- **Assigner:** `scripts/task_assigner.py` — keyword/skill matching (email→email-agent, code→backend, frontend→frontend, strategy→planner-ai, shopping→shopping-agent…) + explicit dept override + word-overlap fallback
+- **API:** `POST /api/v1/tasks/assign` (title, dept?) · `GET /api/v1/tasks/assignments`
+- **UI:** Assign bar on `ui/tasks.html` — type a task, see who owns it + why

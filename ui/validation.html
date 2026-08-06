@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Validation Engine</title>
+<script>window.PAGE={title:"Validation",crumb:["System","Validation"]};</script>
+<style>
+  .va-wrap { max-width: 1000px; }
+  .va-hero { margin-bottom: 1.25rem; }
+  .va-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .va-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .va-run { display: flex; gap: .5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .va-run input { flex: 1; min-width: 220px; background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .va-btn { background: #A78BFA; color: #0A101F; border: none; border-radius: 6px; padding: .5rem .9rem; font-weight: 700; font-size: .8rem; cursor: pointer; }
+  .va-gate { font-size: 1rem; font-weight: 700; padding: .4rem .8rem; border-radius: 8px; display: inline-block; margin-bottom: 1rem; }
+  .va-gate.pass { color: #10B981; border: 1px solid #10B98155; }
+  .va-gate.fail { color: #ef4444; border: 1px solid #ef444455; }
+  .va-dim { margin-bottom: .5rem; }
+  .va-dim .l { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted,#94a3b8); margin-bottom: .2rem; }
+  .va-bar { height: 6px; background: var(--bg,#0A101F); border-radius: 3px; overflow: hidden; }
+  .va-bar i { display: block; height: 100%; background: #A78BFA; }
+  .va-hist { font-size: .8rem; color: var(--dim,#64748b); margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="va-wrap">
+    <div class="va-hero"><h1>🧪 Validation Engine</h1><p>10-dimension scoring — code review · security · performance · a11y · UI · testing · linting · docs · standards → quality gate</p></div>
+    <div class="va-run">
+      <input id="va-path" placeholder="Path to validate — e.g. 06-data/generated_projects/saas-dashboard"/>
+      <button class="va-btn" onclick="run()">Validate</button>
+    </div>
+    <div id="va-out"></div>
+    <div class="va-hist" id="va-hist"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const DIM_LABEL = { code_review:"Code Review", security:"Security", performance:"Performance", accessibility:"Accessibility", ui:"UI", testing:"Testing", linting:"Linting", documentation:"Documentation", standards:"Standards" };
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function run() {
+  const path = $("va-path").value.trim();
+  if (!path) return;
+  const d = await api("/api/v1/validation/run", { method:"POST", body: JSON.stringify({ path, name: path.split("/").pop() }) });
+  $("va-out").innerHTML =
+    '<div class="va-gate ' + d.gate + '">' + (d.gate === "pass" ? "✓ PASS" : "✗ FAIL") + ' · ' + d.composite + '/100</div>' +
+    Object.entries(d.dims || {}).map(([k,v]) =>
+      '<div class="va-dim"><div class="l"><span>' + (DIM_LABEL[k]||k) + '</span><span>' + v + '</span></div><div class="va-bar"><i style="width:' + v + '%"></i></div></div>').join("") +
+    '<div style="font-size:.75rem;color:var(--dim);margin-top:.5rem">' + d.files + ' files · threshold ' + d.threshold + '</div>';
+  await hist();
+}
+async function hist() {
+  const d = await api("/api/v1/validation/history");
+  $("va-hist").innerHTML = (d.reports || []).map(r => '<div>' + r.id + ' · ' + r.target + ' · <b>' + r.composite + '</b> · ' + r.gate + ' · ' + r.created_at + '</div>').join("");
+}
+run(); hist();
+</script>
+</body>
+</html>

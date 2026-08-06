@@ -280,3 +280,11 @@ Workflow says WHAT. Execution does it — queue, retry, parallel, dependencies, 
 - **Engine:** `scripts/execution_engine.py` — job queue (execution.db), background threads, dependency resolution (steps wait for deps), parallel step groups, auto-retry (max_retries), progress %, completion
 - **API:** `POST /api/v1/execution/run` · `GET /status/{job_id}` · `GET /queue` · `POST /retry/{job_id}`
 - **UI:** `ui/execution.html` — live queue with progress bars, step diagrams (parallel + deps), retry buttons
+
+## v3.33.0 — Validation Engine (v4.0 #3)
+Everything generated must pass validation — 10 dimensions, composite score, gate.
+
+- **Validator:** `scripts/validation_engine.py` — code_review, security, performance, accessibility, UI, testing, linting, documentation, standards → weighted composite (0-100) + pass/fail gate + report history
+- **API:** `POST /api/v1/validation/run` (path, name, threshold) · `GET /report/{id}` · `GET /history`
+- **UI:** `ui/validation.html` — dimension bars, gate badge, history
+- **Works on:** Project Engine output, repo intel, any generated deliverable

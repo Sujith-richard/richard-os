@@ -1372,3 +1372,25 @@ async def api_execution_queue():
 @app.post("/api/v1/execution/retry/{job_id}")
 async def api_execution_retry(job_id: int):
     return _ex_retry(job_id)
+
+# ===== v4.0 Validation Engine (v3.33) =====
+import sys as _v1p, pathlib as _v2p
+_v1p.path.insert(0, str(_v2p.Path(__file__).resolve().parent))
+from validation_engine import validate as _val_run, history as _val_hist, report as _val_rep
+
+@app.post("/api/v1/validation/run")
+async def api_validation_run(payload: dict = None):
+    payload = payload or {}
+    path = (payload.get("path") or "").strip()
+    if not path:
+        return {"ok": False, "error": "path required"}
+    return _val_run(path, payload.get("name"), int(payload.get("threshold", 70)))
+
+@app.get("/api/v1/validation/report/{rid}")
+async def api_validation_report(rid: int):
+    r = _val_rep(rid)
+    return {"ok": True, "report": r} if r else {"ok": False, "error": "not found"}
+
+@app.get("/api/v1/validation/history")
+async def api_validation_history():
+    return _val_hist()

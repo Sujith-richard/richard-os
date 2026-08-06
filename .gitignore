@@ -33,3 +33,5 @@ Miniconda3-latest-Linux-x86_64.sh
 06-data/live_*.json
 06-data/departments.db
 06-data/workflows.db
+06-data/learning_engine.db
+06-data/datasets/

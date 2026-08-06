@@ -1093,3 +1093,32 @@ async def api_workflows_run(name: str):
 @app.post("/api/v1/workflows/seed")
 async def api_workflows_seed():
     return {"ok": True, "seeded": _wf_seed()}
+
+# ===== #16 Continuous Learning (v3.21) =====
+import sys as _l1, pathlib as _l2
+_l1.path.insert(0, str(_l2.Path(__file__).resolve().parent))
+from learning_engine import capture_all as _learn_capture, generate_dataset as _learn_ds, \
+    fine_tune as _learn_ft, improve_core as _learn_improve, overview as _learn_ov
+
+@app.get("/api/v1/learning/overview")
+async def api_learning_overview():
+    return _learn_ov()
+
+@app.post("/api/v1/learning/capture")
+async def api_learning_capture():
+    return {"ok": True, "captured": _learn_capture()}
+
+@app.post("/api/v1/learning/dataset/generate")
+async def api_learning_dataset(payload: dict = None):
+    payload = payload or {}
+    return _learn_ds(payload.get("name", "richard-core-v1"))
+
+@app.post("/api/v1/learning/fine-tune")
+async def api_learning_finetune(payload: dict = None):
+    payload = payload or {}
+    return _learn_ft(payload.get("model", "qwen3-32b"), payload.get("dataset", "richard-core-v1"))
+
+@app.post("/api/v1/learning/improve-core")
+async def api_learning_improve(payload: dict = None):
+    payload = payload or {}
+    return _learn_improve(int(payload.get("threshold", 3)))

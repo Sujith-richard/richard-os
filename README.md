@@ -178,3 +178,13 @@ Goals become runnable workflows — real state machines, not static cards.
 - **API:** `GET /api/v1/workflows` · `GET /{name}` · `POST /plan` · `POST /{name}/run` · `POST /seed`
 - **UI:** `ui/workflows.html` — live workflows with real status/runs, RUN button + step log, Planner AI input (goal → plan)
 - **Honest status:** `/workflow-status` now reads the DB (was hardcoded fake)
+
+## v3.21.0 — Continuous Learning (#16)
+The feedback loop: capture → dataset → fine-tune → improve core.
+
+- **Capture:** run logs + project learnings + workflow runs → samples/lessons (`scripts/learning_engine.py`)
+- **Dataset:** generate JSONL training set (instruction/input/output) → `06-data/datasets/`
+- **Fine-tune:** mark a model fine-tuned on the dataset (fake-first; real hook via models integration)
+- **Improve core:** repeated lessons (count ≥ 3) auto-promoted into `04-skills/`
+- **API:** `GET /api/v1/learning/overview` · `POST /capture` · `POST /dataset/generate` · `POST /fine-tune` · `POST /improve-core`
+- **UI:** `ui/learning.html` — 4-stage loop with Run buttons + top lessons

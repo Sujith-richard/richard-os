@@ -2,28 +2,66 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Richard OS — Learning</title>
-<script>window.PAGE={title:"Learning",crumb:["System","Learning"]};</script>
+<title>Richard OS — Continuous Learning</title>
+<script>window.PAGE={title:"Continuous Learning",crumb:["System","Learning"]};</script>
+<style>
+  .cl-wrap { max-width: 1000px; }
+  .cl-hero { margin-bottom: 1.25rem; }
+  .cl-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .cl-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .cl-loop { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .cl-stage { flex: 1; min-width: 170px; background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: .9rem; display: flex; flex-direction: column; gap: .5rem; }
+  .cl-stage h3 { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted,#94a3b8); margin: 0; }
+  .cl-stage .num { font-size: 1.4rem; font-weight: 700; color: #F26CB8; }
+  .cl-stage .sub { font-size: .72rem; color: var(--muted,#94a3b8); }
+  .cl-btn { align-self: flex-start; background: #F26CB8; color: #0A101F; border: none; border-radius: 6px; padding: .35rem .7rem; font-size: .75rem; font-weight: 700; cursor: pointer; }
+  .cl-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .cl-lessons { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; }
+  .cl-lessons h2 { font-size: 1rem; margin: 0 0 .75rem; }
+  .cl-lesson { display: flex; justify-content: space-between; font-size: .85rem; padding: .4rem 0; border-bottom: 1px solid var(--border,#1f2937); }
+  .cl-lesson .cnt { color: #10B981; font-weight: 700; }
+  .cl-out { font-family: ui-monospace, monospace; font-size: .75rem; color: var(--muted,#94a3b8); background: var(--bg,#0A101F); border: 1px solid var(--border,#1f2937); border-radius: 8px; padding: .75rem; margin-top: .75rem; max-height: 200px; overflow: auto; white-space: pre-wrap; }
+</style>
 </head>
 <body>
 <div class="os-page">
-<h1 class="os-h1">LEARNING OS</h1>
-<div id="os-learn" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px"></div>
+  <div class="cl-wrap">
+    <div class="cl-hero"><h1>♾️ Continuous Learning</h1><p>The feedback loop: capture → dataset → fine-tune → improve core</p></div>
+    <div class="cl-loop" id="loop"></div>
+    <div class="cl-lessons">
+      <h2>Top lessons (repeated → promoted to skills)</h2>
+      <div id="lessons"></div>
+    </div>
+    <div class="cl-out" id="out">— run a stage to see output —</div>
+  </div>
 </div>
 <script src="/ui/shell.js"></script>
 <script>
-Promise.all([fetch("/systems/learning").then(r=>r.json()).catch(()=>({}))]).then(([d])=>{
-  const courses=d.courses||[], topics=d.topics||[];
-  document.getElementById("os-learn").innerHTML=courses.map(c=>{
-    const ts=topics.filter(t=>t.course_id===c.id);
-    const done=ts.filter(t=>t.status==="done").length;
-    return '<div class="os-card"><div style="font-size:13px;font-weight:700">'+c.title+'</div>'+
-      '<div style="font-size:10px;color:var(--muted);margin:4px 0">'+c.platform+' · '+c.status+' · '+done+'/'+ts.length+' topics done</div>'+
-      '<div style="height:8px;background:var(--surface2)"><div style="height:100%;width:'+(c.progress||0)+'%;background:var(--core)"></div></div>'+
-      '<div style="margin-top:8px">'+ts.map(t=>'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:1px solid var(--hairline)"><span>'+(t.status==="done"?"✓ ":"· ")+t.title+'</span><span>'+t.status+'</span></div>').join("")+'</div>'+
-      '</div>';
-  }).join("");
-}).catch(()=>{});
+const $ = id => document.getElementById(id);
+async function api(path, opts={}) {
+  return fetch(path, { headers:{"Content-Type":"application/json"}, ...opts }).then(r=>r.json());
+}
+async function refresh() {
+  const d = await api("/api/v1/learning/overview");
+  const o = d.top_lessons || [];
+  $("loop").innerHTML = [
+    {n:"CAPTURE", v:d.samples, s:"run logs + learnings + workflows", act:"capture", btn:"▶ Capture"},
+    {n:"DATASET", v:d.datasets, s:"JSONL training set", act:"dataset", btn:"▶ Generate"},
+    {n:"FINE-TUNE", v:d.fine_tunes, s:"model trained on dataset", act:"finetune", btn:"▶ Fine-tune"},
+    {n:"IMPROVE CORE", v:o.filter(l=>l.count>=3).length, s:"lessons → skills", act:"improve", btn:"▶ Improve"},
+  ].map(x => `<div class="cl-stage"><h3>${x.n}</h3><div class="num">${x.v}</div><div class="sub">${x.s}</div><button class="cl-btn" onclick="runStage('${x.act}', this)">${x.btn}</button></div>`).join("");
+  $("lessons").innerHTML = o.map(l => `<div class="cl-lesson"><span>${l.lesson}</span><span class="cnt">×${l.count}</span></div>`).join("");
+}
+async function runStage(act, btn) {
+  btn.disabled = true;
+  const routes = { capture:"/api/v1/learning/capture", dataset:"/api/v1/learning/dataset/generate",
+                   finetune:"/api/v1/learning/fine-tune", improve:"/api/v1/learning/improve-core" };
+  const d = await api(routes[act], { method:"POST", body: JSON.stringify({}) });
+  $("out").textContent = JSON.stringify(d, null, 2);
+  btn.disabled = false;
+  await refresh();
+}
+refresh();
 </script>
 </body>
 </html>

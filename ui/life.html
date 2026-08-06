@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Personal Life</title>
+<script>window.PAGE={title:"Personal Life",crumb:["Personal","Life"]};</script>
+<style>
+  .lf-wrap { max-width: 1000px; }
+  .lf-hero { margin-bottom: 1.25rem; }
+  .lf-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .lf-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .lf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+  .lf-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; }
+  .lf-card h2 { font-size: 1rem; margin: 0 0 .75rem; }
+  .lf-form { display: grid; gap: .4rem; margin-bottom: .75rem; }
+  .lf-form input { background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .45rem .6rem; font: inherit; font-size: .82rem; }
+  .lf-btn { background: #10B981; color: #0A101F; border: none; border-radius: 6px; padding: .4rem .7rem; font-size: .78rem; font-weight: 700; cursor: pointer; }
+  .lf-list { font-size: .82rem; }
+  .lf-row { display: flex; justify-content: space-between; padding: .35rem 0; border-bottom: 1px solid var(--border,#1f2937); }
+  .lf-row .muted { color: var(--dim,#64748b); font-size: .72rem; }
+  .lf-tag { font-size: .68rem; padding: .15rem .45rem; border-radius: 999px; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); }
+  .lf-tag.bought { color: #10B981; border-color: #10B98155; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="lf-wrap">
+    <div class="lf-hero"><h1>🧘 Personal Life</h1><p>Health · Travel · Shopping — your systems of record, fake-first</p></div>
+    <div class="lf-grid">
+      <div class="lf-card">
+        <h2>💪 Health</h2>
+        <div class="lf-form">
+          <input id="h-kind" placeholder="kind (workout / steps / sleep)"/>
+          <input id="h-detail" placeholder="detail (e.g. gym upper)"/>
+          <input id="h-metric" placeholder="metric (optional)"/>
+          <button class="lf-btn" onclick="addHealth()">+ Add health entry</button>
+        </div>
+        <div class="lf-list" id="h-list"></div>
+      </div>
+      <div class="lf-card">
+        <h2>✈️ Travel</h2>
+        <div class="lf-form">
+          <input id="t-dest" placeholder="destination"/>
+          <input id="t-start" placeholder="start date (YYYY-MM-DD)"/>
+          <input id="t-end" placeholder="end date"/>
+          <input id="t-budget" placeholder="budget (optional)"/>
+          <button class="lf-btn" onclick="addTrip()">+ Plan trip</button>
+        </div>
+        <div class="lf-list" id="t-list"></div>
+      </div>
+      <div class="lf-card">
+        <h2>🛒 Shopping</h2>
+        <div class="lf-form">
+          <input id="s-item" placeholder="item"/>
+          <input id="s-cat" placeholder="category (optional)"/>
+          <input id="s-price" placeholder="price (optional)"/>
+          <button class="lf-btn" onclick="addShop()">+ Add item</button>
+        </div>
+        <div class="lf-list" id="s-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function refresh() {
+  const h = await api("/api/v1/life/health");
+  const t = await api("/api/v1/life/trips");
+  const s = await api("/api/v1/life/shopping");
+  $("h-list").innerHTML = (h.entries||[]).map(e => '<div class="lf-row"><span>' + e.kind + ' · ' + e.detail + (e.metric ? ' <span class="muted">' + e.metric + '</span>' : '') + '</span><span class="muted">' + e.date + '</span></div>').join("") || '<div class="muted">none</div>';
+  $("t-list").innerHTML = (t.trips||[]).map(x => '<div class="lf-row"><span>' + x.destination + ' <span class="muted">' + x.start_date + '→' + x.end_date + '</span></span><span class="muted">₹' + (x.budget||0) + '</span></div>').join("") || '<div class="muted">none</div>';
+  $("s-list").innerHTML = (s.items||[]).map(i => '<div class="lf-row"><span>' + i.item + ' <span class="muted">×' + i.qty + '</span></span><span class="lf-tag ' + (i.status==="bought"?"bought":"") + '">' + i.status + '</span></div>').join("") || '<div class="muted">none</div>';
+}
+async function addHealth(){ const d=await api("/api/v1/life/health/add",{method:"POST",body:JSON.stringify({kind:$("h-kind").value,detail:$("h-detail").value,metric:$("h-metric").value?+$("h-metric").value:null})}); $("h-kind").value=$("h-detail").value=$("h-metric").value=""; refresh(); }
+async function addTrip(){ const d=await api("/api/v1/life/trip/add",{method:"POST",body:JSON.stringify({destination:$("t-dest").value,start_date:$("t-start").value,end_date:$("t-end").value,budget:$("t-budget").value?+$("t-budget").value:null})}); $("t-dest").value=$("t-start").value=$("t-end").value=$("t-budget").value=""; refresh(); }
+async function addShop(){ const d=await api("/api/v1/life/shopping/add",{method:"POST",body:JSON.stringify({item:$("s-item").value,category:$("s-cat").value||"general",price:$("s-price").value?+$("s-price").value:null})}); $("s-item").value=$("s-cat").value=$("s-price").value=""; refresh(); }
+refresh();
+</script>
+</body>
+</html>

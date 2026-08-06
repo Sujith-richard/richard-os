@@ -67,6 +67,10 @@ ROSTER = [
     ("title-strategist", "youtube", "titles", "deepseek-v4-flash-free", 2),
     ("community-manager", "youtube", "engagement", "deepseek-v4-flash-free", 2),
     ("postmortem-analyst", "youtube", "review", "deepseek-v4-flash-free", 2),
+    # personal life trackers (#19)
+    ("health-agent", "personal", "health tracking", "deepseek-v4-flash-free", 2),
+    ("travel-agent", "personal", "trip planning", "deepseek-v4-flash-free", 2),
+    ("shopping-agent", "personal", "shopping list", "deepseek-v4-flash-free", 2),
 ]
 
 # Default collaboration edges (who talks to whom) — mirrors the graph layout

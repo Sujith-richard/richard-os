@@ -1197,3 +1197,54 @@ async def api_docchat_docs():
 @app.get("/api/v1/docchat/messages/{doc_id}")
 async def api_docchat_messages(doc_id: int):
     return _doc_msgs(doc_id)
+
+# ===== #19 Life Agents: Health + Travel + Shopping (v3.24) =====
+import sys as _h1, pathlib as _h2
+_h1.path.insert(0, str(_h2.Path(__file__).resolve().parent))
+from life_agents import overview as _life_ov, add_health as _life_health, list_health as _life_health_list, \
+    add_trip as _life_trip, list_trips as _life_trips, add_shopping as _life_shop, \
+    toggle_shopping as _life_toggle, list_shopping as _life_shop_list, seed as _life_seed
+
+@app.get("/api/v1/life/overview")
+async def api_life_overview():
+    return _life_ov()
+
+@app.post("/api/v1/life/health/add")
+async def api_life_health_add(payload: dict = None):
+    payload = payload or {}
+    import datetime as _dt
+    return _life_health(payload.get("date", _dt.date.today().isoformat()), payload.get("kind", ""),
+                        payload.get("detail", ""), payload.get("metric"), payload.get("note", ""))
+
+@app.get("/api/v1/life/health")
+async def api_life_health():
+    return _life_health_list()
+
+@app.post("/api/v1/life/trip/add")
+async def api_life_trip_add(payload: dict = None):
+    payload = payload or {}
+    return _life_trip(payload.get("destination", ""), payload.get("start_date", ""),
+                      payload.get("end_date", ""), payload.get("budget"), payload.get("notes", ""))
+
+@app.get("/api/v1/life/trips")
+async def api_life_trips():
+    return _life_trips()
+
+@app.post("/api/v1/life/shopping/add")
+async def api_life_shopping_add(payload: dict = None):
+    payload = payload or {}
+    return _life_shop(payload.get("item", ""), payload.get("category", "general"),
+                      int(payload.get("qty", 1)), payload.get("price"))
+
+@app.post("/api/v1/life/shopping/toggle")
+async def api_life_shopping_toggle(payload: dict = None):
+    payload = payload or {}
+    return _life_toggle(int(payload.get("id", 0)))
+
+@app.get("/api/v1/life/shopping")
+async def api_life_shopping():
+    return _life_shop_list()
+
+@app.post("/api/v1/life/seed")
+async def api_life_seed():
+    return {"ok": True, "seeded": _life_seed()}

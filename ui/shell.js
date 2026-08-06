@@ -16,6 +16,7 @@
       { label: "Organization", href: "/ui/org.html", ic: "\u26DB" },
       { label: "Departments", href: "/ui/departments.html", ic: "\uD83C\uDFE2" },
       { label: "Personas", href: "/ui/personas.html", ic: "\u263A" },
+      { label: "Personal Life", href: "/ui/life.html", ic: "\uD83E\uDDD8" },
     ]},
     { group: "SYSTEM", items: [
       { label: "Communications", href: "/ui/comms.html", ic: "\u2709" },

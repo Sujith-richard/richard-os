@@ -212,3 +212,11 @@ Upload a document — then ask questions grounded in it.
 - **Vision:** image upload → base64 → Model Orchestrator routing (gemini-3.5-flash → gpt-oss-120b → default), honest fallback if no vision-capable model
 - **API:** `POST /api/v1/docchat/upload` (multipart) · `POST /ask` · `GET /docs` · `GET /messages/{id}`
 - **UI:** `ui/docchat.html` — upload zone, doc picker, chat thread with source chunks
+
+## v3.24.0 — Personal Life Trackers (#19) — FINAL LAYER
+Health · Travel · Shopping systems of record, alongside email/tasks/calendar/smart-home.
+
+- **Life agents:** `scripts/life_agents.py` — health (workout/steps/sleep), trips (planned with budget), shopping (open/bought), seeded fake-first
+- **API:** `GET /api/v1/life/overview` · `GET /health|trips|shopping` · `POST /health/add|trip/add|shopping/add|shopping/toggle`
+- **UI:** `ui/life.html` — 3 tracker cards with add-forms + lists
+- **Collab:** health-agent / travel-agent / shopping-agent added to the Neural Collaboration roster (30 agents)

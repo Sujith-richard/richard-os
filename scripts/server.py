@@ -188,7 +188,7 @@ def graph():
         edges.append({"source": core, "target": aid, "strength": 2})
         edges.append({"source": aid, "target": target, "strength": 2})
 
-    return {"nodes": nodes, "edges": edges}
+    return {"nodes": nodes, "edges": edges, "links": edges}
 
 @app.get("/api/run")
 def run_cmd(cmd: str = ""):

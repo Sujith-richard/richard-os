@@ -1303,3 +1303,20 @@ async def api_tasks_assign(payload: dict = None):
 @app.get("/api/v1/tasks/assignments")
 async def api_tasks_assignments():
     return _assign_list()
+
+# ===== #11 Local Inference (v3.30) =====
+import sys as _g1, pathlib as _g2
+_g1.path.insert(0, str(_g2.Path(__file__).resolve().parent))
+from local_inference import status as _li_status, generate as _li_gen
+
+@app.get("/api/v1/models/local/status")
+async def api_local_status():
+    return _li_status()
+
+@app.post("/api/v1/models/local/generate")
+async def api_local_generate(payload: dict = None):
+    payload = payload or {}
+    prompt = (payload.get("prompt") or "").strip()
+    if not prompt:
+        return {"ok": False, "error": "prompt required"}
+    return _li_gen(prompt, int(payload.get("max_new", 60)))

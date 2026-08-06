@@ -36,6 +36,15 @@
       <div id="mo-routes"></div>
     </div>
     <div class="mo-card">
+      <h2>Local Inference <span style="font-size:.7rem;color:var(--muted)">(RTX 3050)</span></h2>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:.5rem" id="li-status">checking…</div>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+        <input id="li-prompt" placeholder="Prompt the local model…" style="flex:1;background:var(--bg,#0A101F);color:var(--fg,#e2e8f0);border:1px solid var(--border,#1f2937);border-radius:6px;padding:.5rem .6rem;font:inherit;font-size:.82rem"/>
+        <button class="mo-btn" onclick="localGen()">Generate</button>
+      </div>
+      <div id="li-out" style="font-family:ui-monospace,monospace;font-size:.78rem;color:var(--muted);background:var(--bg,#0A101F);border:1px solid var(--border,#1f2937);border-radius:6px;padding:.6rem;margin-top:.6rem;white-space:pre-wrap"></div>
+    </div>
+    <div class="mo-card">
       <h2>Set a route</h2>
       <div class="mo-edit">
         <select id="mo-task"></select>
@@ -69,6 +78,19 @@ async function setRoute() {
   await api("/api/v1/models/route", { method:"POST", body: JSON.stringify({ task_type: $("mo-task").value, model: $("mo-model").value, tier: $("mo-tier").value }) });
   await load();
 }
+async function localStatus() {
+  const d = await api("/api/v1/models/local/status");
+  document.getElementById("li-status").textContent = d.ok
+    ? "model loaded · " + d.device + " · " + (d.model || "").split("/").pop()
+    : "local model: " + (d.error || "not loaded");
+}
+async function localGen() {
+  const p = document.getElementById("li-prompt").value.trim();
+  if (!p) return;
+  const d = await api("/api/v1/models/local/generate", { method:"POST", body: JSON.stringify({ prompt: p, max_new: 60 }) });
+  document.getElementById("li-out").textContent = d.ok ? d.completion : "error: " + (d.error||"?");
+}
+localStatus();
 load();
 </script>
 </body>

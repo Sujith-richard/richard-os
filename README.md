@@ -257,3 +257,11 @@ Real assignment: a task title → the best agent from the 30-agent roster.
 - **Assigner:** `scripts/task_assigner.py` — keyword/skill matching (email→email-agent, code→backend, frontend→frontend, strategy→planner-ai, shopping→shopping-agent…) + explicit dept override + word-overlap fallback
 - **API:** `POST /api/v1/tasks/assign` (title, dept?) · `GET /api/v1/tasks/assignments`
 - **UI:** Assign bar on `ui/tasks.html` — type a task, see who owns it + why
+
+## v3.30.0 — Local Inference (#11 final)
+The Model Orchestrator now has a real LOCAL tier — the RTX 3050 serves completions.
+
+- **Local engine:** `scripts/local_inference.py` — loads the fine-tuned checkpoint on CUDA (model cached once), `generate(prompt)` → real completion
+- **API:** `GET /api/v1/models/local/status` · `POST /api/v1/models/local/generate`
+- **UI:** Local Inference panel on `ui/models.html` — status + prompt box + output
+- **Honest:** tiny model (fine-tuned on our dataset) = real local GPU inference, modest quality; swap in a bigger checkpoint anytime

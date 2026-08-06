@@ -1,0 +1,17 @@
+# Data & Analytics skills (Composio-style registry)
+skills:
+  - name: sql-model
+    dept: data
+    desc: "sql model capability"
+  - name: etl-pipeline
+    dept: data
+    desc: "etl pipeline capability"
+  - name: dashboard-build
+    dept: data
+    desc: "dashboard build capability"
+  - name: data-quality
+    dept: data
+    desc: "data quality capability"
+  - name: metric-design
+    dept: data
+    desc: "metric design capability"

@@ -31,3 +31,4 @@ Miniconda3-latest-Linux-x86_64.sh
 # v3.5 Live Integrations — secrets + synced live data stay local
 06-data/integrations.json
 06-data/live_*.json
+06-data/departments.db

@@ -1,0 +1,6 @@
+# AI Engineering — Workflows
+workflows:
+  - name: "llm-feature"
+    steps: "prompt -> eval -> deploy -> monitor"
+  - name: "fine-tune"
+    steps: "data -> prep -> train -> eval -> ship"

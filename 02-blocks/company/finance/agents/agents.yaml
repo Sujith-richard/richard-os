@@ -1,0 +1,25 @@
+# Finance agent roster
+dept: finance
+lead: finance-lead
+autonomy: 3
+agents:
+  accountant:
+    role: "accountant"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  fp-a:
+    role: "fp a"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  invoicing:
+    role: "invoicing"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  expense:
+    role: "expense"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  treasury:
+    role: "treasury"
+    model: deepseek-v4-flash-free
+    autonomy: 3

@@ -1,0 +1,25 @@
+# People & HR agent roster
+dept: hr
+lead: hr-lead
+autonomy: 2
+agents:
+  recruiter:
+    role: "recruiter"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  onboarding:
+    role: "onboarding"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  payroll:
+    role: "payroll"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  culture-eng:
+    role: "culture eng"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  compliance:
+    role: "compliance"
+    model: deepseek-v4-flash-free
+    autonomy: 2

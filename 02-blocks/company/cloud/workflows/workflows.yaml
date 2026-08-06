@@ -1,0 +1,6 @@
+# Cloud & DevOps — Workflows
+workflows:
+  - name: "deploy"
+    steps: "build -> test -> stage -> prod -> verify"
+  - name: "incident"
+    steps: "alert -> triage -> mitigate -> postmortem"

@@ -12,6 +12,7 @@
       { label: "Approvals", href: "/ui/approvals.html", ic: "\u2713" },
       { label: "Workflows", href: "/ui/workflows.html", ic: "\u21BA" },
       { label: "Organization", href: "/ui/org.html", ic: "\u26DB" },
+      { label: "Departments", href: "/ui/departments.html", ic: "\uD83C\uDFE2" },
       { label: "Personas", href: "/ui/personas.html", ic: "\u263A" },
     ]},
     { group: "SYSTEM", items: [

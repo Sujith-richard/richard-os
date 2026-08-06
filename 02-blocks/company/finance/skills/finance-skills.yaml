@@ -1,0 +1,17 @@
+# Finance skills (Composio-style registry)
+skills:
+  - name: invoice-gen
+    dept: finance
+    desc: "invoice gen capability"
+  - name: expense-cat
+    dept: finance
+    desc: "expense cat capability"
+  - name: cashflow-forecast
+    dept: finance
+    desc: "cashflow forecast capability"
+  - name: tax-prep
+    dept: finance
+    desc: "tax prep capability"
+  - name: close-books
+    dept: finance
+    desc: "close books capability"

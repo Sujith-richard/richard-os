@@ -1,0 +1,29 @@
+# Web Development skills (Composio-style registry)
+skills:
+  - name: frontend-scaffold
+    dept: web
+    desc: "frontend scaffold capability"
+  - name: backend-scaffold
+    dept: web
+    desc: "backend scaffold capability"
+  - name: db-schema
+    dept: web
+    desc: "db schema capability"
+  - name: api-design
+    dept: web
+    desc: "api design capability"
+  - name: auth-impl
+    dept: web
+    desc: "auth impl capability"
+  - name: devops-setup
+    dept: web
+    desc: "devops setup capability"
+  - name: testing
+    dept: web
+    desc: "testing capability"
+  - name: security-scan
+    dept: web
+    desc: "security scan capability"
+  - name: docs-write
+    dept: web
+    desc: "docs write capability"

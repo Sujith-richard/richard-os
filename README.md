@@ -160,3 +160,12 @@ Flip any data source from seeded FAKE to real LIVE — from the browser, no .env
 - **API:** `GET /api/v1/integrations` · `POST .../test|sync|mode|config`
 - **Swap:** consumers read `live_*.json` when live, seeded DBs when fake (no logic rewrites)
 - **Secrets:** config lives in `06-data/integrations.json` (gitignored, stays local)
+
+## v3.19.0 — Department Layer (#14)
+Every department is now a real, self-contained unit with a full 16-item spine.
+
+- **Spec:** `02-blocks/company/departments-spec.yaml` — 8 depts (web, ai, data, cyber, cloud, robotics, finance, hr): lead, specialists, skills, stacks, autonomy, decision rules, workflows, datasets
+- **Engine:** `scripts/department_engine.py` scaffolds each dept folder: knowledge/skills/agents/prompts/templates/standards/rules/workflows/docs/git/mcp/memory/datasets/training (15 files each)
+- **API:** `GET /api/v1/departments` · `GET /api/v1/departments/{name}` · `GET .../{name}/file?path=` · `POST /api/v1/departments/generate`
+- **UI:** `ui/departments.html` — dept cards → spine explorer → file viewer
+- **Org tree** now reads the live spec (was 19 hardcoded, now spec-driven)

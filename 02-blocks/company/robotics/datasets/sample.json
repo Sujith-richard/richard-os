@@ -1,0 +1,8 @@
+{
+  "dept": "robotics",
+  "samples": [
+    "sensor-samples.json",
+    "motion-primitives.json"
+  ],
+  "note": "starter dataset"
+}

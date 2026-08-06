@@ -1,0 +1,8 @@
+{
+  "dept": "ai",
+  "samples": [
+    "eval-prompts.json",
+    "training-samples.json"
+  ],
+  "note": "starter dataset"
+}

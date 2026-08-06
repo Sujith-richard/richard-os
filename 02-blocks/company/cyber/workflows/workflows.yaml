@@ -1,0 +1,6 @@
+# Cybersecurity — Workflows
+workflows:
+  - name: "pentest"
+    steps: "scope -> recon -> exploit -> report -> fix"
+  - name: "incident"
+    steps: "detect -> contain -> eradicate -> recover -> postmortem"

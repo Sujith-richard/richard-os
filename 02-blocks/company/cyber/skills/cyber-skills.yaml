@@ -1,0 +1,17 @@
+# Cybersecurity skills (Composio-style registry)
+skills:
+  - name: pentest-scan
+    dept: cyber
+    desc: "pentest scan capability"
+  - name: vuln-triage
+    dept: cyber
+    desc: "vuln triage capability"
+  - name: appsec-review
+    dept: cyber
+    desc: "appsec review capability"
+  - name: compliance-check
+    dept: cyber
+    desc: "compliance check capability"
+  - name: threat-hunt
+    dept: cyber
+    desc: "threat hunt capability"

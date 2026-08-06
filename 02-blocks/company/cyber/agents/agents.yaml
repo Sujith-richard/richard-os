@@ -1,0 +1,25 @@
+# Cybersecurity agent roster
+dept: cyber
+lead: cyber-lead
+autonomy: 2
+agents:
+  pentester:
+    role: "pentester"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  soc-analyst:
+    role: "soc analyst"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  appsec-eng:
+    role: "appsec eng"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  compliance-eng:
+    role: "compliance eng"
+    model: deepseek-v4-flash-free
+    autonomy: 2
+  threat-intel:
+    role: "threat intel"
+    model: deepseek-v4-flash-free
+    autonomy: 2

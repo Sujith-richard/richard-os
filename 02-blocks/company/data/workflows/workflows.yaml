@@ -1,0 +1,6 @@
+# Data & Analytics — Workflows
+workflows:
+  - name: "etl"
+    steps: "extract -> transform -> load -> validate"
+  - name: "report"
+    steps: "query -> chart -> annotate -> share"

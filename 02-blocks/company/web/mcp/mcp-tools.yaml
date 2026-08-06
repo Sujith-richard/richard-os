@@ -1,0 +1,5 @@
+# Web Development — MCP wiring
+mcp:
+  dept: web
+  tools: []
+  notes: "Connect dept-specific tools here"

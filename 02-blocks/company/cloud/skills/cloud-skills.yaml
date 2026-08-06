@@ -1,0 +1,17 @@
+# Cloud & DevOps skills (Composio-style registry)
+skills:
+  - name: infra-as-code
+    dept: cloud
+    desc: "infra as code capability"
+  - name: k8s-deploy
+    dept: cloud
+    desc: "k8s deploy capability"
+  - name: ci-cd-pipeline
+    dept: cloud
+    desc: "ci cd pipeline capability"
+  - name: cost-optimize
+    dept: cloud
+    desc: "cost optimize capability"
+  - name: sre-slo
+    dept: cloud
+    desc: "sre slo capability"

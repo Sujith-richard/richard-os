@@ -1,0 +1,6 @@
+# Web Development — Workflows
+workflows:
+  - name: "project-generation"
+    steps: "brief -> route -> scaffold -> review -> secure -> qualify -> package -> deliver -> learn"
+  - name: "code-review"
+    steps: "pr -> lint -> test -> approve/reject"

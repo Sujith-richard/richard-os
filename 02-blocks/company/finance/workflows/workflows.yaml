@@ -1,0 +1,6 @@
+# Finance — Workflows
+workflows:
+  - name: "monthly-close"
+    steps: "reconcile -> report -> review -> archive"
+  - name: "invoice"
+    steps: "create -> send -> track -> follow-up"

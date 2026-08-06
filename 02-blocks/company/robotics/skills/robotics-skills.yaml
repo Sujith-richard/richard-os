@@ -1,0 +1,17 @@
+# Robotics & IoT skills (Composio-style registry)
+skills:
+  - name: ros-node
+    dept: robotics
+    desc: "ros node capability"
+  - name: embedded-c
+    dept: robotics
+    desc: "embedded c capability"
+  - name: iot-mqtt
+    dept: robotics
+    desc: "iot mqtt capability"
+  - name: sim-test
+    dept: robotics
+    desc: "sim test capability"
+  - name: hw-interface
+    dept: robotics
+    desc: "hw interface capability"

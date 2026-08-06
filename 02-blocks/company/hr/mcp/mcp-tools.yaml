@@ -1,0 +1,5 @@
+# People & HR — MCP wiring
+mcp:
+  dept: hr
+  tools: []
+  notes: "Connect dept-specific tools here"

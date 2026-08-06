@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Departments — Richard OS</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+  .d-wrap { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .d-hero { margin-bottom: 1.5rem; }
+  .d-hero h1 { font-size: 1.8rem; margin: 0 0 .25rem; }
+  .d-hero p { color: var(--muted, #94a3b8); margin: 0; }
+  .d-body { display: grid; grid-template-columns: 340px 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 850px) { .d-body { grid-template-columns: 1fr; } }
+  .d-list { display: grid; gap: .6rem; }
+  .d-card { background: var(--card, #111827); border: 1px solid var(--border, #1f2937); border-radius: 10px; padding: .8rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .d-card:hover { border-color: var(--accent, #7C3AED); }
+  .d-card.active { border-color: var(--accent, #7C3AED); background: var(--accent, #7C3AED)11; }
+  .d-card .t { font-weight: 600; }
+  .d-card .m { font-size: .75rem; color: var(--muted, #94a3b8); }
+  .d-panel { background: var(--card, #111827); border: 1px solid var(--border, #1f2937); border-radius: 12px; padding: 1.25rem; }
+  .d-panel h2 { font-size: 1.1rem; margin: 0 0 .75rem; }
+  .d-meta { display: flex; gap: .75rem; flex-wrap: wrap; font-size: .8rem; color: var(--muted, #94a3b8); margin-bottom: 1rem; }
+  .d-meta b { color: var(--fg, #e2e8f0); }
+  .d-spine { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+  .d-spine-chip { font-size: .72rem; padding: .25rem .55rem; border-radius: 999px; border: 1px solid var(--border, #1f2937); color: var(--muted, #94a3b8); cursor: pointer; }
+  .d-spine-chip:hover { color: #22D3EE; border-color: #22D3EE55; }
+  .d-spine-chip.active { color: #22D3EE; border-color: #22D3EE; background: #22D3EE11; }
+  .d-files { display: grid; gap: .3rem; max-height: 340px; overflow: auto; margin-bottom: 1rem; }
+  .d-file { font-family: ui-monospace, monospace; font-size: .8rem; padding: .35rem .6rem; border-radius: 6px; cursor: pointer; color: var(--muted, #94a3b8); }
+  .d-file:hover { background: var(--bg, #0A101F); color: #A78BFA; }
+  .d-file.active { background: var(--bg, #0A101F); color: #A78BFA; }
+  .d-viewer { background: var(--bg, #0A101F); border: 1px solid var(--border, #1f2937); border-radius: 8px; padding: 1rem; max-height: 420px; overflow: auto; font-family: ui-monospace, monospace; font-size: .8rem; line-height: 1.6; white-space: pre-wrap; color: #cbd5e1; }
+  .d-viewer .hdr { color: #64748b; font-size: .72rem; margin-bottom: .5rem; border-bottom: 1px solid var(--border, #1f2937); padding-bottom: .4rem; }
+</style>
+</head>
+<body>
+<div class="d-wrap">
+  <div class="d-hero">
+    <h1>🏢 Department Layer</h1>
+    <p>8 departments · 16-item spine each: knowledge, skills, agents, prompts, templates, standards, rules, workflows, docs, git, mcp, memory, datasets, training</p>
+  </div>
+  <div class="d-body">
+    <div class="d-list" id="list"></div>
+    <div class="d-panel" id="panel"><div style="color:var(--muted,#94a3b8)">Select a department…</div></div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let depts = [], active = null, kindFilter = null, activeFile = null;
+
+async function loadList() {
+  const d = await fetch("/api/v1/departments").then(r => r.json());
+  depts = d.departments || [];
+  $("list").innerHTML = depts.map(x => `
+    <div class="d-card ${x.name === active ? 'active' : ''}" onclick="openDept('${x.name}')">
+      <div><div class="t">${x.icon} ${x.title}</div><div class="m">${x.name} · ${x.files} files · autonomy ${x.autonomy}</div></div>
+      <div style="color:var(--muted,#94a3b8);font-size:.8rem">${x.status}</div>
+    </div>`).join("");
+  if (!active && depts.length) openDept(depts[0].name);
+}
+
+async function openDept(name) {
+  active = name; kindFilter = null; activeFile = null;
+  const d = await fetch(`/api/v1/departments/${name}`).then(r => r.json());
+  const dep = d.department, files = d.files || [];
+  const kinds = [...new Set(files.map(f => f.kind))].filter(k => k !== "root").sort();
+  const icon = dep.icon || "📁";
+  $("panel").innerHTML = `
+    <h2>${icon} ${dep.title} <span style="font-size:.8rem;color:var(--muted,#94a3b8)">${dep.name}</span></h2>
+    <div class="d-meta">
+      <span>lead: <b>${dep.lead}</b></span><span>autonomy: <b>${dep.autonomy}</b></span>
+      <span>status: <b>${dep.status}</b></span><span>files: <b>${dep.files}</b></span>
+    </div>
+    <div class="d-spine">
+      <span class="d-spine-chip ${!kindFilter ? 'active' : ''}" onclick="setKind(null)">all</span>
+      ${kinds.map(k => `<span class="d-spine-chip ${kindFilter === k ? 'active' : ''}" onclick="setKind('${k}')">${k}</span>`).join("")}
+    </div>
+    <div class="d-files" id="files"></div>
+    <div class="d-viewer" id="viewer"><div class="hdr">select a file to view</div></div>`;
+  renderFiles(files, kinds);
+}
+
+function renderFiles(files, kinds) {
+  const filtered = kindFilter ? files.filter(f => f.kind === kindFilter) : files;
+  $("files").innerHTML = filtered.map(f => `
+    <div class="d-file ${activeFile === f.path ? 'active' : ''}" onclick="viewFile('${f.path}')">📄 ${f.path.replace(active + "/", "")}</div>`).join("");
+}
+
+async function setKind(k) {
+  kindFilter = k; activeFile = null;
+  const d = await fetch(`/api/v1/departments/${active}`).then(r => r.json());
+  const kinds = [...new Set(d.files.map(f => f.kind))].filter(k2 => k2 !== "root").sort();
+  document.querySelectorAll(".d-spine-chip").forEach(c => c.classList.toggle("active", c.textContent === (k || "all")));
+  renderFiles(d.files, kinds);
+  $("viewer").innerHTML = `<div class="hdr">select a file to view</div>`;
+}
+
+async function viewFile(path) {
+  activeFile = path;
+  const d = await fetch(`/api/v1/departments/${active}/file?path=${encodeURIComponent(path)}`).then(r => r.json());
+  document.querySelectorAll(".d-file").forEach(f => f.classList.toggle("active", f.textContent.includes(path.replace(active + "/", ""))));
+  if (!d.ok) { $("viewer").innerHTML = `<div class="hdr">error: ${d.error}</div>`; return; }
+  $("viewer").innerHTML = `<div class="hdr">${d.path}</div>` + d.content.replace(/</g, "&lt;");
+}
+
+loadList();
+</script>
+</body>
+</html>
+

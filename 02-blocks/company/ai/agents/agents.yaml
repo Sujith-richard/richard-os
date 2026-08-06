@@ -1,0 +1,29 @@
+# AI Engineering agent roster
+dept: ai
+lead: ai-lead
+autonomy: 3
+agents:
+  ml-engineer:
+    role: "ml engineer"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  llm-engineer:
+    role: "llm engineer"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  rag-engineer:
+    role: "rag engineer"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  fine-tuner:
+    role: "fine tuner"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  eval-engineer:
+    role: "eval engineer"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  prompt-engineer:
+    role: "prompt engineer"
+    model: deepseek-v4-flash-free
+    autonomy: 3

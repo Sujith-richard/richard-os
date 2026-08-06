@@ -1,0 +1,6 @@
+# People & HR — Workflows
+workflows:
+  - name: "hire"
+    steps: "screen -> interview -> offer -> onboard"
+  - name: "payroll"
+    steps: "collect -> calc -> review -> pay -> archive"

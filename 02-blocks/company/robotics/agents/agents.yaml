@@ -1,0 +1,25 @@
+# Robotics & IoT agent roster
+dept: robotics
+lead: robotics-lead
+autonomy: 3
+agents:
+  ros-dev:
+    role: "ros dev"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  embedded-eng:
+    role: "embedded eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  iot-eng:
+    role: "iot eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  sim-eng:
+    role: "sim eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  hw-integration:
+    role: "hw integration"
+    model: deepseek-v4-flash-free
+    autonomy: 3

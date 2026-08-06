@@ -1,0 +1,25 @@
+# Data & Analytics agent roster
+dept: data
+lead: data-lead
+autonomy: 3
+agents:
+  data-engineer:
+    role: "data engineer"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  analyst:
+    role: "analyst"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  bi-dev:
+    role: "bi dev"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  pipeline-eng:
+    role: "pipeline eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  quality-eng:
+    role: "quality eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3

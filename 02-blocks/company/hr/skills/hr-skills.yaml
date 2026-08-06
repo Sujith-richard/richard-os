@@ -1,0 +1,17 @@
+# People & HR skills (Composio-style registry)
+skills:
+  - name: screen-cv
+    dept: hr
+    desc: "screen cv capability"
+  - name: schedule-interview
+    dept: hr
+    desc: "schedule interview capability"
+  - name: onboard-docs
+    dept: hr
+    desc: "onboard docs capability"
+  - name: payroll-calc
+    dept: hr
+    desc: "payroll calc capability"
+  - name: culture-survey
+    dept: hr
+    desc: "culture survey capability"

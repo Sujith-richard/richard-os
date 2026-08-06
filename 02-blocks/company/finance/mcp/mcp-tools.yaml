@@ -1,0 +1,5 @@
+# Finance — MCP wiring
+mcp:
+  dept: finance
+  tools: []
+  notes: "Connect dept-specific tools here"

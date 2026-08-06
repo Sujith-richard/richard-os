@@ -1,0 +1,41 @@
+# Web Development agent roster
+dept: web
+lead: web-lead
+autonomy: 3
+agents:
+  frontend-lead:
+    role: "frontend lead"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  backend-lead:
+    role: "backend lead"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  db-designer:
+    role: "db designer"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  api-builder:
+    role: "api builder"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  auth-impl:
+    role: "auth impl"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  devops-eng:
+    role: "devops eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  testing-eng:
+    role: "testing eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  security-eng:
+    role: "security eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  docs-writer:
+    role: "docs writer"
+    model: deepseek-v4-flash-free
+    autonomy: 3

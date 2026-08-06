@@ -1,0 +1,8 @@
+{
+  "dept": "cyber",
+  "samples": [
+    "cve-watchlist.json",
+    "scope-template.json"
+  ],
+  "note": "starter dataset"
+}

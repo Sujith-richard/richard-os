@@ -1,0 +1,25 @@
+# Cloud & DevOps agent roster
+dept: cloud
+lead: cloud-lead
+autonomy: 3
+agents:
+  infra-eng:
+    role: "infra eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  sre:
+    role: "sre"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  ci-cd-eng:
+    role: "ci cd eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  platform-eng:
+    role: "platform eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3
+  cost-eng:
+    role: "cost eng"
+    model: deepseek-v4-flash-free
+    autonomy: 3

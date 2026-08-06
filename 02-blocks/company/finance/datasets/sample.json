@@ -1,0 +1,8 @@
+{
+  "dept": "finance",
+  "samples": [
+    "chart-of-accounts.json",
+    "invoice-template.json"
+  ],
+  "note": "starter dataset"
+}

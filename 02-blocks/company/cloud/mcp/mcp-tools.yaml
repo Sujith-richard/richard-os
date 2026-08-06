@@ -1,0 +1,5 @@
+# Cloud & DevOps — MCP wiring
+mcp:
+  dept: cloud
+  tools: []
+  notes: "Connect dept-specific tools here"

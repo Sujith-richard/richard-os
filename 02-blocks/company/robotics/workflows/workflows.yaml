@@ -1,0 +1,6 @@
+# Robotics & IoT — Workflows
+workflows:
+  - name: "robot-task"
+    steps: "sim -> prototype -> hw -> validate"
+  - name: "iot-pipeline"
+    steps: "sensor -> edge -> cloud -> alert"

@@ -1,0 +1,8 @@
+{
+  "dept": "hr",
+  "samples": [
+    "interview-questions.json",
+    "onboarding-checklist.json"
+  ],
+  "note": "starter dataset"
+}

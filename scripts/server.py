@@ -126,11 +126,15 @@ def graph():
     E("resource-intel","github-intel")
 
     # ── DEPARTMENT LAYER ──
-    depts = [("software-eng","Software Engineering"),("web-dev","Web Development"),("mobile-dev","Mobile Development"),
-             ("ai-eng","AI Engineering"),("ml","Machine Learning"),("data-eng","Data Engineering"),
-             ("cyber-security","Cyber Security"),("cloud","Cloud"),("robotics","Robotics"),("uiux","UI/UX"),
-             ("product","Product"),("finance-dept","Finance"),("hr","HR"),("marketing","Marketing"),
-             ("creative","Creative Studio"),("video","Video"),("music","Music"),("research","Research"),("legal","Legal")]
+    # v3.19: departments come from the Department Layer engine (8 real depts)
+    import sys as _ds, pathlib as _dp
+    _ds.path.insert(0, str(_dp.Path(__file__).resolve().parent))
+    from department_engine import load_spec
+    spec = load_spec()
+    depts = [(n, d.get("title", n)) for n, d in spec.items()] if spec else \
+        [("web-dev","Web Development"),("ai-eng","AI Engineering"),("data-eng","Data Engineering"),
+         ("cyber-security","Cyber Security"),("cloud","Cloud"),("robotics","Robotics"),
+         ("finance-dept","Finance"),("hr","HR")]
     N("departments", "Department Layer", "dept", 0, 380, "#60A5FA")
     for i,(nid,label) in enumerate(depts):
         N(nid, label, "dept", -360 + (i%7)*120, 460 + (i//7)*60, "#60A5FA"); E("departments", nid)
@@ -1021,3 +1025,37 @@ async def api_integrations_mode(name: str, payload: dict = None):
 async def api_integrations_config(name: str, payload: dict = None):
     payload = payload or {}
     return save_source_config(name, payload.get("fields", {}))
+
+# ===== #14 Department Layer (v3.19) =====
+import sys as _d1, pathlib as _d2
+_d1.path.insert(0, str(_d2.Path(__file__).resolve().parent))
+from department_engine import list_depts, dept_detail, generate as _dept_gen
+
+@app.get("/api/v1/departments")
+async def api_departments_list():
+    return list_depts()
+
+@app.get("/api/v1/departments/{name}")
+async def api_departments_detail(name: str):
+    return dept_detail(name)
+
+@app.post("/api/v1/departments/generate")
+async def api_departments_generate(payload: dict = None):
+    payload = payload or {}
+    name = payload.get("name")
+    return _dept_gen(name)
+
+@app.get("/api/v1/departments/{name}/file")
+async def api_departments_file(name: str, path: str = ""):
+    """Read a spine file: /api/v1/departments/web/file?path=skills/web-skills.yaml"""
+    import os as _os
+    safe = _os.path.normpath(path)
+    if safe.startswith("..") or _os.path.isabs(safe):
+        return {"ok": False, "error": "bad path"}
+    root = _d2.Path(__file__).resolve().parent.parent / "02-blocks" / "company"
+    f = root / name / safe
+    if not f.exists() or not f.is_file():
+        return {"ok": False, "error": "file not found"}
+    ext = f.suffix.lower()
+    content = f.read_text(errors="replace")
+    return {"ok": True, "path": str(f.relative_to(root)), "ext": ext, "content": content}

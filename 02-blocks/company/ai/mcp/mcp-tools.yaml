@@ -1,0 +1,5 @@
+# AI Engineering — MCP wiring
+mcp:
+  dept: ai
+  tools: []
+  notes: "Connect dept-specific tools here"

@@ -1,0 +1,8 @@
+{
+  "dept": "web",
+  "samples": [
+    "starter-components.json",
+    "api-blueprints.json"
+  ],
+  "note": "starter dataset"
+}

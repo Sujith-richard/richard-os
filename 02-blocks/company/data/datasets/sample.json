@@ -1,0 +1,8 @@
+{
+  "dept": "data",
+  "samples": [
+    "sample-metrics.json",
+    "pii-registry.json"
+  ],
+  "note": "starter dataset"
+}

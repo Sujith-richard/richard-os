@@ -1,0 +1,20 @@
+# AI Engineering skills (Composio-style registry)
+skills:
+  - name: model-train
+    dept: ai
+    desc: "model train capability"
+  - name: llm-prompt
+    dept: ai
+    desc: "llm prompt capability"
+  - name: rag-pipeline
+    dept: ai
+    desc: "rag pipeline capability"
+  - name: fine-tune
+    dept: ai
+    desc: "fine tune capability"
+  - name: eval-harness
+    dept: ai
+    desc: "eval harness capability"
+  - name: prompt-design
+    dept: ai
+    desc: "prompt design capability"

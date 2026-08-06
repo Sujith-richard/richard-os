@@ -139,9 +139,10 @@ def graph():
     for i,(nid,label) in enumerate(depts):
         N(nid, label, "dept", -360 + (i%7)*120, 460 + (i//7)*60, "#60A5FA"); E("departments", nid)
     E(core, "departments")
+    web_parent = next((nid for nid, _ in depts if nid in ("web", "web-dev")), "web-dev")
     for nid,label in [("frontend","Frontend"),("backend","Backend"),("database","Database"),("api-sub","API"),
                       ("auth","Authentication"),("devops","DevOps"),("testing","Testing"),("security-sub","Security"),("docs","Documentation")]:
-        N("web-"+nid, label, "subdept", -360, 560, "#60A5FA"); E("web-dev", "web-"+nid)
+        N("web-"+nid, label, "subdept", -360, 560, "#60A5FA"); E(web_parent, "web-"+nid)
     # neural collaboration across departments [17]
     E("web-frontend","web-backend",2); E("web-backend","web-database",2); E("web-backend","web-security-sub",2)
     E("web-backend","web-devops",2); E("web-database","web-api-sub",2); E("web-testing","web-frontend",2)

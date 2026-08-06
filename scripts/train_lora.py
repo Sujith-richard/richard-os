@@ -40,7 +40,9 @@ def main():
         log.write(msg + "\n"); log.flush()
 
     logp(f"[train] dataset={args.dataset} samples={len(rows)} model={args.model} steps={args.steps} dry_run={args.dry_run}")
-    logp(f"[train] hardware: CPU-only, RAM limited -> tiny model + few steps (real but modest)")
+    import torch
+    dev = "CUDA " + torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
+    logp(f"[train] device: {dev}")
 
     if args.dry_run:
         logp("[train] DRY RUN — no training executed (would train here)")

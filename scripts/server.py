@@ -43,6 +43,12 @@ def graph():
     ]
     for nid, label in brain_knowledge:
         N(nid, label, "knowledge", -60, 0, "#e8e8e8")
+    # wire the knowledge nodes into the graph (they were floating)
+    E(core, "shared-memory"); E(core, "knowledge-graph"); E(core, "learning-engine")
+    E(core, "neural-network"); E(core, "context-memory")
+    E(core, "long-term-memory"); E(core, "experience-memory")
+    E("learning-engine", "experience-memory"); E("learning-engine", "shared-memory")
+    E("context-memory", "long-term-memory"); E("knowledge-graph", "shared-memory")
 
     # ── AI MODEL LAYER — INSIDE the brain [17] ──
     cloud = [("openai","OpenAI"),("anthropic","Anthropic"),("google","Google"),("deepseek","DeepSeek"),
@@ -90,7 +96,7 @@ def graph():
 
     # ── PERSONAL ASSISTANT ──
     pa = [("daily","Daily"),("calendar","Calendar"),("email","Email"),("notes","Notes"),("tasks","Tasks"),
-          ("finance","Finance"),("health","Health"),("travel","Travel"),("shopping","Shopping"),("smart-home","Smart Home")]
+          ("finance-assistant","Finance"),("health","Health"),("travel","Travel"),("shopping","Shopping"),("smart-home","Smart Home")]
     N("personal-assistant", "Personal Assistant", "dept", 0, 180, "#34D399")
     for i,(nid,label) in enumerate(pa):
         N(nid, label, "assistant", -180 + i*40, 260, "#34D399"); E("personal-assistant", nid)
@@ -168,7 +174,7 @@ def graph():
 
     # ── KEEP existing systems of record + agents (nothing breaks) ──
     systems = [("second_brain","second_brain.db","captures"),("pm","pm.db","tasks"),
-               ("finance","finance.db","transactions"),("crm","crm.db","contacts"),
+               ("finance-tool","finance.db","transactions"),("crm","crm.db","contacts"),
                ("creator","creator.db","content"),("reading","reading.db","links")]
     for i,(name, dbfile, table) in enumerate(systems):
         nodes.append({"id": name, "label": name, "type": "tool", "x": 200, "y": 380 + i*40})

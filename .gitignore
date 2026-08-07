@@ -68,3 +68,4 @@ vendor/
 06-data/.vault_key
 06-data/reports/
 06-data/tmp_input.wav
+06-data/kernel_boot.json

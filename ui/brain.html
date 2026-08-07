@@ -181,6 +181,10 @@
       fetch("/graph").then(r => r.json()).then(data => {
         allNodes = data.nodes.map(n => ({ ...n, r: n.type === "core" ? 22 : n.type === "domain" ? 16 : (n.type === "tool" || n.type === "agent") ? 10 : n.type === "dept" ? 9 : 6 }));
         allEdges = data.edges;
+        // v4.2: derive TYPES from the LIVE graph + rebuild filter (covers engine/knowledge/service/etc.)
+        TYPES = [...new Set(allNodes.map(n => n.type))].sort();
+        activeTypes = new Set(TYPES);
+        buildTypeFilter();
         buildDir(data); buildStats(data);
         // v4.2 clean layout: use server x/y as cluster anchors + stronger separation
         const sim = d3.forceSimulation(allNodes)
@@ -397,8 +401,9 @@
     }
 
     // ── Type filter: show only selected node types ──
-    const TYPES = ["core","domain","dept","employee","agent","tool","data","persona"];
-    const activeTypes = new Set(TYPES);
+    // v4.2: TYPES derived dynamically in load() (below) so All/None covers every node type
+    let TYPES = [];
+    let activeTypes = new Set(TYPES);
     function applyTypeFilter() {
       if (!nodeSel) return;
       nodeSel.style("display", n => activeTypes.has(n.type) ? null : "none");

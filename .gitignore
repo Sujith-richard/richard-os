@@ -57,3 +57,4 @@ vendor/
 06-data/cloud_learn.db
 06-data/datasets/cloud-assisted.jsonl
 06-data/vector_index.json
+06-data/knowledge_graph.db

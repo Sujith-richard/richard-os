@@ -17,6 +17,7 @@
       { label: "Validation", href: "/ui/validation.html", ic: "\uD83E\uDDEA" },
       { label: "Lifecycle", href: "/ui/lifecycle.html", ic: "\uD83D\uDD04" },
       { label: "Memory", href: "/ui/memory.html", ic: "\uD83E\uDDE0" },
+      { label: "Knowledge Graph", href: "/ui/kg.html", ic: "\uD83D\uDD78\uFE0F" },
       { label: "Plugins", href: "/ui/plugins.html", ic: "\uD83E\uDDE9" },
       { label: "System", href: "/ui/system.html", ic: "\uD83D\uDDA5\uFE0F" },
       { label: "Collaboration", href: "/ui/collab.html", ic: "\uD83E\uDDE0" },

@@ -341,3 +341,10 @@ Semantic retrieval across memory, repo intel, and skills.
 - **Vector DB:** `scripts/vector_db.py` — sklearn TF-IDF cosine index over 54 docs (memory/repo-intel/skills), build + search by similarity (pluggable to sentence-transformers later)
 - **API:** `POST /api/v1/vector/build` · `POST /api/v1/vector/search`
 - **UI:** semantic vector search added to Memory page (rebuild + results)
+
+## v3.41.0 — Knowledge Graph (Phase G2)
+Entities + relations — semantic depth over the structural brain graph.
+
+- **Graph:** `scripts/knowledge_graph.py` — subject-relation-object triple extraction (heuristic patterns: is-a/uses/builds/runs-on/contains/depends-on/belongs-to), node+edge store (knowledge_graph.db), neighbor/relation queries
+- **API:** `GET /api/v1/knowledge-graph` · `GET /neighbors/{node}` · `POST /triple` · `POST /extract`
+- **UI:** `ui/kg.html` — node cards, click-to-query neighbors, extract button

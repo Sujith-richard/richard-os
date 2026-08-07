@@ -1540,3 +1540,26 @@ async def api_vector_search(payload: dict = None):
         return {"ok": True, "results": _vd_search(q, int(payload.get("top", 5)))}
     except FileNotFoundError:
         return {"ok": False, "error": "index not built — POST /api/v1/vector/build first"}
+
+# ===== Phase G2 Knowledge Graph (v3.41) =====
+import sys as _kg1, pathlib as _kg2
+_kg1.path.insert(0, str(_kg2.Path(__file__).resolve().parent))
+from knowledge_graph import graph as _kg_graph, neighbors as _kg_neighbors, \
+    add_triple as _kg_add, extract_from_sources as _kg_extract
+
+@app.get("/api/v1/knowledge-graph")
+async def api_kg():
+    return _kg_graph()
+
+@app.get("/api/v1/knowledge-graph/neighbors/{node}")
+async def api_kg_neighbors(node: str):
+    return _kg_neighbors(node)
+
+@app.post("/api/v1/knowledge-graph/triple")
+async def api_kg_triple(payload: dict = None):
+    payload = payload or {}
+    return _kg_add(payload.get("subj", ""), payload.get("rel", ""), payload.get("obj", ""))
+
+@app.post("/api/v1/knowledge-graph/extract")
+async def api_kg_extract():
+    return {"ok": True, "added": len(_kg_extract())}

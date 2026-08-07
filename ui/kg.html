@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Knowledge Graph</title>
+<script>window.PAGE={title:"Knowledge Graph",crumb:["System","KG"]};</script>
+<style>
+  .kg-wrap { max-width: 1000px; }
+  .kg-hero { margin-bottom: 1.25rem; }
+  .kg-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .kg-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .kg-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .kg-bar input { flex: 1; min-width: 160px; background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .kg-btn { background: #A78BFA; color: #0A101F; border: none; border-radius: 6px; padding: .5rem .9rem; font-weight: 700; font-size: .8rem; cursor: pointer; }
+  .kg-stats { font-size: .8rem; color: var(--muted,#94a3b8); margin-bottom: 1rem; }
+  .kg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+  .kg-node { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: .8rem; cursor: pointer; }
+  .kg-node:hover { border-color: #A78BFA; }
+  .kg-node h3 { font-size: .85rem; margin: 0 0 .3rem; }
+  .kg-node .k { font-size: .7rem; color: var(--dim,#64748b); }
+  .kg-neighbors { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; margin-top: 1rem; }
+  .kg-nb { font-size: .78rem; padding: .3rem 0; border-bottom: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="kg-wrap">
+    <div class="kg-hero"><h1>🕸️ Knowledge Graph</h1><p>Entities + relations — who connects to what</p></div>
+    <div class="kg-bar">
+      <input id="kg-q" placeholder="Query a node's neighbors — e.g. BlueTeam-Tools"/>
+      <button class="kg-btn" onclick="queryNode()">Query</button>
+      <button class="kg-btn" style="background:transparent;border:1px solid var(--border);color:var(--fg)" onclick="extract()">⟳ Extract</button>
+    </div>
+    <div class="kg-stats" id="kg-stats"></div>
+    <div class="kg-grid" id="kg-grid"></div>
+    <div class="kg-neighbors" id="kg-out" style="display:none"><h3 style="margin:0 0 .5rem">Neighbors</h3><div id="kg-nb"></div></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/knowledge-graph");
+  $("kg-stats").textContent = d.nodes.length + " nodes · " + d.edges.length + " edges";
+  $("kg-grid").innerHTML = (d.nodes || []).slice(0, 60).map(n =>
+    '<div class="kg-node" onclick="query(\'' + n.label + '\')"><h3>' + n.label + '</h3><div class="k">' + (n.kind||"entity") + ' · ' + (n.source||"") + '</div></div>').join("") || "no nodes — extract first";
+}
+async function query(label) {
+  $("kg-q").value = label;
+  const d = await api("/api/v1/knowledge-graph/neighbors/" + encodeURIComponent(label));
+  $("kg-out").style.display = "block";
+  $("kg-nb").innerHTML =
+    (d.outgoing || []).map(r => '<div class="kg-nb">' + label + ' <b style="color:#A78BFA">-' + r.rel + '-></b> ' + r.label + '</div>').join("") +
+    (d.incoming || []).map(r => '<div class="kg-nb">' + r.label + ' <b style="color:#22D3EE"><-' + r.rel + '-</b> ' + label + '</div>').join("") ||
+    '<div style="color:var(--dim)">no connections yet</div>';
+}
+async function queryNode() { const q = $("kg-q").value.trim(); if (q) query(q); }
+async function extract() { await api("/api/v1/knowledge-graph/extract", { method:"POST" }); load(); }
+load();
+</script>
+</body>
+</html>

@@ -16,6 +16,7 @@
       { label: "Execution", href: "/ui/execution.html", ic: "\u2699\uFE0F" },
       { label: "Validation", href: "/ui/validation.html", ic: "\uD83E\uDDEA" },
       { label: "Lifecycle", href: "/ui/lifecycle.html", ic: "\uD83D\uDD04" },
+      { label: "Memory", href: "/ui/memory.html", ic: "\uD83E\uDDE0" },
       { label: "Collaboration", href: "/ui/collab.html", ic: "\uD83E\uDDE0" },
       { label: "Organization", href: "/ui/org.html", ic: "\u26DB" },
       { label: "Departments", href: "/ui/departments.html", ic: "\uD83C\uDFE2" },

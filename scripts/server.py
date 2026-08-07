@@ -1415,3 +1415,37 @@ async def api_lifecycle_agent(agent: str):
 @app.get("/api/v1/lifecycle")
 async def api_lifecycle_all():
     return _lc_all()
+
+# ===== v4.0 Memory System (v3.35) =====
+import sys as _memp, pathlib as _memq
+_memp.path.insert(0, str(_memq.Path(__file__).resolve().parent))
+from memory_system import add as _mem_add, get as _mem_get, counts as _mem_counts, \
+    search as _mem_search, promote as _mem_promote, TYPES as _MEM_TYPES
+
+@app.get("/api/v1/memory")
+async def api_memory_counts():
+    return _mem_counts()
+
+@app.get("/api/v1/memory/{mtype}")
+async def api_memory_type(mtype: str):
+    return _mem_get(mtype)
+
+@app.post("/api/v1/memory/{mtype}")
+async def api_memory_add(mtype: str, payload: dict = None):
+    payload = payload or {}
+    content = (payload.get("content") or "").strip()
+    if not content:
+        return {"ok": False, "error": "content required"}
+    return _mem_add(mtype, content, payload.get("tags"), int(payload.get("importance", 1)))
+
+@app.post("/api/v1/memory/search")
+async def api_memory_search(payload: dict = None):
+    payload = payload or {}
+    q = (payload.get("query") or "").strip()
+    if not q:
+        return {"ok": False, "error": "query required"}
+    return _mem_search(q)
+
+@app.post("/api/v1/memory/promote/{mem_id}")
+async def api_memory_promote(mem_id: int):
+    return _mem_promote(mem_id)

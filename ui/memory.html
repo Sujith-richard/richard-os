@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Memory System</title>
+<script>window.PAGE={title:"Memory",crumb:["System","Memory"]};</script>
+<style>
+  .me-wrap { max-width: 1000px; }
+  .me-hero { margin-bottom: 1.25rem; }
+  .me-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .me-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .me-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .me-bar input, .me-bar select { background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .me-bar input { flex: 1; min-width: 180px; }
+  .me-btn { background: #A78BFA; color: #0A101F; border: none; border-radius: 6px; padding: .5rem .9rem; font-weight: 700; font-size: .8rem; cursor: pointer; }
+  .me-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+  .me-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; }
+  .me-card h2 { font-size: .9rem; margin: 0 0 .5rem; display: flex; justify-content: space-between; }
+  .me-card h2 .n { color: #A78BFA; font-weight: 700; }
+  .me-item { font-size: .78rem; padding: .3rem 0; border-bottom: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); }
+  .me-item .prom { cursor: pointer; color: #22D3EE; font-size: .68rem; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="me-wrap">
+    <div class="me-hero"><h1>🧠 Memory System</h1><p>11 types: user · conversation · project · department · agent · tool · workflow · knowledge · experience · long-term · temporary</p></div>
+    <div class="me-bar">
+      <select id="me-type"></select>
+      <input id="me-content" placeholder="Memory content…"/>
+      <button class="me-btn" onclick="addMem()">+ Add</button>
+    </div>
+    <div class="me-bar">
+      <input id="me-q" placeholder="Search all memory…"/>
+      <button class="me-btn" onclick="search()">Search</button>
+    </div>
+    <div class="me-grid" id="me-grid"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const TYPES = ["user","conversation","project","department","agent","tool","workflow","knowledge","experience","long-term","temporary"];
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/memory");
+  const counts = d.counts || {};
+  $("me-grid").innerHTML = TYPES.map(t =>
+    '<div class="me-card"><h2>' + t + ' <span class="n">' + (counts[t]||0) + '</span></h2>' +
+    '<div id="ml-' + t + '" style="max-height:160px;overflow:auto"></div></div>').join("");
+  $("me-type").innerHTML = TYPES.map(t => '<option value="' + t + '">' + t + '</option>').join("");
+  for (const t of TYPES) {
+    const r = await api("/api/v1/memory/" + t);
+    $("ml-" + t).innerHTML = (r.memories || []).slice(0, 6).map(m =>
+      '<div class="me-item">' + m.content + ' ' +
+      (t === "temporary" ? '<span class="prom" onclick="promote(' + m.id + ')">↑ long-term</span>' : '') +
+      '</div>').join("") || '<div style="color:var(--dim);font-size:.72rem">empty</div>';
+  }
+}
+async function addMem() {
+  const t = $("me-type").value, c = $("me-content").value.trim();
+  if (!c) return;
+  await api("/api/v1/memory/" + t, { method:"POST", body: JSON.stringify({ content: c, importance: 1 }) });
+  $("me-content").value = "";
+  load();
+}
+async function promote(id) { await api("/api/v1/memory/promote/" + id, { method:"POST" }); load(); }
+async function search() {
+  const q = $("me-q").value.trim();
+  if (!q) return;
+  const d = await api("/api/v1/memory/search", { method:"POST", body: JSON.stringify({ query: q }) });
+  alert((d.results || []).map(r => "[" + r.mtype + "] " + r.content).join("\n") || "no matches");
+}
+load();
+</script>
+</body>
+</html>

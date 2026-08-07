@@ -295,3 +295,10 @@ Every agent now has a full lifecycle state machine.
 - **Lifecycle:** `scripts/agent_lifecycle.py` — created → assigned → thinking → uses_models → uses_skills → uses_tools → uses_knowledge → returns_result → reviewer_checks → memory_updated → sleeps (then wraps to a new cycle)
 - **API:** `POST /api/v1/lifecycle/start/{agent}` · `POST /advance/{agent}` · `GET /{agent}` · `GET /`
 - **UI:** `ui/lifecycle.html` — per-agent timeline dots, current state badge, advance/restart buttons
+
+## v3.35.0 — Memory System (v4.0 #5)
+The 11-type memory hierarchy — every memory has a home.
+
+- **Store:** `scripts/memory_system.py` — user, conversation, project, department, agent, tool, workflow, knowledge, experience, long-term, temporary (memory.db) · add/get/search per type · promote temporary → long-term · seeds from second_brain
+- **API:** `GET /api/v1/memory` · `GET /{type}` · `POST /{type}` (add) · `POST /search` · `POST /promote/{id}`
+- **UI:** `ui/memory.html` — 11-type cards with counts, add bar, search, promote

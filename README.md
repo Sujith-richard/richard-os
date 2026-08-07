@@ -499,3 +499,9 @@ Unified agent runtime: registry + on-demand/scheduled runs + logging.
 
 - **Runtime:** `scripts/agent_runtime.py` — 30-agent registry, run_agent (logs + agent.started event), schedule, recent_runs
 - **API:** `GET /api/v1/agent-runtime/registry` · `POST /run` · `POST /schedule` · `GET /runs`
+
+## v5.6.0 — Version Manager (v5.0 #6)
+Everything versioned — skills, knowledge, departments.
+
+- **Versioning:** `scripts/version_manager.py` — snapshot + hash + version bump + history + rollback for skills/departments/knowledge
+- **API:** `POST /api/v1/versions/{kind}/{name}` · `GET /api/v1/versions` · `POST /{kind}/{name}/rollback/{v}`

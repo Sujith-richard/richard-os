@@ -1880,3 +1880,20 @@ async def api_agent_schedule(payload: dict = None):
 @app.get("/api/v1/agent-runtime/runs")
 async def api_agent_runs():
     return _ag_runs()
+
+# ===== v5.6 Version Manager (v5.0) =====
+import sys as _vm1, pathlib as _vm2
+_vm1.path.insert(0, str(_vm2.Path(__file__).resolve().parent))
+from version_manager import version as _vm_ver, history as _vm_hist, rollback as _vm_rb
+
+@app.post("/api/v1/versions/{kind}/{name}")
+async def api_version_create(kind: str, name: str):
+    return _vm_ver(kind, name)
+
+@app.get("/api/v1/versions")
+async def api_version_history(kind: str = "", name: str = ""):
+    return _vm_hist(kind or None, name or None)
+
+@app.post("/api/v1/versions/{kind}/{name}/rollback/{version}")
+async def api_version_rollback(kind: str, name: str, version: int):
+    return _vm_rb(kind, name, version)

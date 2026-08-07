@@ -31,9 +31,11 @@
       <button class="me-btn" onclick="addMem()">+ Add</button>
     </div>
     <div class="me-bar">
-      <input id="me-q" placeholder="Search all memory…"/>
-      <button class="me-btn" onclick="search()">Search</button>
+      <input id="me-q" placeholder="Semantic search (vector)…"/>
+      <button class="me-btn" onclick="search()">Vector search</button>
+      <button class="me-btn" style="background:transparent;border:1px solid var(--border);color:var(--fg)" onclick="build()">Rebuild index</button>
     </div>
+    <div id="me-results" style="margin-bottom:1rem;font-size:.8rem;color:var(--muted,#94a3b8)"></div>
     <div class="me-grid" id="me-grid"></div>
   </div>
 </div>
@@ -68,8 +70,14 @@ async function promote(id) { await api("/api/v1/memory/promote/" + id, { method:
 async function search() {
   const q = $("me-q").value.trim();
   if (!q) return;
-  const d = await api("/api/v1/memory/search", { method:"POST", body: JSON.stringify({ query: q }) });
-  alert((d.results || []).map(r => "[" + r.mtype + "] " + r.content).join("\n") || "no matches");
+  const d = await api("/api/v1/vector/search", { method:"POST", body: JSON.stringify({ query: q }) });
+  $("me-results").innerHTML = d.ok
+    ? "vector results: " + (d.results || []).map(r => '<div style="padding:.2rem 0;border-bottom:1px solid var(--border,#1f2937)"><span style="color:#A78BFA">' + r.score + '</span> [' + r.source + '] ' + r.text + '</div>').join("")
+    : "error: " + (d.error || "?");
+}
+async function build() {
+  await api("/api/v1/vector/build", { method:"POST" });
+  $("me-results").innerHTML = "index rebuilt";
 }
 load();
 </script>

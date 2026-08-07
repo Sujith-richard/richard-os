@@ -334,3 +334,10 @@ The architecture's core loop, running end-to-end.
 - **F5 Learn-from-cloud:** `learn_from_cloud.py` — every cloud success → quality check → experience memory → training dataset (cloud-assisted.jsonl) → future fine-tunes
 - **F6 Provider chain:** 8 providers (local, DeepSeek, Gemini, Groq, Claude, GPT, Qwen, Mistral) with live availability
 - **API:** `GET /api/v1/models/providers` · `POST /api/v1/escalation/execute` · `GET /api/v1/context`
+
+## v3.40.0 — Vector DB (Phase G1)
+Semantic retrieval across memory, repo intel, and skills.
+
+- **Vector DB:** `scripts/vector_db.py` — sklearn TF-IDF cosine index over 54 docs (memory/repo-intel/skills), build + search by similarity (pluggable to sentence-transformers later)
+- **API:** `POST /api/v1/vector/build` · `POST /api/v1/vector/search`
+- **UI:** semantic vector search added to Memory page (rebuild + results)

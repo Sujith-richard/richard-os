@@ -1520,3 +1520,23 @@ async def api_escalation_execute(payload: dict = None):
     if not request:
         return {"ok": False, "error": "request required"}
     return _esc_execute(request, payload.get("dept", "web"), payload.get("sub"))
+
+# ===== Phase G1 Vector DB (v3.40) =====
+import sys as _vd1, pathlib as _vd2
+_vd1.path.insert(0, str(_vd2.Path(__file__).resolve().parent))
+from vector_db import build_index as _vd_build, search as _vd_search
+
+@app.post("/api/v1/vector/build")
+async def api_vector_build():
+    return _vd_build()
+
+@app.post("/api/v1/vector/search")
+async def api_vector_search(payload: dict = None):
+    payload = payload or {}
+    q = (payload.get("query") or "").strip()
+    if not q:
+        return {"ok": False, "error": "query required"}
+    try:
+        return {"ok": True, "results": _vd_search(q, int(payload.get("top", 5)))}
+    except FileNotFoundError:
+        return {"ok": False, "error": "index not built — POST /api/v1/vector/build first"}

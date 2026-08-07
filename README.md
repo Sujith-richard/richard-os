@@ -394,3 +394,9 @@ API keys and tokens encrypted at rest (Fernet), decrypt-on-use.
 
 - **Vault:** `scripts/vault.py` — Fernet (AES-128-CBC + HMAC), key derived from PBKDF2/200k, key file or RICHARD_MASTER_KEY env; save/get/list/delete; integrations connectors read gmail/github secrets from the vault
 - **API:** `GET /api/v1/vault` · `POST /` (store) · `GET /{name}` · `POST /{name}/delete`
+
+## v3.49.0 — Memory Lifecycle (Phase D4)
+Temporary memories auto-promote to long-term; stale ones decay.
+
+- **Lifecycle:** `scripts/memory_lifecycle.py` — promote temp → long-term by importance (≥2) or age (≥24h), delete stale temps (TTL 7d)
+- **API:** `POST /api/v1/memory/lifecycle/run` (dry_run opt) · `GET /stats`

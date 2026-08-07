@@ -1686,3 +1686,17 @@ async def api_vault_get(name: str):
 @app.post("/api/v1/vault/{name}/delete")
 async def api_vault_delete(name: str):
     return _vl_del(name)
+
+# ===== Phase D4 Memory Lifecycle (v3.49) =====
+import sys as _ml1, pathlib as _ml2
+_ml1.path.insert(0, str(_ml2.Path(__file__).resolve().parent))
+from memory_lifecycle import run_lifecycle as _ml_run, stats as _ml_stats
+
+@app.post("/api/v1/memory/lifecycle/run")
+async def api_memory_lifecycle(payload: dict = None):
+    payload = payload or {}
+    return _ml_run(dry_run=bool(payload.get("dry_run", False)))
+
+@app.get("/api/v1/memory/lifecycle/stats")
+async def api_memory_lifecycle_stats():
+    return _ml_stats()

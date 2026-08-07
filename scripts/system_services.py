@@ -142,3 +142,30 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ===== v5.2 Event Bus SPINE — publish/subscribe with subscribers =====
+SUBSCRIBERS = {}   # event_type -> [callables]
+import threading
+_bus_lock = threading.Lock()
+
+def subscribe(event_type, fn):
+    """Register a subscriber for an event type (fn(event) called on publish)."""
+    with _bus_lock:
+        SUBSCRIBERS.setdefault(event_type, []).append(fn)
+    return {"ok": True, "event": event_type, "subscribers": len(SUBSCRIBERS.get(event_type, []))}
+
+def publish(event_type, payload=""):
+    """Publish to the bus: persist + notify subscribers (thread-safe)."""
+    r = emit(event_type, payload)   # existing persist to system_events.db
+    with _bus_lock:
+        subs = list(SUBSCRIBERS.get(event_type, [])) + list(SUBSCRIBERS.get("*", []))
+    for fn in subs:
+        try:
+            fn({"type": event_type, "payload": payload})
+        except Exception:
+            pass
+    return r
+
+def subscriptions():
+    return {"ok": True, "subscribers": {k: len(v) for k, v in SUBSCRIBERS.items()}}

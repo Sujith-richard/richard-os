@@ -1811,3 +1811,21 @@ from ai_runtime import recent_calls as _ar_recent
 @app.get("/api/v1/runtime/calls")
 async def api_runtime_calls(limit: int = 20):
     return _ar_recent(limit)
+
+# ===== v5.2 Event Bus spine (v5.0) =====
+import sys as _bus1, pathlib as _bus2
+_bus1.path.insert(0, str(_bus2.Path(__file__).resolve().parent))
+from system_services import publish as _bus_publish, subscribe as _bus_subscribe, subscriptions as _bus_subs, events as _bus_events
+
+@app.post("/api/v1/events/publish")
+async def api_events_publish(payload: dict = None):
+    payload = payload or {}
+    return _bus_publish(payload.get("type", "event"), payload.get("payload", ""))
+
+@app.get("/api/v1/events")
+async def api_events(limit: int = 30):
+    return _bus_events(limit)
+
+@app.get("/api/v1/events/subscriptions")
+async def api_events_subs():
+    return _bus_subs()

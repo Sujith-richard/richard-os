@@ -121,6 +121,13 @@ def run_workflow(name):
               (status, ended, len(log_entries), json.dumps(log_entries, indent=2), run_id))
     c.execute("""UPDATE workflows SET status=?, runs=runs+1, errors=errors+?, last_run=?, updated_at=? WHERE name=?""",
               (status, 0 if ok_all else 1, ended, _now(), name))
+    try:
+        import sys as _eb2
+        _eb2.path.insert(0, str(ROOT / "scripts"))
+        from system_services import publish
+        publish("workflow.finished", f"{name} -> {status}")
+    except Exception:
+        pass
     c.commit()
     w2 = c.execute("SELECT * FROM workflows WHERE name=?", (name,)).fetchone()
     c.close()

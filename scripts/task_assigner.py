@@ -89,6 +89,13 @@ def assign_task(title, dept=None):
     c = _conn()
     c.execute("INSERT INTO assignments (task, agent, dept, reason, status, created_at) VALUES (?,?,?,?,?,?)",
               (title, chosen, dept_of, reason, "assigned", _now()))
+    try:
+        import sys as _eb
+        _eb.path.insert(0, str(ROOT / "scripts"))
+        from system_services import publish
+        publish("task.created", f"{title} -> {chosen}")
+    except Exception:
+        pass
     c.commit()
     aid = c.execute("SELECT last_insert_rowid()").fetchone()[0]
     c.close()

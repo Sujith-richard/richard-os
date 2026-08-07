@@ -474,3 +474,10 @@ Unified per-call layer: token manager, cost tracker, timeout, output validator �
 - **Runtime:** `scripts/ai_runtime.py` — run_call() (timeout + validate + log), estimate_cost (per-model rates), validate_output, recent_calls
 - **Wired:** `agent_lib.call_llm` now logs every real call (tokens/cost/latency)
 - **API:** `GET /api/v1/runtime/calls`
+
+## v5.2.0 — Event Bus Spine (v5.0 #2)
+Every engine publishes to the central bus; subscribers react.
+
+- **Bus:** `system_services.py` publish/subscribe/subscriptions (thread-safe, persisted)
+- **Wired:** task_assigner → task.created · workflow_engine → workflow.finished (model.selected, learning.started next)
+- **API:** `POST /api/v1/events/publish` · `GET /api/v1/events` · `GET /api/v1/events/subscriptions`

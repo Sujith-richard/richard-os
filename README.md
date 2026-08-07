@@ -404,3 +404,8 @@ Temporary memories auto-promote to long-term; stale ones decay.
 ## v3.50.0 — Project Structure Repository (Phase B6)
 Blueprint catalog — 12 structures (react/nextjs/vue/fastapi/django/express/postgres/mongodb/rest/graphql/docker/jwt) with alias + keyword resolution; project_engine routing is blueprint-aware.
 - **API:** `GET /api/v1/structures` · `GET /{name}` · `POST /scaffold` · **UI:** `ui/structures.html`
+
+## v3.51.0 — Audit Logs (Phase I4)
+Every API action logged (method, path, user, status) to audit.db + middleware + viewer endpoint.
+
+- **Audit:** `scripts/audit.py` · **Middleware:** all requests logged automatically · **API:** `GET /api/v1/audit`

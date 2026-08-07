@@ -1718,3 +1718,26 @@ async def api_structures_get(name: str):
 async def api_structures_scaffold(payload: dict = None):
     payload = payload or {}
     return _bs_scaffold(payload.get("name", ""), payload.get("out_dir", "/tmp/richard-blueprint"))
+
+
+# ===== Phase I4 Audit Logs (v3.51) =====
+import sys as _au2, pathlib as _au3
+_au2.path.insert(0, str(_au3.Path(__file__).resolve().parent))
+from audit import log as _audit_log, recent as _audit_recent
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as _Req
+
+class AuditMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: _Req, call_next):
+        try:
+            response = await call_next(request)
+            _audit_log(request.method, request.url.path, "web", response.status_code)
+        except Exception:
+            pass
+        return response
+
+app.add_middleware(AuditMiddleware)
+
+@app.get("/api/v1/audit")
+async def api_audit(limit: int = 30):
+    return _audit_recent(limit)

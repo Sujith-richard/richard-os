@@ -493,3 +493,9 @@ Per-model-call telemetry: cost, tokens, latency, error rate.
 
 - **Observability:** `ai_runtime.observability()` — aggregate by model + summary + recent calls
 - **API:** `GET /api/v1/observability`
+
+## v5.5.0 — Agent Runtime service (v5.0 #5)
+Unified agent runtime: registry + on-demand/scheduled runs + logging.
+
+- **Runtime:** `scripts/agent_runtime.py` — 30-agent registry, run_agent (logs + agent.started event), schedule, recent_runs
+- **API:** `GET /api/v1/agent-runtime/registry` · `POST /run` · `POST /schedule` · `GET /runs`

@@ -1857,3 +1857,26 @@ from ai_runtime import observability as _obs
 @app.get("/api/v1/observability")
 async def api_observability(limit: int = 100):
     return _obs(limit)
+
+# ===== v5.5 Agent Runtime (v5.0) =====
+import sys as _ag1, pathlib as _ag2
+_ag1.path.insert(0, str(_ag2.Path(__file__).resolve().parent))
+from agent_runtime import registry as _ag_reg, run_agent as _ag_run, schedule as _ag_sched, recent_runs as _ag_runs
+
+@app.get("/api/v1/agent-runtime/registry")
+async def api_agent_registry():
+    return _ag_reg()
+
+@app.post("/api/v1/agent-runtime/run")
+async def api_agent_run(payload: dict = None):
+    payload = payload or {}
+    return _ag_run(payload.get("agent", ""), payload.get("task", ""))
+
+@app.post("/api/v1/agent-runtime/schedule")
+async def api_agent_schedule(payload: dict = None):
+    payload = payload or {}
+    return _ag_sched(payload.get("agent", ""), payload.get("task", ""), payload.get("time", ""))
+
+@app.get("/api/v1/agent-runtime/runs")
+async def api_agent_runs():
+    return _ag_runs()

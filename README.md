@@ -464,3 +464,6 @@ The plan is fully shipped. Final four: **A8 kernel boot** (10-subsystem init + r
 **Run:** `python3 scripts/desktop_launcher.py` → `sujith / Richard-OS-2026`
 **Container:** `docker compose up` (port 8001) · **Autonomy:** `python3 scripts/autonomy.py`
 **Offline:** `python3 scripts/offline_model.py --train`
+
+## v4.2.0 — Brain Graph v4.x Refresh
+The neural brain now maps the complete OS: +24 nodes / +27 links for Phases F/G/I/J + v4 (Intelligent Escalation, Knowledge Depth, Security Layer, Model Ops, System Core clusters + Richard Kernel, LoRA, Vault, etc.). 206 nodes / 219 links / 0 broken.

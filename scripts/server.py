@@ -189,6 +189,30 @@ def graph():
         edges.append({"source": core, "target": aid, "strength": 2})
         edges.append({"source": aid, "target": target, "strength": 2})
 
+    # ── v4.x: PHASE F/G/I/J + v4 additions (new subsystems) ──
+    clusters = [
+        ("escalation", "Intelligent Escalation", 560, -160,
+         [("context-assembly","Context Assembly"),("capability-gap","Capability Gap"),
+          ("escalation-engine","Escalation Engine"),("auto-merge","Auto Merge"),
+          ("learn-from-cloud","Learn from Cloud")], [("escalation-engine", "escalation-engine")]),
+        ("knowledge-depth", "Knowledge Depth", 560, 0,
+         [("vector-db","Vector DB"),("rag","RAG Doc-Chat"),("vision-pipeline","Vision Pipeline")],
+         [("knowledge-depth","knowledge-engine")]),
+        ("security-layer", "Security Layer", 560, 160,
+         [("auth","Auth"),("vault","Secret Vault"),("audit","Audit"),("security-scan","Deep Security Scan")], []),
+        ("model-ops", "Model Ops", 560, 320,
+         [("model-registry","Model Registry"),("offline-model","Offline Model"),("train-lora","LoRA Training")],
+         [("model-ops","model-orchestrator")]),
+        ("system-core", "System Core", 560, 480,
+         [("kernel","Richard Kernel"),("autonomy","Autonomy"),("repo-sync","Repo Sync"),("desktop","Desktop Launcher")], []),
+    ]
+    for cid, clabel, cx, cy, members, extra in clusters:
+        N(cid, clabel, "engine", cx, cy, "#F26CB8")
+        for i, (nid, label) in enumerate(members):
+            N(nid, label, "engine", cx + 180, cy - 20 + i*30, "#F26CB8"); E(cid, nid)
+        E(core, cid)
+        for a, b in extra:
+            E(a, b)
     return {"nodes": nodes, "edges": edges, "links": edges}
 
 @app.get("/api/run")

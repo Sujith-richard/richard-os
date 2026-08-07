@@ -437,3 +437,6 @@ All phases shipped. Richard OS is a self-hosted, GPU-powered personal AI operati
 **Container:** `docker compose up`
 **Autonomy:** `python3 scripts/autonomy.py`
 **Offline:** `python3 scripts/offline_model.py --train` then serve local-first.
+
+## v4.1.0 — 100% COMPLETE (52/52 ToDo items)
+The plan is fully shipped. Final four: **A8 kernel boot** (10-subsystem init + retry, kernel_boot.json) · **C5 repo sync** (git pull lifecycle, 20 repos) · **E6 training pipeline 2.0** (clean→label→vectorize→eval split, 396 samples → 317 train/79 eval) · **E5 LoRA on RTX** (peft r=4 adapters, GPU fine-tune in 2s).

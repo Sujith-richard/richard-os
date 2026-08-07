@@ -71,6 +71,15 @@ def main():
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     out_dir = MODEL_DIR / f"richard-{args.dataset}-tiny"
+    # E5: LoRA — freeze base, add low-rank adapters (fits bigger models on the RTX)
+    try:
+        from peft import LoraConfig, get_peft_model, TaskType
+        lora = LoraConfig(task_type=TaskType.CAUSAL_LM, r=4, lora_alpha=8,
+                          target_modules=["c_attn"], lora_dropout=0.05)
+        model = get_peft_model(model, lora)
+        logp("[train] LoRA enabled (r=4) — training adapters only")
+    except Exception as e:
+        logp(f"[train] LoRA unavailable, full fine-tune: {str(e)[:60]}")
     targs = TrainingArguments(
         output_dir=str(out_dir), max_steps=args.steps, per_device_train_batch_size=1,
         learning_rate=5e-5, logging_steps=args.steps, save_steps=args.steps,

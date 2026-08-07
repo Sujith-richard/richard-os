@@ -354,3 +354,8 @@ Doc-chat now retrieves via vectors, not just keywords.
 
 - **RAG:** `doc_chat._search_chunks` upgraded from keyword-overlap to TF-IDF cosine over the doc's chunks (sklearn, same technique as vector_db) with lexical fallback
 - **Verified:** "What hardware for ML?" → retrieved the RTX chunk → grounded answer "NVIDIA RTX 3050"
+
+## v3.43.0 — Vision Feedback Pipeline (Phase G4) — Phase G COMPLETE
+Image → vision analyze → structured UI spec → knowledge → local retry.
+
+- **Pipeline:** `scripts/vision_pipeline.py` — analyze image (vision-capable models) → extract spec (layout/components/colors/nav) → store experience memory + knowledge-graph triples (image →represents→ component, →uses-layout→) → return retry_prompt for the local model

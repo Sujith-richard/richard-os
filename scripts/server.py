@@ -1829,3 +1829,24 @@ async def api_events(limit: int = 30):
 @app.get("/api/v1/events/subscriptions")
 async def api_events_subs():
     return _bus_subs()
+
+# ===== v5.3 Package Manager (v5.0) =====
+import sys as _pm1, pathlib as _pm2
+_pm1.path.insert(0, str(_pm2.Path(__file__).resolve().parent))
+from package_manager import list_packages as _pm_list, install as _pm_install, uninstall as _pm_uninstall, installed as _pm_installed
+
+@app.get("/api/v1/packages")
+async def api_packages(kind: str = ""):
+    return _pm_list(kind or None)
+
+@app.post("/api/v1/packages/install/{name}")
+async def api_packages_install(name: str):
+    return _pm_install(name)
+
+@app.post("/api/v1/packages/uninstall/{name}")
+async def api_packages_uninstall(name: str):
+    return _pm_uninstall(name)
+
+@app.get("/api/v1/packages/installed")
+async def api_packages_installed():
+    return _pm_installed()

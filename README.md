@@ -481,3 +481,9 @@ Every engine publishes to the central bus; subscribers react.
 - **Bus:** `system_services.py` publish/subscribe/subscriptions (thread-safe, persisted)
 - **Wired:** task_assigner → task.created · workflow_engine → workflow.finished (model.selected, learning.started next)
 - **API:** `POST /api/v1/events/publish` · `GET /api/v1/events` · `GET /api/v1/events/subscriptions`
+
+## v5.3.0 — Package Manager (v5.0 #3)
+Everything is an installable package — departments, skills, workflows, structures.
+
+- **Manager:** `scripts/package_manager.py` — discovers all local packages (16+), install/uninstall with version + manifest, publishes package.installed events
+- **API:** `GET /api/v1/packages` · `POST /install/{name}` · `POST /uninstall/{name}` · `GET /installed`

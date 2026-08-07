@@ -487,3 +487,9 @@ Everything is an installable package — departments, skills, workflows, structu
 
 - **Manager:** `scripts/package_manager.py` — discovers all local packages (16+), install/uninstall with version + manifest, publishes package.installed events
 - **API:** `GET /api/v1/packages` · `POST /install/{name}` · `POST /uninstall/{name}` · `GET /installed`
+
+## v5.4.0 — AI Observability (v5.0 #4)
+Per-model-call telemetry: cost, tokens, latency, error rate.
+
+- **Observability:** `ai_runtime.observability()` — aggregate by model + summary + recent calls
+- **API:** `GET /api/v1/observability`

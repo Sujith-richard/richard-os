@@ -87,3 +87,28 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def observability(limit=100):
+    """Aggregate per-model telemetry: calls, cost, tokens, latency, errors."""
+    import sqlite3
+    if not RUNTIME_DB.exists():
+        return {"ok": True, "summary": {"calls": 0, "total_cost": 0, "total_tokens": 0}, "by_model": [], "recent": []}
+    c = sqlite3.connect(RUNTIME_DB); c.row_factory = sqlite3.Row
+    rows = c.execute("SELECT * FROM calls ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+    total_cost = sum(r["cost"] for r in rows)
+    total_tok = sum(r["prompt_tokens"] + r["response_tokens"] for r in rows)
+    errors = sum(1 for r in rows if not r["ok"])
+    by_model = {}
+    for r in rows:
+        m = by_model.setdefault(r["model"], {"calls": 0, "cost": 0, "latency_sum": 0, "errors": 0, "tokens": 0})
+        m["calls"] += 1; m["cost"] += r["cost"]; m["latency_sum"] += r["latency"]
+        m["tokens"] += r["prompt_tokens"] + r["response_tokens"]
+        if not r["ok"]: m["errors"] += 1
+    by_model = [{"model": k, **v, "avg_latency": round(v["latency_sum"] / v["calls"], 3)} for k, v in by_model.items()]
+    c.close()
+    return {"ok": True,
+            "summary": {"calls": len(rows), "total_cost": round(total_cost, 6), "total_tokens": total_tok,
+                        "error_rate": round(errors / len(rows) * 100, 1) if rows else 0},
+            "by_model": by_model,
+            "recent": [dict(r) for r in rows[:10]]}

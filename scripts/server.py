@@ -1850,3 +1850,10 @@ async def api_packages_uninstall(name: str):
 @app.get("/api/v1/packages/installed")
 async def api_packages_installed():
     return _pm_installed()
+
+# ===== v5.4 AI Observability (v5.0) =====
+from ai_runtime import observability as _obs
+
+@app.get("/api/v1/observability")
+async def api_observability(limit: int = 100):
+    return _obs(limit)

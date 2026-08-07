@@ -1563,3 +1563,21 @@ async def api_kg_triple(payload: dict = None):
 @app.post("/api/v1/knowledge-graph/extract")
 async def api_kg_extract():
     return {"ok": True, "added": len(_kg_extract())}
+
+# ===== Phase H4 Settings (v3.44) =====
+import sys as _st1, pathlib as _st2
+_st1.path.insert(0, str(_st2.Path(__file__).resolve().parent))
+from settings import get as _st_get, update as _st_update, reset as _st_reset
+
+@app.get("/api/v1/settings")
+async def api_settings():
+    return _st_get()
+
+@app.post("/api/v1/settings")
+async def api_settings_update(payload: dict = None):
+    payload = payload or {}
+    return _st_update(payload)
+
+@app.post("/api/v1/settings/reset")
+async def api_settings_reset():
+    return _st_reset()

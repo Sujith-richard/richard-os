@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Settings</title>
+<script>window.PAGE={title:"Settings",crumb:["System","Settings"]};</script>
+<style>
+  .st-wrap { max-width: 700px; }
+  .st-hero { margin-bottom: 1.25rem; }
+  .st-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .st-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .st-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+  .st-card h2 { font-size: .95rem; margin: 0 0 1rem; }
+  .st-field { display: grid; grid-template-columns: 180px 1fr; gap: .75rem; align-items: center; margin-bottom: .75rem; font-size: .82rem; color: var(--muted,#94a3b8); }
+  .st-field input, .st-field select { background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .st-field input[type=checkbox] { width: auto; }
+  .st-btn { background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .55rem 1.2rem; font-weight: 700; font-size: .82rem; cursor: pointer; }
+  .st-saved { color: #10B981; font-size: .78rem; margin-top: .5rem; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="st-wrap">
+    <div class="st-hero"><h1>⚙️ Settings</h1><p>Your preferences — persisted, consumed by agents</p></div>
+    <div class="st-card">
+      <h2>Profile</h2>
+      <div class="st-field"><label>Name</label><input id="st-name"/></div>
+      <div class="st-field"><label>City</label><input id="st-city"/></div>
+      <div class="st-field"><label>Timezone</label><input id="st-tz"/></div>
+    </div>
+    <div class="st-card">
+      <h2>AI preferences</h2>
+      <div class="st-field"><label>Preferred department</label><select id="st-dept"><option>web</option><option>ai</option><option>data</option><option>cyber</option><option>cloud</option><option>robotics</option><option>finance</option><option>hr</option></select></div>
+      <div class="st-field"><label>Default model</label><select id="st-model"><option>auto</option><option>deepseek-v4-flash-free</option><option>gemini-3.5-flash</option><option>gpt-oss-120b</option><option>qwen3-32b</option></select></div>
+      <div class="st-field"><label>Autonomy level (1-5)</label><input id="st-auto" type="number" min="1" max="5"/></div>
+    </div>
+    <div class="st-card">
+      <h2>System</h2>
+      <div class="st-field"><label>Theme</label><select id="st-theme"><option>dark</option><option>midnight</option><option>graphite</option><option>oled</option></select></div>
+      <div class="st-field"><label>Notifications</label><input id="st-notif" type="checkbox"/></div>
+      <div class="st-field"><label>Morning brief</label><input id="st-brief" type="checkbox"/></div>
+    </div>
+    <button class="st-btn" onclick="save()">Save settings</button>
+    <button class="st-btn" style="background:transparent;border:1px solid var(--border);color:var(--fg)" onclick="reset()">Reset</button>
+    <div class="st-saved" id="st-saved"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/settings");
+  const s = d.settings || {};
+  $("st-name").value = s.name || ""; $("st-city").value = s.city || ""; $("st-tz").value = s.timezone || "";
+  $("st-dept").value = s.preferred_dept || "web"; $("st-model").value = s.default_model || "auto"; $("st-auto").value = s.autonomy_level || 2;
+  $("st-theme").value = s.theme || "dark"; $("st-notif").checked = !!s.notifications; $("st-brief").checked = !!s.morning_brief;
+}
+async function save() {
+  const body = {
+    name: $("st-name").value, city: $("st-city").value, timezone: $("st-tz").value,
+    preferred_dept: $("st-dept").value, default_model: $("st-model").value,
+    autonomy_level: parseInt($("st-auto").value) || 2, theme: $("st-theme").value,
+    notifications: $("st-notif").checked, morning_brief: $("st-brief").checked,
+  };
+  await api("/api/v1/settings", { method:"POST", body: JSON.stringify(body) });
+  $("st-saved").textContent = "✓ saved " + new Date().toLocaleTimeString();
+}
+async function reset() { await api("/api/v1/settings/reset", { method:"POST" }); load(); $("st-saved").textContent = "reset to defaults"; }
+load();
+</script>
+</body>
+</html>

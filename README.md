@@ -359,3 +359,10 @@ Doc-chat now retrieves via vectors, not just keywords.
 Image → vision analyze → structured UI spec → knowledge → local retry.
 
 - **Pipeline:** `scripts/vision_pipeline.py` — analyze image (vision-capable models) → extract spec (layout/components/colors/nav) → store experience memory + knowledge-graph triples (image →represents→ component, →uses-layout→) → return retry_prompt for the local model
+
+## v3.44.0 — Settings (Phase H4)
+User preferences, persisted + consumed by agents.
+
+- **Store:** `scripts/settings.py` — name/city/timezone/preferred_dept/default_model/theme/notifications/morning_brief/voice_enabled/autonomy_level → 06-data/settings.json (gitignored), type-coerced
+- **API:** `GET /api/v1/settings` · `POST /api/v1/settings` · `POST /reset`
+- **UI:** `ui/settings.html` — profile + AI preferences + system toggles

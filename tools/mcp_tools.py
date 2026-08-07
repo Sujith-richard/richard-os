@@ -101,6 +101,21 @@ def route(text):
             best, best_score = name, score
     return best
 
+def invoke(name, args=None):
+    """Actually run a connected MCP tool and return its output (honest)."""
+    t = TOOLS.get(name)
+    if not t:
+        return {"error": f"unknown tool {name}"}
+    if _ready(name) != "connected":
+        return {"error": f"{name} not connected (status: {_ready(name)})"}
+    import subprocess
+    cmd = list(t["cmd"]) + (args or [])
+    try:
+        r = subprocess.run(cmd, cwd=str(t["cwd"]), capture_output=True, text=True, timeout=180)
+        return {"ok": r.returncode == 0, "detail": (r.stdout or r.stderr)[:400]}
+    except Exception as e:
+        return {"error": str(e)[:150]}
+
 if __name__ == "__main__":
     import json, sys
     if len(sys.argv) > 1:

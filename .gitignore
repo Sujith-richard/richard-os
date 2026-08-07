@@ -64,3 +64,5 @@ vendor/
 06-data/models/ACTIVE.txt
 06-data/users.json
 06-data/sessions.json
+06-data/vault.json
+06-data/.vault_key

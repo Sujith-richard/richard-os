@@ -1659,3 +1659,30 @@ async def api_auth_me(token: str = ""):
 @app.get("/api/v1/auth/verify")
 async def api_auth_verify(token: str = ""):
     return _auth_verify(token)
+
+# ===== Phase I3 Secret Vault (v3.48) =====
+import sys as _vl1, pathlib as _vl2
+_vl1.path.insert(0, str(_vl2.Path(__file__).resolve().parent))
+from vault import save_secret as _vl_save, get_secret as _vl_get, list_names as _vl_list, delete_secret as _vl_del
+
+@app.get("/api/v1/vault")
+async def api_vault_list():
+    return {"ok": True, "secrets": _vl_list()}
+
+@app.post("/api/v1/vault")
+async def api_vault_set(payload: dict = None):
+    payload = payload or {}
+    name = (payload.get("name") or "").strip()
+    value = payload.get("value", "")
+    if not name:
+        return {"ok": False, "error": "name required"}
+    return _vl_save(name, value)
+
+@app.get("/api/v1/vault/{name}")
+async def api_vault_get(name: str):
+    v = _vl_get(name)
+    return {"ok": v is not None, "name": name, "value": v}
+
+@app.post("/api/v1/vault/{name}/delete")
+async def api_vault_delete(name: str):
+    return _vl_del(name)

@@ -102,8 +102,18 @@ def sync_weather(cfg):
     (DATA / "live_weather.json").write_text(json.dumps({**r, "synced_at": _now()}, indent=2))
     return r
 
+def _secret(name):
+    try:
+        from vault import get_secret
+        return get_secret(name)
+    except Exception:
+        return None
+
 def test_gmail(cfg):
     import imaplib
+    # I3: prefer vault-stored credentials
+    if not cfg.get("app_password") and cfg.get("vault_app_password"):
+        cfg["app_password"] = _secret(cfg["vault_app_password"]) or ""
     M = imaplib.IMAP4_SSL(cfg["imap_host"])
     M.login(cfg["email"], cfg["app_password"])
     M.select("INBOX")

@@ -388,3 +388,9 @@ The server now requires sign-in.
 - **API:** `POST /api/v1/auth/login` · `POST /logout` · `GET /me` · `GET /verify`
 - **UI:** `ui/login.html` — sign-in form (sets token cookie) · shell redirects to login without a token
 - **Setup:** `python3 scripts/auth.py --setup <user> <pass>`
+
+## v3.48.0 — Secret Vault (Phase I3)
+API keys and tokens encrypted at rest (Fernet), decrypt-on-use.
+
+- **Vault:** `scripts/vault.py` — Fernet (AES-128-CBC + HMAC), key derived from PBKDF2/200k, key file or RICHARD_MASTER_KEY env; save/get/list/delete; integrations connectors read gmail/github secrets from the vault
+- **API:** `GET /api/v1/vault` · `POST /` (store) · `GET /{name}` · `POST /{name}/delete`

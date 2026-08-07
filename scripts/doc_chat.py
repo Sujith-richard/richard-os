@@ -110,18 +110,31 @@ def upload_doc(name, data, kind):
             "chars": len(text), "chunks": len(_chunk(text))}
 
 def _search_chunks(doc_id, question, top=3):
-    """Tiny lexical search: score chunks by keyword overlap with the question."""
+    """RAG retrieval: TF-IDF cosine over the doc's chunks (vector, not keyword)."""
     c = _conn()
     chunks = c.execute("SELECT * FROM chunks WHERE doc_id=? ORDER BY idx", (doc_id,)).fetchall()
     c.close()
-    words = set(re.findall(r'[a-z0-9]+', question.lower()))
-    scored = []
-    for ch in chunks:
-        ch_words = set(re.findall(r'[a-z0-9]+', ch["text"].lower()))
-        score = len(words & ch_words)
-        scored.append((score, ch))
-    scored.sort(key=lambda x: -x[0])
-    return [ch for _, ch in scored[:top]]
+    if not chunks:
+        return []
+    try:
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+        texts = [ch["text"] for ch in chunks]
+        vec = TfidfVectorizer(stop_words="english", max_features=1500)
+        matrix = vec.fit_transform(texts)
+        qv = vec.transform([question])
+        sims = cosine_similarity(qv, matrix)[0]
+        ranked = sorted(range(len(sims)), key=lambda i: -sims[i])[:top]
+        return [chunks[i] for i in ranked if sims[i] > 0]
+    except Exception:
+        # fallback to lexical if sklearn unavailable
+        words = set(re.findall(r'[a-z0-9]+', question.lower()))
+        scored = []
+        for ch in chunks:
+            ch_words = set(re.findall(r'[a-z0-9]+', ch["text"].lower()))
+            scored.append((len(words & ch_words), ch))
+        scored.sort(key=lambda x: -x[0])
+        return [ch for _, ch in scored[:top]]
 
 def ask(doc_id, question):
     """Answer a question grounded in the document via the model."""

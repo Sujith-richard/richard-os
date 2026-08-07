@@ -348,3 +348,9 @@ Entities + relations — semantic depth over the structural brain graph.
 - **Graph:** `scripts/knowledge_graph.py` — subject-relation-object triple extraction (heuristic patterns: is-a/uses/builds/runs-on/contains/depends-on/belongs-to), node+edge store (knowledge_graph.db), neighbor/relation queries
 - **API:** `GET /api/v1/knowledge-graph` · `GET /neighbors/{node}` · `POST /triple` · `POST /extract`
 - **UI:** `ui/kg.html` — node cards, click-to-query neighbors, extract button
+
+## v3.42.0 — RAG Doc-Chat (Phase G3)
+Doc-chat now retrieves via vectors, not just keywords.
+
+- **RAG:** `doc_chat._search_chunks` upgraded from keyword-overlap to TF-IDF cosine over the doc's chunks (sklearn, same technique as vector_db) with lexical fallback
+- **Verified:** "What hardware for ML?" → retrieved the RTX chunk → grounded answer "NVIDIA RTX 3050"

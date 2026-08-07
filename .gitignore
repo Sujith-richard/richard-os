@@ -66,3 +66,5 @@ vendor/
 06-data/sessions.json
 06-data/vault.json
 06-data/.vault_key
+06-data/reports/
+06-data/tmp_input.wav

@@ -373,3 +373,10 @@ Manage every scheduled job from the UI.
 - **Center:** `scripts/automation_center.py` — registry of scheduler agents (8) + execution jobs + user automations (automations.json); enable/disable, run-now (launches agent), create scheduled jobs
 - **API:** `GET /api/v1/automations` · `POST /` (create) · `POST /{id}/toggle` · `POST /{id}/run`
 - **UI:** `ui/automations.html` — job list with run + enable/disable, create form
+
+## v3.46.0 — Model Registry (Phase E4)
+Versioned fine-tuned checkpoints — register, promote, deploy, rollback.
+
+- **Registry:** `scripts/model_registry.py` — model_registry.db (name/path/dataset/samples/eval_score/version/status), register (auto version bump), promote→active, deploy (writes ACTIVE.txt pointer), rollback; `active_model()` feeds local_inference (deploy actually takes effect)
+- **API:** `GET /api/v1/model-registry` · `POST /register` · `POST /promote/{id}` · `POST /rollback/{id}` · `POST /deploy`
+- **UI:** `ui/models-registry.html` — model cards with version/eval/status, promote + deploy buttons

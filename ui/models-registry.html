@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Model Registry</title>
+<script>window.PAGE={title:"Model Registry",crumb:["System","Model Registry"]};</script>
+<style>
+  .mr-wrap { max-width: 900px; }
+  .mr-hero { margin-bottom: 1.25rem; }
+  .mr-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .mr-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .mr-active { font-size: .85rem; color: #10B981; margin-bottom: 1rem; padding: .5rem .8rem; border: 1px solid #10B98155; border-radius: 8px; display: inline-block; }
+  .mr-reg { display: flex; gap: .5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .mr-reg input { flex: 1; min-width: 140px; background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .mr-btn { background: #A78BFA; color: #0A101F; border: none; border-radius: 6px; padding: .5rem .9rem; font-weight: 700; font-size: .8rem; cursor: pointer; }
+  .mr-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: .9rem 1rem; margin-bottom: .6rem; display: flex; justify-content: space-between; align-items: center; }
+  .mr-card.active { border-color: #10B98155; }
+  .mr-name { font-size: .9rem; font-weight: 600; }
+  .mr-meta { font-size: .72rem; color: var(--dim,#64748b); }
+  .mr-actions { display: flex; gap: .4rem; }
+  .mr-small { background: none; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); border-radius: 6px; padding: .3rem .6rem; font-size: .7rem; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="mr-wrap">
+    <div class="mr-hero"><h1>🏭 Model Registry</h1><p>Versioned fine-tuned checkpoints — register, promote, deploy, rollback</p></div>
+    <div class="mr-active" id="mr-active">active: none</div>
+    <div class="mr-reg">
+      <input id="mr-name" placeholder="name — e.g. richard-core-v2-tiny"/>
+      <input id="mr-path" placeholder="path to checkpoint"/>
+      <input id="mr-ds" placeholder="dataset"/>
+      <button class="mr-btn" onclick="reg()">Register</button>
+    </div>
+    <div id="mr-list"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/model-registry");
+  $("mr-active").textContent = "active: " + (d.active || "none");
+  $("mr-list").innerHTML = (d.models || []).map(m =>
+    '<div class="mr-card ' + (m.status === "active" ? "active" : "") + '"><div><div class="mr-name">' + m.name + ' <span style="color:var(--dim)">v' + m.version + '</span></div>' +
+    '<div class="mr-meta">' + m.dataset + ' · ' + m.samples + ' samples · eval ' + m.eval_score + ' · ' + m.status + '</div></div>' +
+    '<div class="mr-actions">' +
+    '<button class="mr-small" onclick="promote(' + m.id + ')">▲ promote</button>' +
+    '<button class="mr-small" onclick="deploy(' + m.id + ')">▶ deploy</button>' +
+    '</div></div>').join("") || '<div style="color:var(--dim)">no models registered</div>';
+}
+async function reg() {
+  await api("/api/v1/model-registry/register", { method:"POST", body: JSON.stringify({
+    name: $("mr-name").value, path: $("mr-path").value, dataset: $("mr-ds").value }) });
+  load();
+}
+async function promote(id) { await api("/api/v1/model-registry/promote/" + id, { method:"POST" }); load(); }
+async function deploy(id) { await api("/api/v1/model-registry/deploy", { method:"POST", body: JSON.stringify({ id }) }); load(); }
+load();
+</script>
+</body>
+</html>

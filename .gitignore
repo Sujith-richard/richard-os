@@ -60,3 +60,5 @@ vendor/
 06-data/knowledge_graph.db
 06-data/settings.json
 06-data/automations.json
+06-data/model_registry.db
+06-data/models/ACTIVE.txt

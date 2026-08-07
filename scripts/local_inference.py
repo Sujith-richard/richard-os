@@ -23,7 +23,15 @@ def _load():
     import torch
     from transformers import AutoTokenizer, AutoModelForCausalLM
     _device = "cuda" if torch.cuda.is_available() else "cpu"
-    ckpt = DEFAULT_CKPT if DEFAULT_CKPT.exists() else FALLBACK_MODEL
+    # E4: use the registry-deployed active model if set
+    try:
+        import sys
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from model_registry import active_model
+        deployed = active_model()
+    except Exception:
+        deployed = None
+    ckpt = deployed or (str(DEFAULT_CKPT) if DEFAULT_CKPT.exists() else FALLBACK_MODEL)
     _tok = AutoTokenizer.from_pretrained(str(ckpt) if DEFAULT_CKPT.exists() else ckpt)
     if _tok.pad_token is None:
         _tok.pad_token = _tok.eos_token

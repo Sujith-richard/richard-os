@@ -1607,3 +1607,32 @@ async def api_automations_toggle(jid: str):
 @app.post("/api/v1/automations/{jid}/run")
 async def api_automations_run(jid: str):
     return _ac_run(jid)
+
+# ===== Phase E4 Model Registry (v3.46) =====
+import sys as _mr1, pathlib as _mr2
+_mr1.path.insert(0, str(_mr2.Path(__file__).resolve().parent))
+from model_registry import register as _mr_reg, list_models as _mr_list, \
+    promote as _mr_promote, rollback as _mr_rollback, deploy as _mr_deploy
+
+@app.get("/api/v1/model-registry")
+async def api_model_registry():
+    return _mr_list()
+
+@app.post("/api/v1/model-registry/register")
+async def api_model_register(payload: dict = None):
+    payload = payload or {}
+    return _mr_reg(payload.get("name", ""), payload.get("path", ""),
+                   payload.get("dataset", ""), int(payload.get("samples", 0)))
+
+@app.post("/api/v1/model-registry/promote/{mid}")
+async def api_model_promote(mid: int):
+    return _mr_promote(mid)
+
+@app.post("/api/v1/model-registry/rollback/{mid}")
+async def api_model_rollback(mid: int):
+    return _mr_rollback(mid)
+
+@app.post("/api/v1/model-registry/deploy")
+async def api_model_deploy(payload: dict = None):
+    payload = payload or {}
+    return _mr_deploy(int(payload.get("id", 0)) if payload.get("id") else None)

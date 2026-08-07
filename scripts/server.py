@@ -1759,3 +1759,16 @@ async def api_auth_add(payload: dict = None):
 @app.post("/api/v1/auth/users/{username}/remove")
 async def api_auth_remove(username: str):
     return _um_remove(username)
+
+# ===== Phase I5 Deep Security (v3.53) =====
+import sys as _ss1, pathlib as _ss2
+_ss1.path.insert(0, str(_ss2.Path(__file__).resolve().parent))
+from security_scan import scan as _sec_scan
+
+@app.post("/api/v1/security/scan")
+async def api_security_scan(payload: dict = None):
+    payload = payload or {}
+    path = (payload.get("path") or "").strip()
+    if not path:
+        return {"ok": False, "error": "path required"}
+    return _sec_scan(path)

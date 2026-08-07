@@ -419,3 +419,11 @@ Add/list/remove users.
 Add/list/remove users.
 
 - **Auth:** `auth.py` list_users/remove_user · **API:** `GET /api/v1/auth/users` · `POST /` (add) · `POST /{user}/remove`
+
+## v3.52.0 — User Management (Phase I2)
+Add/list/remove users. **API:** `GET /api/v1/auth/users` · `POST /` · `POST /{user}/remove`
+
+## v3.53.0 — Deep Security Scan (Phase I5)
+Severity-ranked vuln scan of any project dir (secrets, unsafe eval/exec, SQLi/XSS, CORS/CSRF, debug mode).
+
+- **Scanner:** `scripts/security_scan.py` — OWASP-style patterns, BlueTeam-aware · **API:** `POST /api/v1/security/scan`

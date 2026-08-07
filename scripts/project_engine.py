@@ -77,6 +77,11 @@ def detect_department(brief):
         return "fullstack"
     if hits["backend"]:
         return "backend"
+    if hits["frontend"]:
+        return "frontend"
+    # B6: blueprint-aware routing (nextjs/vue -> frontend; django/express -> backend)
+    for bp, stack in [("nextjs", "frontend"), ("vue", "frontend"), ("django", "backend"), ("express", "backend"), ("nest", "backend")]:
+        if bp in b: return stack
     return "frontend"
 
 def _log_stage(c, pid, stage, status, detail=""):

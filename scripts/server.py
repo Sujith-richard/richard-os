@@ -1700,3 +1700,21 @@ async def api_memory_lifecycle(payload: dict = None):
 @app.get("/api/v1/memory/lifecycle/stats")
 async def api_memory_lifecycle_stats():
     return _ml_stats()
+
+# ===== Phase B6 Project Structures (v3.50) =====
+import sys as _bs1, pathlib as _bs2
+_bs1.path.insert(0, str(_bs2.Path(__file__).resolve().parent))
+from project_structures import catalog as _bs_cat, get as _bs_get, scaffold as _bs_scaffold
+
+@app.get("/api/v1/structures")
+async def api_structures():
+    return _bs_cat()
+
+@app.get("/api/v1/structures/{name}")
+async def api_structures_get(name: str):
+    return _bs_get(name)
+
+@app.post("/api/v1/structures/scaffold")
+async def api_structures_scaffold(payload: dict = None):
+    payload = payload or {}
+    return _bs_scaffold(payload.get("name", ""), payload.get("out_dir", "/tmp/richard-blueprint"))

@@ -400,3 +400,7 @@ Temporary memories auto-promote to long-term; stale ones decay.
 
 - **Lifecycle:** `scripts/memory_lifecycle.py` — promote temp → long-term by importance (≥2) or age (≥24h), delete stale temps (TTL 7d)
 - **API:** `POST /api/v1/memory/lifecycle/run` (dry_run opt) · `GET /stats`
+
+## v3.50.0 — Project Structure Repository (Phase B6)
+Blueprint catalog — 12 structures (react/nextjs/vue/fastapi/django/express/postgres/mongodb/rest/graphql/docker/jwt) with alias + keyword resolution; project_engine routing is blueprint-aware.
+- **API:** `GET /api/v1/structures` · `GET /{name}` · `POST /scaffold` · **UI:** `ui/structures.html`

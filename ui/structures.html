@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Project Structures</title>
+<script>window.PAGE={title:"Project Structures",crumb:["System","Structures"]};</script>
+<style>.ps-wrap{max-width:900px}.ps-hero{margin-bottom:1.25rem}.ps-hero h1{font-size:1.4rem;margin:0 0 .25rem}.ps-hero p{color:var(--muted,#94a3b8);margin:0;font-size:.85rem}.ps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}.ps-card{background:var(--card,#111827);border:1px solid var(--border,#1f2937);border-radius:10px;padding:1rem;cursor:pointer}.ps-card:hover{border-color:#22D3EE}.ps-card h3{font-size:.9rem;margin:0 0 .3rem}.ps-card .k{font-size:.7rem;color:var(--dim,#64748b)}.ps-tree{font-family:ui-monospace,monospace;font-size:.75rem;color:var(--muted,#94a3b8);background:var(--bg,#0A101F);border:1px solid var(--border,#1f2937);border-radius:8px;padding:.75rem;margin-top:.75rem;white-space:pre-wrap}</style>
+</head><body><div class="os-page"><div class="ps-wrap"><div class="ps-hero"><h1>📐 Project Structures</h1><p>Blueprint catalog — select a structure, scaffold it</p></div><div class="ps-grid" id="ps-grid"></div><div id="ps-tree" class="ps-tree">— click a blueprint —</div></div></div>
+<script src="/ui/shell.js"></script><script>
+const $=id=>document.getElementById(id);
+async function api(p,o={}){return fetch(p,{headers:{"Content-Type":"application/json"},...o}).then(r=>r.json());}
+async function load(){const d=await api("/api/v1/structures");$("ps-grid").innerHTML=Object.entries(d.blueprints||{}).map(([k,v])=>'<div class="ps-card" onclick="view(\''+k+'\')"><h3>'+k+'</h3><div class="k">'+v+'</div></div>').join("");}
+async function view(n){const d=await api("/api/v1/structures/"+n);$("ps-tree").textContent=(d.tree||[]).join("\n");}
+load();
+</script></body></html>

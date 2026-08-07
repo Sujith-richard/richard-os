@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Login</title>
+<style>
+  body { margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#0A101F; font-family:system-ui; color:#E2E8F0; }
+  .box { width:320px; background:#111827; border:1px solid #1f2937; border-radius:12px; padding:2rem; }
+  .box h1 { font-size:1.3rem; margin:0 0 1rem; }
+  input { width:100%; box-sizing:border-box; margin-bottom:.75rem; background:#0A101F; color:#E2E8F0; border:1px solid #1f2937; border-radius:8px; padding:.6rem .7rem; font:inherit; }
+  button { width:100%; background:#7C3AED; color:#fff; border:none; border-radius:8px; padding:.6rem; font-weight:700; cursor:pointer; }
+  .err { color:#ef4444; font-size:.8rem; margin-top:.5rem; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>🔐 Richard OS</h1>
+    <input id="u" placeholder="username" autocomplete="username"/>
+    <input id="p" type="password" placeholder="password" autocomplete="current-password"/>
+    <button onclick="login()">Sign in</button>
+    <div class="err" id="err"></div>
+  </div>
+<script>
+async function login() {
+  const username = document.getElementById("u").value.trim();
+  const password = document.getElementById("p").value;
+  const r = await fetch("/api/v1/auth/login", { method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ username, password }) }).then(r=>r.json());
+  if (r.ok) {
+    document.cookie = "richard_token=" + r.token + "; path=/; max-age=86400";
+    location.href = "/ui/";
+  } else {
+    document.getElementById("err").textContent = r.error || "login failed";
+  }
+}
+document.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+</script>
+</body>
+</html>

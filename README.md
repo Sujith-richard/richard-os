@@ -380,3 +380,11 @@ Versioned fine-tuned checkpoints — register, promote, deploy, rollback.
 - **Registry:** `scripts/model_registry.py` — model_registry.db (name/path/dataset/samples/eval_score/version/status), register (auto version bump), promote→active, deploy (writes ACTIVE.txt pointer), rollback; `active_model()` feeds local_inference (deploy actually takes effect)
 - **API:** `GET /api/v1/model-registry` · `POST /register` · `POST /promote/{id}` · `POST /rollback/{id}` · `POST /deploy`
 - **UI:** `ui/models-registry.html` — model cards with version/eval/status, promote + deploy buttons
+
+## v3.47.0 — Basic Auth (Phase I1)
+The server now requires sign-in.
+
+- **Auth:** `scripts/auth.py` — pbkdf2-hashed users (users.json), token sessions (sessions.json), login/logout/verify
+- **API:** `POST /api/v1/auth/login` · `POST /logout` · `GET /me` · `GET /verify`
+- **UI:** `ui/login.html` — sign-in form (sets token cookie) · shell redirects to login without a token
+- **Setup:** `python3 scripts/auth.py --setup <user> <pass>`

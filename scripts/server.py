@@ -1636,3 +1636,26 @@ async def api_model_rollback(mid: int):
 async def api_model_deploy(payload: dict = None):
     payload = payload or {}
     return _mr_deploy(int(payload.get("id", 0)) if payload.get("id") else None)
+
+# ===== Phase I1 Basic Auth (v3.47) =====
+import sys as _au1, pathlib as _au2
+_au1.path.insert(0, str(_au2.Path(__file__).resolve().parent))
+from auth import login as _auth_login, logout as _auth_logout, me as _auth_me, verify as _auth_verify
+
+@app.post("/api/v1/auth/login")
+async def api_auth_login(payload: dict = None):
+    payload = payload or {}
+    return _auth_login(payload.get("username", ""), payload.get("password", ""))
+
+@app.post("/api/v1/auth/logout")
+async def api_auth_logout(payload: dict = None):
+    payload = payload or {}
+    return _auth_logout(payload.get("token", ""))
+
+@app.get("/api/v1/auth/me")
+async def api_auth_me(token: str = ""):
+    return _auth_me(token)
+
+@app.get("/api/v1/auth/verify")
+async def api_auth_verify(token: str = ""):
+    return _auth_verify(token)

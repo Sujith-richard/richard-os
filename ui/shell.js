@@ -57,6 +57,11 @@
 
     const body = document.body;
     body.className = "grid-bg";
+    // ── I1 auth guard: no token -> login (skip on login page) ──
+    if (!location.pathname.endsWith("login.html")) {
+      var tok = (document.cookie.match(/(?:^|; )richard_token=([^;]*)/) || [])[1] || "";
+      if (!tok) { location.href = "/ui/login.html"; return; }
+    }
     body.style.cssText = "margin:0;display:flex;height:100vh;overflow:hidden;";
 
     const sidebar = document.createElement("aside");

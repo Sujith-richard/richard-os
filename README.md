@@ -414,3 +414,8 @@ Every API action logged (method, path, user, status) to audit.db + middleware + 
 Add/list/remove users.
 
 - **Auth:** `auth.py` list_users/remove_user · **API:** `GET /api/v1/auth/users` · `POST /` (add) · `POST /{user}/remove`
+
+## v3.52.0 — User Management (Phase I2)
+Add/list/remove users.
+
+- **Auth:** `auth.py` list_users/remove_user · **API:** `GET /api/v1/auth/users` · `POST /` (add) · `POST /{user}/remove`

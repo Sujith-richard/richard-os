@@ -1581,3 +1581,29 @@ async def api_settings_update(payload: dict = None):
 @app.post("/api/v1/settings/reset")
 async def api_settings_reset():
     return _st_reset()
+
+# ===== Phase H5 Automation Center (v3.45) =====
+import sys as _ac1, pathlib as _ac2
+_ac1.path.insert(0, str(_ac2.Path(__file__).resolve().parent))
+from automation_center import list_jobs as _ac_list, create as _ac_create, toggle as _ac_toggle, run_now as _ac_run
+
+@app.get("/api/v1/automations")
+async def api_automations():
+    return _ac_list()
+
+@app.post("/api/v1/automations")
+async def api_automations_create(payload: dict = None):
+    payload = payload or {}
+    name = (payload.get("name") or "").strip()
+    schedule = (payload.get("schedule") or "").strip()
+    if not name or not schedule:
+        return {"ok": False, "error": "name + schedule required"}
+    return _ac_create(name, schedule, payload.get("kind", "workflow"))
+
+@app.post("/api/v1/automations/{jid}/toggle")
+async def api_automations_toggle(jid: str):
+    return _ac_toggle(jid)
+
+@app.post("/api/v1/automations/{jid}/run")
+async def api_automations_run(jid: str):
+    return _ac_run(jid)

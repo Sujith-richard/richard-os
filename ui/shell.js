@@ -21,6 +21,7 @@
       { label: "Plugins", href: "/ui/plugins.html", ic: "\uD83E\uDDE9" },
       { label: "System", href: "/ui/system.html", ic: "\uD83D\uDDA5\uFE0F" },
       { label: "Settings", href: "/ui/settings.html", ic: "\u2699\uFE0F" },
+      { label: "Automations", href: "/ui/automations.html", ic: "\u23F0" },
       { label: "Collaboration", href: "/ui/collab.html", ic: "\uD83E\uDDE0" },
       { label: "Organization", href: "/ui/org.html", ic: "\u26DB" },
       { label: "Departments", href: "/ui/departments.html", ic: "\uD83C\uDFE2" },

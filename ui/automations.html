@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Automation Center</title>
+<script>window.PAGE={title:"Automations",crumb:["System","Automations"]};</script>
+<style>
+  .ac-wrap { max-width: 900px; }
+  .ac-hero { margin-bottom: 1.25rem; }
+  .ac-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .ac-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .ac-create { display: flex; gap: .5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .ac-create input { background: var(--bg,#0A101F); color: var(--fg,#e2e8f0); border: 1px solid var(--border,#1f2937); border-radius: 6px; padding: .5rem .6rem; font: inherit; font-size: .82rem; }
+  .ac-create input:first-child { flex: 1; min-width: 180px; }
+  .ac-btn { background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .5rem .9rem; font-weight: 700; font-size: .8rem; cursor: pointer; }
+  .ac-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: .9rem 1rem; margin-bottom: .6rem; display: flex; justify-content: space-between; align-items: center; }
+  .ac-name { font-size: .9rem; font-weight: 600; }
+  .ac-meta { font-size: .72rem; color: var(--dim,#64748b); }
+  .ac-actions { display: flex; gap: .4rem; }
+  .ac-small { background: none; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); border-radius: 6px; padding: .3rem .6rem; font-size: .7rem; cursor: pointer; }
+  .ac-small.on { color: #10B981; border-color: #10B98155; }
+  .ac-small.off { color: #ef4444; border-color: #ef444455; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="ac-wrap">
+    <div class="ac-hero"><h1>⏰ Automation Center</h1><p>Scheduled jobs — scheduler agents, execution jobs, your automations</p></div>
+    <div class="ac-create">
+      <input id="ac-name" placeholder="Automation name — e.g. weekly-report"/>
+      <input id="ac-time" placeholder="Schedule — e.g. 08:00"/>
+      <button class="ac-btn" onclick="create()">+ Create</button>
+    </div>
+    <div id="ac-list"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/automations");
+  $("ac-list").innerHTML = (d.jobs || []).map(j =>
+    '<div class="ac-card"><div><div class="ac-name">' + j.name + '</div><div class="ac-meta">' + j.id + ' · ' + j.kind + ' · ' + j.schedule + '</div></div>' +
+    '<div class="ac-actions">' +
+    '<button class="ac-small" onclick="run(\'' + j.id + '\')">▶ run</button>' +
+    (j.source === "automation" ? '<button class="ac-small ' + (j.enabled ? "on" : "off") + '" onclick="toggle(\'' + j.id + '\')">' + (j.enabled ? "enabled" : "disabled") + '</button>' : '') +
+    '</div></div>').join("") || '<div style="color:var(--dim)">no jobs</div>';
+}
+async function create() {
+  const name = $("ac-name").value.trim(), schedule = $("ac-time").value.trim();
+  if (!name || !schedule) return;
+  await api("/api/v1/automations", { method:"POST", body: JSON.stringify({ name, schedule }) });
+  $("ac-name").value = ""; $("ac-time").value = "";
+  load();
+}
+async function toggle(id) { await api("/api/v1/automations/" + id + "/toggle", { method:"POST" }); load(); }
+async function run(id) { await api("/api/v1/automations/" + id + "/run", { method:"POST" }); load(); }
+load();
+</script>
+</body>
+</html>

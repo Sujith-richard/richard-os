@@ -366,3 +366,10 @@ User preferences, persisted + consumed by agents.
 - **Store:** `scripts/settings.py` — name/city/timezone/preferred_dept/default_model/theme/notifications/morning_brief/voice_enabled/autonomy_level → 06-data/settings.json (gitignored), type-coerced
 - **API:** `GET /api/v1/settings` · `POST /api/v1/settings` · `POST /reset`
 - **UI:** `ui/settings.html` — profile + AI preferences + system toggles
+
+## v3.45.0 — Automation Center (Phase H5)
+Manage every scheduled job from the UI.
+
+- **Center:** `scripts/automation_center.py` — registry of scheduler agents (8) + execution jobs + user automations (automations.json); enable/disable, run-now (launches agent), create scheduled jobs
+- **API:** `GET /api/v1/automations` · `POST /` (create) · `POST /{id}/toggle` · `POST /{id}/run`
+- **UI:** `ui/automations.html` — job list with run + enable/disable, create form

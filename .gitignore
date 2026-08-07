@@ -52,3 +52,4 @@ vendor/
 06-data/validation.db
 06-data/lifecycle.db
 06-data/memory.db
+06-data/plugins.db

@@ -302,3 +302,10 @@ The 11-type memory hierarchy — every memory has a home.
 - **Store:** `scripts/memory_system.py` — user, conversation, project, department, agent, tool, workflow, knowledge, experience, long-term, temporary (memory.db) · add/get/search per type · promote temporary → long-term · seeds from second_brain
 - **API:** `GET /api/v1/memory` · `GET /{type}` · `POST /{type}` (add) · `POST /search` · `POST /promote/{id}`
 - **UI:** `ui/memory.html` — 11-type cards with counts, add bar, search, promote
+
+## v3.36.0 — Plugin Store (v4.0 #6)
+Every resource is an installable plugin — catalog + lifecycle.
+
+- **Store:** `scripts/plugin_store.py` — catalog from repo-intel repos (community) + tools + MCP + skills (local), install/uninstall persisted to plugins.db
+- **API:** `GET /api/v1/plugins` · `POST /install/{name}` · `POST /uninstall/{name}` · `GET /status`
+- **UI:** `ui/plugins.html` — storefront with All/Installed/Community/Local tabs + install buttons

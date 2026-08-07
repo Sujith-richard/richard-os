@@ -1449,3 +1449,24 @@ async def api_memory_search(payload: dict = None):
 @app.post("/api/v1/memory/promote/{mem_id}")
 async def api_memory_promote(mem_id: int):
     return _mem_promote(mem_id)
+
+# ===== v4.0 Plugin Store (v3.36) =====
+import sys as _ps1, pathlib as _ps2
+_ps1.path.insert(0, str(_ps2.Path(__file__).resolve().parent))
+from plugin_store import catalog as _ps_cat, install as _ps_inst, uninstall as _ps_uninst, status as _ps_status
+
+@app.get("/api/v1/plugins")
+async def api_plugins():
+    return _ps_cat()
+
+@app.post("/api/v1/plugins/install/{name}")
+async def api_plugins_install(name: str):
+    return _ps_inst(name)
+
+@app.post("/api/v1/plugins/uninstall/{name}")
+async def api_plugins_uninstall(name: str):
+    return _ps_uninst(name)
+
+@app.get("/api/v1/plugins/status")
+async def api_plugins_status():
+    return _ps_status()

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — Plugin Store</title>
+<script>window.PAGE={title:"Plugins",crumb:["System","Plugins"]};</script>
+<style>
+  .pl-wrap { max-width: 1000px; }
+  .pl-hero { margin-bottom: 1.25rem; }
+  .pl-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .pl-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .pl-tabs { display: flex; gap: .4rem; margin-bottom: 1rem; }
+  .pl-tab { font-size: .75rem; padding: .3rem .7rem; border-radius: 999px; border: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); cursor: pointer; }
+  .pl-tab.on { color: #22D3EE; border-color: #22D3EE; }
+  .pl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+  .pl-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; }
+  .pl-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .4rem; }
+  .pl-head h2 { font-size: .9rem; margin: 0; }
+  .pl-tier { font-size: .62rem; padding: .2rem .5rem; border-radius: 999px; font-weight: 700; }
+  .pl-tier.community { color: #A78BFA; border: 1px solid #A78BFA55; }
+  .pl-tier.local { color: #10B981; border: 1px solid #10B98155; }
+  .pl-desc { font-size: .74rem; color: var(--dim,#64748b); margin-bottom: .6rem; min-height: 2.2em; }
+  .pl-btn { width: 100%; background: #22D3EE; color: #0A101F; border: none; border-radius: 6px; padding: .45rem; font-weight: 700; font-size: .78rem; cursor: pointer; }
+  .pl-btn.installed { background: #10B981; }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="pl-wrap">
+    <div class="pl-hero"><h1>🧩 Plugin Store</h1><p>Installed · Marketplace · Community · Local — every resource as an installable plugin</p></div>
+    <div class="pl-tabs">
+      <span class="pl-tab on" data-f="all" onclick="filter('all',this)">All</span>
+      <span class="pl-tab" data-f="installed" onclick="filter('installed',this)">Installed</span>
+      <span class="pl-tab" data-f="community" onclick="filter('community',this)">Community</span>
+      <span class="pl-tab" data-f="local" onclick="filter('local',this)">Local</span>
+    </div>
+    <div class="pl-grid" id="pl-grid"></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let PLUGINS = [];
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const d = await api("/api/v1/plugins");
+  PLUGINS = d.plugins || [];
+  render("all");
+}
+function render(f) {
+  const list = f === "all" ? PLUGINS : f === "installed" ? PLUGINS.filter(p => p.status === "installed") : PLUGINS.filter(p => p.tier === f);
+  $("pl-grid").innerHTML = list.map(p =>
+    '<div class="pl-card"><div class="pl-head"><h2>' + p.name + '</h2><span class="pl-tier ' + p.tier + '">' + p.tier + '</span></div>' +
+    '<div class="pl-desc">' + (p.desc || "") + '</div>' +
+    '<button class="pl-btn ' + (p.status === "installed" ? "installed" : "") + '" onclick="toggle(\'' + p.name + '\', \'' + p.status + '\')">' +
+    (p.status === "installed" ? "✓ Installed" : "Install") + '</button></div>').join("") || '<div style="color:var(--dim)">none</div>';
+}
+async function toggle(name, status) {
+  await api("/api/v1/plugins/" + (status === "installed" ? "uninstall/" : "install/") + name, { method:"POST" });
+  load();
+}
+function filter(f, el) {
+  document.querySelectorAll(".pl-tab").forEach(t => t.classList.toggle("on", t === el));
+  render(f);
+}
+load();
+</script>
+</body>
+</html>

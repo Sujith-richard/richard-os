@@ -2,7 +2,7 @@ services:
   richard-os:
     build: .
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./06-data:/app/06-data
       - ./02-blocks:/app/02-blocks

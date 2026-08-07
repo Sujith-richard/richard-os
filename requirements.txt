@@ -5,3 +5,8 @@ requests
 pydantic
 pyyaml
 python-dotenv
+python-multipart
+cryptography
+scikit-learn
+pypdf
+Pillow

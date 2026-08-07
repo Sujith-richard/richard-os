@@ -1,0 +1,8 @@
+.venv
+vendor
+06-data
+__pycache__
+.git
+node_modules
+*.pyc
+dist

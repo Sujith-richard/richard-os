@@ -89,6 +89,23 @@ def set_route(task_type, model, tier=None, why=""):
     save_routes(routes)
     return {"ok": True, "task_type": task_type, **routes[task_type]}
 
+# Phase F6: provider priority chain (architecture: local first, cloud assisted)
+PROVIDER_CHAIN = [
+    ("local",    "richard-local",            "local RTX inference"),
+    ("deepseek", "deepseek-v4-flash-free",   "general coding"),
+    ("gemini",   "gemini-3.5-flash",         "vision"),
+    ("groq",     "big-pickle",               "fast execution"),
+    ("claude",   "gpt-oss-120b",             "complex reasoning"),
+    ("gpt",      "gemini-3.5-flash",         "broad knowledge"),
+    ("qwen",     "qwen3-32b",                "specialized language"),
+    ("mistral",  "llama-3.3-70b-instruct",   "efficiency"),
+]
+def provider_status():
+    avail = set(available_models())
+    return {"ok": True, "chain": [
+        {"priority": i + 1, "provider": p, "model": m, "capability": c,
+         "available": m in avail} for i, (p, m, c) in enumerate(PROVIDER_CHAIN)]}
+
 def status():
     routes = load_routes()
     avail = set(available_models())

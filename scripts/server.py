@@ -1493,3 +1493,30 @@ async def api_system_event(payload: dict = None):
 @app.get("/api/v1/system/events")
 async def api_system_events():
     return _sys_events()
+
+# ===== Phase F1 Context Assembly (v3.39) =====
+import sys as _cx1, pathlib as _cx2
+_cx1.path.insert(0, str(_cx2.Path(__file__).resolve().parent))
+from context_assembly import assemble as _ctx_assemble
+
+@app.get("/api/v1/context")
+async def api_context(request: str = "Build a fitness app", dept: str = "web", sub: str = ""):
+    return {"ok": True, "envelope": _ctx_assemble(request, dept, sub or None)}
+
+# ===== Phase F Intelligent Escalation (v3.39) =====
+import sys as _ph1, pathlib as _ph2
+_ph1.path.insert(0, str(_ph2.Path(__file__).resolve().parent))
+from model_orchestrator import provider_status as _prov_status
+from escalation_engine import execute as _esc_execute
+
+@app.get("/api/v1/models/providers")
+async def api_models_providers():
+    return _prov_status()
+
+@app.post("/api/v1/escalation/execute")
+async def api_escalation_execute(payload: dict = None):
+    payload = payload or {}
+    request = (payload.get("request") or "").strip()
+    if not request:
+        return {"ok": False, "error": "request required"}
+    return _esc_execute(request, payload.get("dept", "web"), payload.get("sub"))

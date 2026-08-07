@@ -323,3 +323,14 @@ Sub-department standardization — every sub-dept owns its full operating manual
 - **20-item spine:** added project-structures, examples, evaluation, output-formats, plugins, tools to the department template
 - **Sub-departments:** web → frontend/backend/database/api/auth/devops/testing/security/docs, each scaffolded with the 21-item standardized template (knowledge/skills/agents/project-structures/templates/rules/standards/prompts/workflows/git/mcp/docs/memory/datasets/training/examples/evaluation/output-formats/plugins/tools)
 - **Scale:** web went 15 → 204 files; the same template standardizes every department + sub-department
+
+## v3.39.0 — Intelligent Escalation (Phase F) — Local First, Cloud Assisted, Continuous Learning
+The architecture's core loop, running end-to-end.
+
+- **F1 Context Assembly:** `context_assembly.py` packs all 14 resources (dept knowledge, skills, user+long-term memory, repo intel, plugins, MCP, structures, templates, standards, rules, projects, workflows) into ONE envelope before any model call — wired into `call_llm(context=True)`
+- **F2 Capability-gap:** `capability_gap.py` classifies why local can't complete (coding/vision/reasoning/knowledge/speed) → specialist (DeepSeek/Gemini/Claude/GPT/Groq)
+- **F3 Escalation:** `escalation_engine.py` — local first → gap detect → escalate to specialist via 8-provider chain → auto-learn
+- **F4 Auto-merge:** `auto_merge.py` merges local + cloud outputs (cloud fills the gap, local kept when cloud empty)
+- **F5 Learn-from-cloud:** `learn_from_cloud.py` — every cloud success → quality check → experience memory → training dataset (cloud-assisted.jsonl) → future fine-tunes
+- **F6 Provider chain:** 8 providers (local, DeepSeek, Gemini, Groq, Claude, GPT, Qwen, Mistral) with live availability
+- **API:** `GET /api/v1/models/providers` · `POST /api/v1/escalation/execute` · `GET /api/v1/context`

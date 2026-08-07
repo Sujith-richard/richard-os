@@ -41,16 +41,20 @@ def read_memory():
         texts.append(f"--- {f.name} ---\n" + f.read_text()[:2000])
     return "\n".join(texts)
 
-def call_llm(prompt, model=None, task_type="default", agent=None):
+def call_llm(prompt, model=None, task_type="default", agent=None, context=None, dept="web", sub=None):
     """Call the model layer with the given prompt, routed by the Model Orchestrator.
-    If model is None, the orchestrator picks per task_type (agent override wins)."""
+    If model is None, the orchestrator picks per task_type (agent override wins).
+    If context=True, the Context Assembly Engine packs the full OS envelope first."""
     import sys, pathlib
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     from model_orchestrator import resolve_model
+    if context:
+        from context_assembly import assemble
+        prompt = assemble(prompt, dept=dept, sub=sub) + "\n\nANSWER:"
     if model is None:
         r = resolve_model(task_type, agent)
         model = r["resolved"]
-        print(f"[orchestrator] {task_type} -> {model} (tier {r['tier']})")
+        import sys as _osys; print(f"[orchestrator] {task_type} -> {model} (tier {r['tier']})", file=_osys.stderr)
     load_env()
     url = os.environ.get("FREELLMAPI_URL", "http://localhost:3001/v1")
     key = os.environ.get("FREELLMAPI_KEY", "freellmapi-c049fbfe5ac7efae7133cf8aec333d78337827c19a644ed7")

@@ -54,3 +54,5 @@ vendor/
 06-data/memory.db
 06-data/plugins.db
 06-data/system_events.db
+06-data/cloud_learn.db
+06-data/datasets/cloud-assisted.jsonl

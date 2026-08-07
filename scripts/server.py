@@ -1802,3 +1802,12 @@ async def api_security_scan(payload: dict = None):
     if not path:
         return {"ok": False, "error": "path required"}
     return _sec_scan(path)
+
+# ===== v5.1 AI Runtime (v5.0) =====
+import sys as _ar1, pathlib as _ar2
+_ar1.path.insert(0, str(_ar2.Path(__file__).resolve().parent))
+from ai_runtime import recent_calls as _ar_recent
+
+@app.get("/api/v1/runtime/calls")
+async def api_runtime_calls(limit: int = 20):
+    return _ar_recent(limit)

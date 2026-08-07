@@ -3,7 +3,7 @@
 import sys, json, os, sqlite3, time
 from datetime import datetime
 from pathlib import Path
-import httpx
+import httpx, time
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mcp_bridge
 
@@ -60,12 +60,23 @@ def call_llm(prompt, model=None, task_type="default", agent=None, context=None, 
     key = os.environ.get("FREELLMAPI_KEY", "freellmapi-c049fbfe5ac7efae7133cf8aec333d78337827c19a644ed7")
     payload = {"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 800}
     headers = {"Authorization": f"Bearer {key}"}
+    t0 = time.time()
     try:
         r = httpx.post(f"{url}/chat/completions", json=payload, headers=headers, timeout=60)
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"]
+        content = r.json()["choices"][0]["message"]["content"]
     except Exception as e:
         return f"[LLM unavailable: {e}]"
+    # v5.1 AI Runtime telemetry: log tokens/cost/latency per call
+    try:
+        import sys as _rt
+        _rt.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+        from ai_runtime import _log_call
+        elapsed = time.time() - t0
+        _log_call(model, prompt, content, elapsed, True)
+    except Exception:
+        pass
+    return content
 
 def call_tool(name, params=None):
     """Agent-facing MCP tool call."""

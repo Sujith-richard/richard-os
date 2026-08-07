@@ -467,3 +467,10 @@ The plan is fully shipped. Final four: **A8 kernel boot** (10-subsystem init + r
 
 ## v4.2.0 — Brain Graph v4.x Refresh
 The neural brain now maps the complete OS: +24 nodes / +27 links for Phases F/G/I/J + v4 (Intelligent Escalation, Knowledge Depth, Security Layer, Model Ops, System Core clusters + Richard Kernel, LoRA, Vault, etc.). 206 nodes / 219 links / 0 broken.
+
+## v5.1.0 — AI Runtime Service (v5.0 #1)
+Unified per-call layer: token manager, cost tracker, timeout, output validator — every model call normalized + telemetry.
+
+- **Runtime:** `scripts/ai_runtime.py` — run_call() (timeout + validate + log), estimate_cost (per-model rates), validate_output, recent_calls
+- **Wired:** `agent_lib.call_llm` now logs every real call (tokens/cost/latency)
+- **API:** `GET /api/v1/runtime/calls`

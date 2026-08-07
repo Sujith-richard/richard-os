@@ -1,0 +1,2 @@
+# Docs Template
+Standardized scaffold.

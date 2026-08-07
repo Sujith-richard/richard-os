@@ -28,6 +28,12 @@ SPINE = [
     "memory",      # shared memory notes
     "datasets",    # dataset samples
     "training",    # training samples for fine-tuning
+    "project-structures",  # project blueprints
+    "examples",    # worked examples
+    "evaluation",  # eval criteria
+    "output-formats",  # deliverable output formats
+    "plugins",     # dept plugin registry
+    "tools",       # dept tool registry
 ]
 
 def _now():
@@ -109,6 +115,39 @@ def build_content(name, dep):
 
     return out
 
+def scaffold_subdepartments(dept_name, sub_depts):
+    """Scaffold each sub-department folder with the standardized template."""
+    created = []
+    for sub, data in (sub_depts or {}).items():
+        base = f"{dept_name}/sub-departments/{sub}"
+        files = {
+            f"{base}/README.md": f"# {sub.title()} (Sub-Department)\n\nPart of {dept_name}. Standardized sub-dept template.\n",
+            f"{base}/knowledge/knowledge.md": "# Knowledge\n" + "\n".join(f"- {k}" for k in data.get("knowledge", [])),
+            f"{base}/skills/skills.md": "# Skills\n" + "\n".join(f"- {s}" for s in data.get("skills", [])),
+            f"{base}/agents/agents.yaml": "# Agents\n" + "\n".join(f"  {a}: {{role: '{a.replace('-',' ')}'}}" for a in data.get("agents", [])),
+            f"{base}/project-structures/structures.md": "# Project Structures\n" + "\n".join(f"- {ps}" for ps in data.get("project_structures", [])),
+            f"{base}/templates/template.md": f"# {sub.title()} Template\nStandardized scaffold.\n",
+            f"{base}/rules/rules.md": "# Rules\n- follow department standards\n",
+            f"{base}/standards/standards.md": "# Standards\n- reviewed before merge\n",
+            f"{base}/prompts/system.md": f"# {sub.title()} System Prompt\nYou are the {sub} sub-department.\n",
+            f"{base}/workflows/workflows.yaml": "# Workflows\nworkflows: []\n",
+            f"{base}/git/git.md": f"# Git\n- branch: `{sub}/<feature>`\n",
+            f"{base}/mcp/mcp.md": "# MCP\ntools: []\n",
+            f"{base}/docs/docs.md": f"# {sub.title()} Docs\n",
+            f"{base}/memory/memory.md": "# Shared Memory\n",
+            f"{base}/datasets/dataset.json": '{"samples": []}',
+            f"{base}/training/training.json": '{"examples": []}',
+            f"{base}/examples/examples.md": "# Examples\n",
+            f"{base}/evaluation/eval.md": "# Evaluation\ncriteria: []\n",
+            f"{base}/output-formats/formats.md": "# Output Formats\n",
+            f"{base}/plugins/plugins.md": "# Plugins\n",
+            f"{base}/tools/tools.md": "# Tools\n",
+        }
+        for rel, content in files.items():
+            _write(rel, content)
+        created.append({"sub": sub, "files": len(files)})
+    return created
+
 def generate(name=None):
     init_db()
     deps = load_spec()
@@ -124,6 +163,8 @@ def generate(name=None):
         n = 0
         for rel, content in files.items():
             _write(rel, content); n += 1
+        sub_created = scaffold_subdepartments(dname, dep.get("sub_departments"))
+        n += sum(sc["files"] for sc in sub_created)
         c.execute("""INSERT OR REPLACE INTO departments
             (name,title,icon,lead,stacks,specialists,skills,autonomy,status,files,created_at,updated_at)
             VALUES (?,?,?,?,?,?,?,?, 'scaffolded', ?, ?, ?)""",

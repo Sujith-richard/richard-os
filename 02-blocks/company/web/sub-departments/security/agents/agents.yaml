@@ -1,0 +1,3 @@
+# Agents
+  security-reviewer: {role: 'security reviewer'}
+  pentester: {role: 'pentester'}

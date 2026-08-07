@@ -1,0 +1,3 @@
+# Project Structures
+- rest
+- graphql

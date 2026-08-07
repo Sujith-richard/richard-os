@@ -1,0 +1,3 @@
+# Agents
+  auth-expert: {role: 'auth expert'}
+  security-reviewer: {role: 'security reviewer'}

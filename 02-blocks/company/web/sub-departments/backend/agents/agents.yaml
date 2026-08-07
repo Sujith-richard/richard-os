@@ -1,0 +1,7 @@
+# Agents
+  express-expert: {role: 'express expert'}
+  fastapi-expert: {role: 'fastapi expert'}
+  database-architect: {role: 'database architect'}
+  api-designer: {role: 'api designer'}
+  security-reviewer: {role: 'security reviewer'}
+  performance-optimizer: {role: 'performance optimizer'}

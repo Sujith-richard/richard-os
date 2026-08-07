@@ -1,0 +1,7 @@
+# Agents
+  database-architect: {role: 'database architect'}
+  sql-optimizer: {role: 'sql optimizer'}
+  mongodb-expert: {role: 'mongodb expert'}
+  migration-agent: {role: 'migration agent'}
+  backup-agent: {role: 'backup agent'}
+  performance-agent: {role: 'performance agent'}

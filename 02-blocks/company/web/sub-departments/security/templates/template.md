@@ -1,0 +1,2 @@
+# Security Template
+Standardized scaffold.

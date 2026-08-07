@@ -1,0 +1,3 @@
+# Agents
+  tester: {role: 'tester'}
+  test-eng: {role: 'test eng'}

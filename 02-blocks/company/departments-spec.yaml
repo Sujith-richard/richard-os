@@ -1,158 +1,475 @@
-# 02-blocks/company/departments-spec.yaml — #14 Department Layer
-# Each dept scaffolds the 16-item spine: knowledge skills agents prompts templates
-# standards rules workflows docs git mcp memory datasets training
 departments:
-
   web:
     lead: web-lead
     title: Web Development
     icon: 🌐
-    stacks: [react, vue, nextjs, fastapi, django, node, tailwind, typescript]
-    specialists: [frontend-lead, backend-lead, db-designer, api-builder, auth-impl, devops-eng, testing-eng, security-eng, docs-writer]
-    skills: [frontend-scaffold, backend-scaffold, db-schema, api-design, auth-impl, devops-setup, testing, security-scan, docs-write]
+    stacks:
+    - react
+    - vue
+    - nextjs
+    - fastapi
+    - django
+    - node
+    - tailwind
+    - typescript
+    specialists:
+    - frontend-lead
+    - backend-lead
+    - db-designer
+    - api-builder
+    - auth-impl
+    - devops-eng
+    - testing-eng
+    - security-eng
+    - docs-writer
+    skills:
+    - frontend-scaffold
+    - backend-scaffold
+    - db-schema
+    - api-design
+    - auth-impl
+    - devops-setup
+    - testing
+    - security-scan
+    - docs-write
     autonomy: 3
     decision_rules:
-      - "route briefs by stack keywords to frontend/backend/fullstack"
-      - "review-fix loop max 3 iterations, escalate after"
-      - "security blocks delivery on hardcoded secrets"
-      - "quality gate requires >= 80% structure completeness"
+    - route briefs by stack keywords to frontend/backend/fullstack
+    - review-fix loop max 3 iterations, escalate after
+    - security blocks delivery on hardcoded secrets
+    - quality gate requires >= 80% structure completeness
     workflows:
-      - "project-generation: brief -> route -> scaffold -> review -> secure -> qualify -> package -> deliver -> learn"
-      - "code-review: pr -> lint -> test -> approve/reject"
+    - 'project-generation: brief -> route -> scaffold -> review -> secure -> qualify
+      -> package -> deliver -> learn'
+    - 'code-review: pr -> lint -> test -> approve/reject'
     datasets:
-      - "starter-components.json"
-      - "api-blueprints.json"
-
+    - starter-components.json
+    - api-blueprints.json
+    sub_departments:
+      frontend:
+        knowledge:
+        - HTML
+        - CSS
+        - JavaScript
+        - TypeScript
+        - React
+        - Vue
+        - Next.js
+        skills:
+        - component-design
+        - state-management
+        - routing
+        - responsive
+        - accessibility
+        - performance
+        - seo
+        agents:
+        - react-expert
+        - nextjs-expert
+        - vue-expert
+        - css-expert
+        - accessibility-agent
+        - performance-agent
+        project_structures:
+        - react
+        - nextjs
+        - vue
+        - vite
+        - custom
+      backend:
+        knowledge:
+        - Express
+        - FastAPI
+        - Django
+        - Spring Boot
+        - Laravel
+        - NestJS
+        skills:
+        - api-design
+        - authentication
+        - authorization
+        - database-design
+        - security
+        - performance
+        - logging
+        - caching
+        agents:
+        - express-expert
+        - fastapi-expert
+        - database-architect
+        - api-designer
+        - security-reviewer
+        - performance-optimizer
+        project_structures:
+        - express
+        - fastapi
+        - django
+        - nestjs
+      database:
+        knowledge:
+        - PostgreSQL
+        - MySQL
+        - MongoDB
+        - Redis
+        - SQLite
+        - Elasticsearch
+        skills:
+        - schema-design
+        - relationships
+        - indexing
+        - query-optimization
+        - backup
+        - replication
+        - migration
+        agents:
+        - database-architect
+        - sql-optimizer
+        - mongodb-expert
+        - migration-agent
+        - backup-agent
+        - performance-agent
+        project_structures:
+        - postgres
+        - mysql
+        - mongodb
+        - redis
+      api:
+        knowledge:
+        - REST
+        - GraphQL
+        - OpenAPI
+        skills:
+        - endpoint-design
+        - versioning
+        - rate-limiting
+        - validation
+        agents:
+        - api-designer
+        - api-reviewer
+        project_structures:
+        - rest
+        - graphql
+      auth:
+        knowledge:
+        - OAuth2
+        - JWT
+        - SAML
+        skills:
+        - login-flows
+        - token-management
+        - rbac
+        - mfa
+        agents:
+        - auth-expert
+        - security-reviewer
+        project_structures:
+        - jwt
+        - oauth
+      devops:
+        knowledge:
+        - Docker
+        - Kubernetes
+        - CI/CD
+        skills:
+        - containerize
+        - orchestrate
+        - pipeline
+        - monitoring
+        agents:
+        - devops-eng
+        - ci-cd-eng
+        - sre
+        project_structures:
+        - docker
+        - k8s
+        - github-actions
+      testing:
+        knowledge:
+        - pytest
+        - jest
+        - cypress
+        skills:
+        - unit-test
+        - integration-test
+        - e2e-test
+        - coverage
+        agents:
+        - tester
+        - test-eng
+        project_structures:
+        - pytest
+        - jest
+        - cypress
+      security:
+        knowledge:
+        - OWASP
+        - BlueTeam
+        - threat-modeling
+        skills:
+        - pentest
+        - vuln-scan
+        - appsec-review
+        agents:
+        - security-reviewer
+        - pentester
+        project_structures:
+        - owasp
+        - blueteam
+      docs:
+        knowledge:
+        - README
+        - API-docs
+        - user-guides
+        skills:
+        - readme-gen
+        - api-doc
+        - guide-write
+        agents:
+        - docs-writer
+        project_structures:
+        - mkdocs
+        - swagger
   ai:
     lead: ai-lead
     title: AI Engineering
     icon: 🤖
-    stacks: [python, pytorch, tensorflow, transformers, langchain, openai, huggingface]
-    specialists: [ml-engineer, llm-engineer, rag-engineer, fine-tuner, eval-engineer, prompt-engineer]
-    skills: [model-train, llm-prompt, rag-pipeline, fine-tune, eval-harness, prompt-design]
+    stacks:
+    - python
+    - pytorch
+    - tensorflow
+    - transformers
+    - langchain
+    - openai
+    - huggingface
+    specialists:
+    - ml-engineer
+    - llm-engineer
+    - rag-engineer
+    - fine-tuner
+    - eval-engineer
+    - prompt-engineer
+    skills:
+    - model-train
+    - llm-prompt
+    - rag-pipeline
+    - fine-tune
+    - eval-harness
+    - prompt-design
     autonomy: 3
     decision_rules:
-      - "choose model by task cost/latency/quality tradeoff"
-      - "every LLM feature ships with an eval set"
-      - "no fine-tune without baseline eval comparison"
+    - choose model by task cost/latency/quality tradeoff
+    - every LLM feature ships with an eval set
+    - no fine-tune without baseline eval comparison
     workflows:
-      - "llm-feature: prompt -> eval -> deploy -> monitor"
-      - "fine-tune: data -> prep -> train -> eval -> ship"
+    - 'llm-feature: prompt -> eval -> deploy -> monitor'
+    - 'fine-tune: data -> prep -> train -> eval -> ship'
     datasets:
-      - "eval-prompts.json"
-      - "training-samples.json"
-
+    - eval-prompts.json
+    - training-samples.json
   data:
     lead: data-lead
     title: Data & Analytics
     icon: 📊
-    stacks: [python, sql, pandas, dbt, airflow, postgres, mongodb, bigquery]
-    specialists: [data-engineer, analyst, bi-dev, pipeline-eng, quality-eng]
-    skills: [sql-model, etl-pipeline, dashboard-build, data-quality, metric-design]
+    stacks:
+    - python
+    - sql
+    - pandas
+    - dbt
+    - airflow
+    - postgres
+    - mongodb
+    - bigquery
+    specialists:
+    - data-engineer
+    - analyst
+    - bi-dev
+    - pipeline-eng
+    - quality-eng
+    skills:
+    - sql-model
+    - etl-pipeline
+    - dashboard-build
+    - data-quality
+    - metric-design
     autonomy: 3
     decision_rules:
-      - "every metric defined once in a shared dictionary"
-      - "pipelines idempotent and re-runnable"
-      - "PII columns never leave the data layer"
+    - every metric defined once in a shared dictionary
+    - pipelines idempotent and re-runnable
+    - PII columns never leave the data layer
     workflows:
-      - "etl: extract -> transform -> load -> validate"
-      - "report: query -> chart -> annotate -> share"
+    - 'etl: extract -> transform -> load -> validate'
+    - 'report: query -> chart -> annotate -> share'
     datasets:
-      - "sample-metrics.json"
-      - "pii-registry.json"
-
-
+    - sample-metrics.json
+    - pii-registry.json
   cyber:
     lead: cyber-lead
     title: Cybersecurity
     icon: 🛡️
-    stacks: [python, burp, nmap, zap, kali, aws-security, terraform]
-    specialists: [pentester, soc-analyst, appsec-eng, compliance-eng, threat-intel]
-    skills: [pentest-scan, vuln-triage, appsec-review, compliance-check, threat-hunt]
+    stacks:
+    - python
+    - burp
+    - nmap
+    - zap
+    - kali
+    - aws-security
+    - terraform
+    specialists:
+    - pentester
+    - soc-analyst
+    - appsec-eng
+    - compliance-eng
+    - threat-intel
+    skills:
+    - pentest-scan
+    - vuln-triage
+    - appsec-review
+    - compliance-check
+    - threat-hunt
     autonomy: 2
     decision_rules:
-      - "critical findings block delivery until fixed"
-      - "no pentest against targets without written scope"
-      - "secrets never in code, always in vault"
+    - critical findings block delivery until fixed
+    - no pentest against targets without written scope
+    - secrets never in code, always in vault
     workflows:
-      - "pentest: scope -> recon -> exploit -> report -> fix"
-      - "incident: detect -> contain -> eradicate -> recover -> postmortem"
+    - 'pentest: scope -> recon -> exploit -> report -> fix'
+    - 'incident: detect -> contain -> eradicate -> recover -> postmortem'
     datasets:
-      - "cve-watchlist.json"
-      - "scope-template.json"
-
+    - cve-watchlist.json
+    - scope-template.json
   cloud:
     lead: cloud-lead
     title: Cloud & DevOps
     icon: ☁️
-    stacks: [aws, gcp, docker, kubernetes, terraform, github-actions, ansible]
-    specialists: [infra-eng, sre, ci-cd-eng, platform-eng, cost-eng]
-    skills: [infra-as-code, k8s-deploy, ci-cd-pipeline, cost-optimize, sre-slo]
+    stacks:
+    - aws
+    - gcp
+    - docker
+    - kubernetes
+    - terraform
+    - github-actions
+    - ansible
+    specialists:
+    - infra-eng
+    - sre
+    - ci-cd-eng
+    - platform-eng
+    - cost-eng
+    skills:
+    - infra-as-code
+    - k8s-deploy
+    - ci-cd-pipeline
+    - cost-optimize
+    - sre-slo
     autonomy: 3
     decision_rules:
-      - "infrastructure always as code, never click-ops"
-      - "changes roll forward, roll back instantly"
-      - "cost alerts page the on-call"
+    - infrastructure always as code, never click-ops
+    - changes roll forward, roll back instantly
+    - cost alerts page the on-call
     workflows:
-      - "deploy: build -> test -> stage -> prod -> verify"
-      - "incident: alert -> triage -> mitigate -> postmortem"
+    - 'deploy: build -> test -> stage -> prod -> verify'
+    - 'incident: alert -> triage -> mitigate -> postmortem'
     datasets:
-      - "terraform-modules.json"
-      - "cost-baseline.json"
-
+    - terraform-modules.json
+    - cost-baseline.json
   robotics:
     lead: robotics-lead
     title: Robotics & IoT
     icon: 🦾
-    stacks: [ros, python, c++, arduino, esp32, raspberry-pi, mqtt]
-    specialists: [ros-dev, embedded-eng, iot-eng, sim-eng, hw-integration]
-    skills: [ros-node, embedded-c, iot-mqtt, sim-test, hw-interface]
+    stacks:
+    - ros
+    - python
+    - c++
+    - arduino
+    - esp32
+    - raspberry-pi
+    - mqtt
+    specialists:
+    - ros-dev
+    - embedded-eng
+    - iot-eng
+    - sim-eng
+    - hw-integration
+    skills:
+    - ros-node
+    - embedded-c
+    - iot-mqtt
+    - sim-test
+    - hw-interface
     autonomy: 3
     decision_rules:
-      - "safety interlocks are non-negotiable"
-      - "every motion primitive gets a simulation test"
-      - "firmware changes require hardware-in-loop validation"
+    - safety interlocks are non-negotiable
+    - every motion primitive gets a simulation test
+    - firmware changes require hardware-in-loop validation
     workflows:
-      - "robot-task: sim -> prototype -> hw -> validate"
-      - "iot-pipeline: sensor -> edge -> cloud -> alert"
+    - 'robot-task: sim -> prototype -> hw -> validate'
+    - 'iot-pipeline: sensor -> edge -> cloud -> alert'
     datasets:
-      - "sensor-samples.json"
-      - "motion-primitives.json"
-
+    - sensor-samples.json
+    - motion-primitives.json
   finance:
     lead: finance-lead
     title: Finance
     icon: 💰
-    stacks: [python, excel, sql, quickbooks, stripe, plaid]
-    specialists: [accountant, fp-a, invoicing, expense, treasury]
-    skills: [invoice-gen, expense-cat, cashflow-forecast, tax-prep, close-books]
+    stacks:
+    - python
+    - excel
+    - sql
+    - quickbooks
+    - stripe
+    - plaid
+    specialists:
+    - accountant
+    - fp-a
+    - invoicing
+    - expense
+    - treasury
+    skills:
+    - invoice-gen
+    - expense-cat
+    - cashflow-forecast
+    - tax-prep
+    - close-books
     autonomy: 3
     decision_rules:
-      - "every dollar accounted to a category"
-      - "invoices sent within 24h of work"
-      - "reconcile weekly, flag discrepancies"
+    - every dollar accounted to a category
+    - invoices sent within 24h of work
+    - reconcile weekly, flag discrepancies
     workflows:
-      - "monthly-close: reconcile -> report -> review -> archive"
-      - "invoice: create -> send -> track -> follow-up"
+    - 'monthly-close: reconcile -> report -> review -> archive'
+    - 'invoice: create -> send -> track -> follow-up'
     datasets:
-      - "chart-of-accounts.json"
-      - "invoice-template.json"
-
+    - chart-of-accounts.json
+    - invoice-template.json
   hr:
     lead: hr-lead
     title: People & HR
     icon: 👥
-    stacks: [notion, sheets, slack, workday]
-    specialists: [recruiter, onboarding, payroll, culture-eng, compliance]
-    skills: [screen-cv, schedule-interview, onboard-docs, payroll-calc, culture-survey]
+    stacks:
+    - notion
+    - sheets
+    - slack
+    - workday
+    specialists:
+    - recruiter
+    - onboarding
+    - payroll
+    - culture-eng
+    - compliance
+    skills:
+    - screen-cv
+    - schedule-interview
+    - onboard-docs
+    - payroll-calc
+    - culture-survey
     autonomy: 2
     decision_rules:
-      - "hiring decisions need founder approval"
-      - "payroll processed on fixed schedule, audited"
-      - "onboarding checklist completed before day 1"
+    - hiring decisions need founder approval
+    - payroll processed on fixed schedule, audited
+    - onboarding checklist completed before day 1
     workflows:
-      - "hire: screen -> interview -> offer -> onboard"
-      - "payroll: collect -> calc -> review -> pay -> archive"
+    - 'hire: screen -> interview -> offer -> onboard'
+    - 'payroll: collect -> calc -> review -> pay -> archive'
     datasets:
-      - "interview-questions.json"
-      - "onboarding-checklist.json"
+    - interview-questions.json
+    - onboarding-checklist.json

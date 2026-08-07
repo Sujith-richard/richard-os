@@ -1,0 +1,2 @@
+# Auth Template
+Standardized scaffold.

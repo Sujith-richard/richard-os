@@ -1,0 +1,9 @@
+# Skills
+- api-design
+- authentication
+- authorization
+- database-design
+- security
+- performance
+- logging
+- caching

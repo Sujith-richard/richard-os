@@ -1,0 +1,2 @@
+# Database Template
+Standardized scaffold.

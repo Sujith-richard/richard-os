@@ -1,0 +1,4 @@
+# Agents
+  devops-eng: {role: 'devops eng'}
+  ci-cd-eng: {role: 'ci cd eng'}
+  sre: {role: 'sre'}

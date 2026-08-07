@@ -1,0 +1,2 @@
+# Api Template
+Standardized scaffold.

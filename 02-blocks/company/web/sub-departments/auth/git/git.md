@@ -1,0 +1,2 @@
+# Git
+- branch: `auth/<feature>`

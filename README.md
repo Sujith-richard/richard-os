@@ -316,3 +316,10 @@ Health · Metrics · Event Bus — the layer that keeps Richard OS alive.
 - **Services:** `scripts/system_services.py` — live health monitor (database, integrations, GPU, model-proxy, scheduler, queue-manager, event-bus), GPU/CPU metrics, event bus (emit/feed)
 - **API:** `GET /api/v1/system/health` · `GET /metrics` · `POST /event` · `GET /events`
 - **UI:** `ui/system.html` — service grid with green/amber/red, metrics row, event feed (auto-refresh)
+
+## v3.38.0 — Department 2.0 (v4.0 #8) — v4.0 CAPSTONE
+Sub-department standardization — every sub-dept owns its full operating manual.
+
+- **20-item spine:** added project-structures, examples, evaluation, output-formats, plugins, tools to the department template
+- **Sub-departments:** web → frontend/backend/database/api/auth/devops/testing/security/docs, each scaffolded with the 21-item standardized template (knowledge/skills/agents/project-structures/templates/rules/standards/prompts/workflows/git/mcp/docs/memory/datasets/training/examples/evaluation/output-formats/plugins/tools)
+- **Scale:** web went 15 → 204 files; the same template standardizes every department + sub-department

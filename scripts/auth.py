@@ -75,14 +75,33 @@ def main():
     ap.add_argument("--setup", nargs=2, metavar=("USER", "PASS"))
     ap.add_argument("--login", nargs=2, metavar=("USER", "PASS"))
     ap.add_argument("--verify", metavar="TOKEN")
+    ap.add_argument("--list", action="store_true")
+    ap.add_argument("--remove", metavar="USER")
     args = ap.parse_args()
     if args.setup:
         print(json.dumps(setup_user(*args.setup), indent=2)); return
     if args.login:
         print(json.dumps(login(*args.login), indent=2)); return
+    if args.list:
+        print(json.dumps(list_users(), indent=2)); return
+    if args.remove:
+        print(json.dumps(remove_user(args.remove), indent=2)); return
     if args.verify:
         print(json.dumps(verify(args.verify), indent=2)); return
     ap.print_help()
 
 if __name__ == "__main__":
     main()
+
+
+def list_users():
+    users = _load(USERS_PATH, {})
+    return {"ok": True, "users": [{"username": u, "created": d.get("created")} for u, d in users.items()]}
+
+def remove_user(username):
+    users = _load(USERS_PATH, {})
+    if username not in users:
+        return {"ok": False, "error": "user not found"}
+    del users[username]
+    _save(USERS_PATH, users)
+    return {"ok": True, "removed": username}

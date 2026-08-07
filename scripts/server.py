@@ -1741,3 +1741,21 @@ app.add_middleware(AuditMiddleware)
 @app.get("/api/v1/audit")
 async def api_audit(limit: int = 30):
     return _audit_recent(limit)
+
+# ===== Phase I2 User Management (v3.52) =====
+import sys as _um1, pathlib as _um2
+_um1.path.insert(0, str(_um2.Path(__file__).resolve().parent))
+from auth import setup_user as _um_setup, list_users as _um_list, remove_user as _um_remove
+
+@app.get("/api/v1/auth/users")
+async def api_auth_users():
+    return _um_list()
+
+@app.post("/api/v1/auth/users")
+async def api_auth_add(payload: dict = None):
+    payload = payload or {}
+    return _um_setup(payload.get("username", ""), payload.get("password", ""))
+
+@app.post("/api/v1/auth/users/{username}/remove")
+async def api_auth_remove(username: str):
+    return _um_remove(username)

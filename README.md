@@ -409,3 +409,8 @@ Blueprint catalog — 12 structures (react/nextjs/vue/fastapi/django/express/pos
 Every API action logged (method, path, user, status) to audit.db + middleware + viewer endpoint.
 
 - **Audit:** `scripts/audit.py` · **Middleware:** all requests logged automatically · **API:** `GET /api/v1/audit`
+
+## v3.52.0 — User Management (Phase I2)
+Add/list/remove users.
+
+- **Auth:** `auth.py` list_users/remove_user · **API:** `GET /api/v1/auth/users` · `POST /` (add) · `POST /{user}/remove`

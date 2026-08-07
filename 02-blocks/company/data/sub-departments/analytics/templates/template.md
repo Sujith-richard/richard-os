@@ -1,0 +1,2 @@
+# Analytics Template
+Standardized scaffold.

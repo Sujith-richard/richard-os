@@ -266,6 +266,50 @@ departments:
     datasets:
     - eval-prompts.json
     - training-samples.json
+    sub_departments:
+      ml:
+        knowledge:
+        - pytorch
+        - tensorflow
+        - scikit-learn
+        skills:
+        - model-train
+        - eval
+        - tuning
+        agents:
+        - ml-engineer
+        - eval-engineer
+        project_structures:
+        - pytorch
+        - tf
+      llm:
+        knowledge:
+        - transformers
+        - langchain
+        - rag
+        skills:
+        - prompt
+        - rag
+        - fine-tune
+        agents:
+        - llm-engineer
+        - rag-engineer
+        project_structures:
+        - langchain
+        - rag
+      vision:
+        knowledge:
+        - cnn
+        - detection
+        - segmentation
+        skills:
+        - image-models
+        - augmentation
+        agents:
+        - cv-engineer
+        project_structures:
+        - yolo
+        - resnet
   data:
     lead: data-lead
     title: Data & Analytics
@@ -302,6 +346,35 @@ departments:
     datasets:
     - sample-metrics.json
     - pii-registry.json
+    sub_departments:
+      engineering:
+        knowledge:
+        - pandas
+        - spark
+        - airflow
+        skills:
+        - etl
+        - pipelines
+        - quality
+        agents:
+        - data-engineer
+        project_structures:
+        - airflow
+        - dbt
+      analytics:
+        knowledge:
+        - sql
+        - bi
+        - dashboards
+        skills:
+        - metrics
+        - reporting
+        agents:
+        - analyst
+        - bi-dev
+        project_structures:
+        - metabase
+        - superset
   cyber:
     lead: cyber-lead
     title: Cybersecurity
@@ -337,6 +410,33 @@ departments:
     datasets:
     - cve-watchlist.json
     - scope-template.json
+    sub_departments:
+      offense:
+        knowledge:
+        - pentest
+        - exploit
+        - recon
+        skills:
+        - pentest
+        - vuln-scan
+        agents:
+        - pentester
+        project_structures:
+        - nmap
+        - burp
+      defense:
+        knowledge:
+        - soc
+        - detection
+        - response
+        skills:
+        - threat-hunt
+        - incident
+        agents:
+        - soc-analyst
+        project_structures:
+        - siem
+        - blue-team
   cloud:
     lead: cloud-lead
     title: Cloud & DevOps
@@ -372,6 +472,32 @@ departments:
     datasets:
     - terraform-modules.json
     - cost-baseline.json
+    sub_departments:
+      infra:
+        knowledge:
+        - aws
+        - gcp
+        - terraform
+        skills:
+        - iac
+        - sre
+        agents:
+        - infra-eng
+        project_structures:
+        - terraform
+        - k8s
+      devops:
+        knowledge:
+        - ci-cd
+        - docker
+        skills:
+        - pipeline
+        - deploy
+        agents:
+        - ci-cd-eng
+        project_structures:
+        - github-actions
+        - docker
   robotics:
     lead: robotics-lead
     title: Robotics & IoT
@@ -407,6 +533,33 @@ departments:
     datasets:
     - sensor-samples.json
     - motion-primitives.json
+    sub_departments:
+      embedded:
+        knowledge:
+        - c++
+        - esp32
+        - rtos
+        skills:
+        - firmware
+        - sensors
+        agents:
+        - embedded-eng
+        project_structures:
+        - esp32
+        - arduino
+      autonomy:
+        knowledge:
+        - ros
+        - slam
+        - planning
+        skills:
+        - ros-nodes
+        - sim
+        agents:
+        - ros-dev
+        project_structures:
+        - ros2
+        - gazebo
   finance:
     lead: finance-lead
     title: Finance
@@ -441,6 +594,31 @@ departments:
     datasets:
     - chart-of-accounts.json
     - invoice-template.json
+    sub_departments:
+      accounting:
+        knowledge:
+        - gaap
+        - ledger
+        - tax
+        skills:
+        - books
+        - reconcile
+        agents:
+        - accountant
+        project_structures:
+        - quickbooks
+      treasury:
+        knowledge:
+        - cashflow
+        - forecast
+        skills:
+        - forecast
+        - risk
+        agents:
+        - fp-a
+        project_structures:
+        - excel
+        - plaid
   hr:
     lead: hr-lead
     title: People & HR
@@ -473,3 +651,29 @@ departments:
     datasets:
     - interview-questions.json
     - onboarding-checklist.json
+    sub_departments:
+      recruiting:
+        knowledge:
+        - sourcing
+        - interviewing
+        skills:
+        - screen
+        - offer
+        agents:
+        - recruiter
+        project_structures:
+        - ats
+      people-ops:
+        knowledge:
+        - onboarding
+        - payroll
+        - culture
+        skills:
+        - onboard
+        - payroll
+        agents:
+        - onboarding
+        - payroll
+        project_structures:
+        - notion
+        - workday

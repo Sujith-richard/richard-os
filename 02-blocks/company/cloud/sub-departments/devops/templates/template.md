@@ -1,0 +1,2 @@
+# Devops Template
+Standardized scaffold.

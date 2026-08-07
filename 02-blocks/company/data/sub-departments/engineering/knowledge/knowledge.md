@@ -1,0 +1,4 @@
+# Knowledge
+- pandas
+- spark
+- airflow

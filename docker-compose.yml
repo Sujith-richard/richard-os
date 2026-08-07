@@ -1,0 +1,15 @@
+services:
+  richard-os:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./06-data:/app/06-data
+      - ./02-blocks:/app/02-blocks
+      - ./03-agents:/app/03-agents
+      - ./04-skills:/app/04-skills
+      - ./vendor:/app/vendor
+    restart: unless-stopped
+    environment:
+      - FREELLMAPI_URL=${FREELLMAPI_URL:-http://host.docker.internal:3001/v1}
+      - DATA_MODE=fake

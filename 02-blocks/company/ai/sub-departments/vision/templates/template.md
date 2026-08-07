@@ -1,0 +1,2 @@
+# Vision Template
+Standardized scaffold.

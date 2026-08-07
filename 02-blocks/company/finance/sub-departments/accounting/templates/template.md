@@ -1,0 +1,2 @@
+# Accounting Template
+Standardized scaffold.

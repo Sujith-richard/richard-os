@@ -1,0 +1,3 @@
+# Project Structures
+- metabase
+- superset

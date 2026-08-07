@@ -1,0 +1,3 @@
+# Agents
+  analyst: {role: 'analyst'}
+  bi-dev: {role: 'bi dev'}

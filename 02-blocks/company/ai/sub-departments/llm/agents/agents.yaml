@@ -1,0 +1,3 @@
+# Agents
+  llm-engineer: {role: 'llm engineer'}
+  rag-engineer: {role: 'rag engineer'}

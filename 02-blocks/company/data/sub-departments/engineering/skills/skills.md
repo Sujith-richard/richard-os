@@ -1,0 +1,4 @@
+# Skills
+- etl
+- pipelines
+- quality

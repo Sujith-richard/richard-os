@@ -1,0 +1,2 @@
+# Recruiting Template
+Standardized scaffold.

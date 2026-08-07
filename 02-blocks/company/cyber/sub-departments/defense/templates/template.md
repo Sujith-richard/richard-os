@@ -1,0 +1,2 @@
+# Defense Template
+Standardized scaffold.

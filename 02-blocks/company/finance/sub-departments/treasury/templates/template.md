@@ -1,0 +1,2 @@
+# Treasury Template
+Standardized scaffold.

@@ -1,0 +1,2 @@
+# Embedded Template
+Standardized scaffold.

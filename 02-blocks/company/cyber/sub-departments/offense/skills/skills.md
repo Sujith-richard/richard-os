@@ -1,0 +1,3 @@
+# Skills
+- pentest
+- vuln-scan

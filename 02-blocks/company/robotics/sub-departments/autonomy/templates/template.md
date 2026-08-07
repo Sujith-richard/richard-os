@@ -1,0 +1,2 @@
+# Autonomy Template
+Standardized scaffold.

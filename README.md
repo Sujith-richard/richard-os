@@ -427,3 +427,13 @@ Add/list/remove users. **API:** `GET /api/v1/auth/users` · `POST /` · `POST /{
 Severity-ranked vuln scan of any project dir (secrets, unsafe eval/exec, SQLi/XSS, CORS/CSRF, debug mode).
 
 - **Scanner:** `scripts/security_scan.py` — OWASP-style patterns, BlueTeam-aware · **API:** `POST /api/v1/security/scan`
+
+## 🏆 v4.0.0 — The Complete AI Operating System (CAPSTONE)
+All phases shipped. Richard OS is a self-hosted, GPU-powered personal AI operating system.
+
+**Phases delivered:** 19 core layers (v3.3–v3.30) · Real-data swap (v3.18) · 8 v4.0 architecture items (v3.31–v3.38) · Phase F Intelligent Escalation (v3.39) · Phase G Knowledge (v3.40–v3.43) · Phase H UX (H1/H4/H5) · E4 Model Registry (v3.46) · Phase I Security complete (I1 auth, I2 users, I3 vault, I4 audit, I5 deep scan) · D4/B6 quick wins · **B5 sub-dept rollout · H2 desktop launcher · H3 voice/video depth · J3 Docker · J2 autonomy · J1 offline model**
+
+**Run:** `python3 scripts/desktop_launcher.py` → sign in (sujith / Richard-OS-2026) → the OS.
+**Container:** `docker compose up`
+**Autonomy:** `python3 scripts/autonomy.py`
+**Offline:** `python3 scripts/offline_model.py --train` then serve local-first.

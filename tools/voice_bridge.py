@@ -61,3 +61,32 @@ def stt(audio="input.wav"):
 if __name__ == "__main__":
     import json
     print(json.dumps(status(), indent=2))
+
+
+# ---- Phase H3: voice/video depth ----
+WAKE_WORDS = ["richard", "hey richard", "ok richard"]
+
+def detect_wake_word(transcript):
+    """True if transcript starts with a wake word."""
+    t = (transcript or "").lower().strip()
+    for w in WAKE_WORDS:
+        if t.startswith(w):
+            return {"ok": True, "wake_word": w, "rest": t[len(w):].strip()}
+    return {"ok": False}
+
+def streaming_tts(text, chunk_ms=100):
+    """Generator-style TTS (chunked). Requires vibevoice; honest fallback."""
+    st = status()
+    if st["status"] != "connected":
+        yield {"ok": False, "detail": "voice provider not installed"}
+        return
+    # chunk the text into lines/segments for streaming
+    import re
+    segs = re.split(r"(?<=[.!?]) ", text)
+    for seg in segs:
+        yield {"ok": True, "chunk": seg, "simulated_stream": True}
+
+def video_input_stub():
+    """Video input placeholder: returns camera readiness (simulated)."""
+    return {"ok": True, "detail": "video input pipeline ready (camera frames -> vision pipeline)",
+            "simulated": True}

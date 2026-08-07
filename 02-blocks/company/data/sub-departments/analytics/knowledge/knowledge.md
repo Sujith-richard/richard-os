@@ -1,0 +1,4 @@
+# Knowledge
+- sql
+- bi
+- dashboards

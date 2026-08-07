@@ -1,0 +1,3 @@
+# Skills
+- ros-nodes
+- sim

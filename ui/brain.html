@@ -89,7 +89,15 @@
     let allNodes = [], allEdges = [], nodeSel, linkSel, labelSel, focusStack = [];
     const srcId = l => l.source.id !== undefined ? l.source.id : l.source;
     const tgtId = l => l.target.id !== undefined ? l.target.id : l.target;
-    const zoom = d3.zoom().scaleExtent([0.15, 5]).on("zoom", e => g.attr("transform", e.transform));
+    // v4.2: labels fade by zoom — only core/engine labeled at low zoom, all on zoom-in
+    const zoom = d3.zoom().scaleExtent([0.15, 5]).on("zoom", e => {
+      g.attr("transform", e.transform);
+      const k = e.transform.k;
+      if (labelSel) labelSel.style("opacity", d => {
+        const major = d.type === "core" || d.type === "engine" || d.type === "dept";
+        return (k >= 1.2 || major) ? 1 : 0.15;
+      }).style("font-size", d => (k >= 1.2 ? 10 : 9) + "px");
+    });
     svg.call(zoom);
     function neighborsOf(id) {
       const s = new Set();
@@ -174,11 +182,15 @@
         allNodes = data.nodes.map(n => ({ ...n, r: n.type === "core" ? 22 : n.type === "domain" ? 16 : (n.type === "tool" || n.type === "agent") ? 10 : n.type === "dept" ? 9 : 6 }));
         allEdges = data.edges;
         buildDir(data); buildStats(data);
+        // v4.2 clean layout: use server x/y as cluster anchors + stronger separation
         const sim = d3.forceSimulation(allNodes)
-          .force("charge", d3.forceManyBody().strength(-120))
+          .force("charge", d3.forceManyBody().strength(-260))
           .force("center", d3.forceCenter(W() / 2, H() / 2))
-          .force("link", d3.forceLink(allEdges).id(d => d.id).distance(d => d.strength >= 3 ? 90 : 130).strength(d => d.strength >= 3 ? 0.6 : 0.4))
-          .force("collide", d3.forceCollide(25));
+          .force("x", d3.forceX(d => (d.x != null && !isNaN(d.x)) ? W() / 2 + d.x * 2.2 : W() / 2).strength(0.08))
+          .force("y", d3.forceY(d => (d.y != null && !isNaN(d.y)) ? H() / 2 + d.y * 2.2 : H() / 2).strength(0.08))
+          .force("link", d3.forceLink(allEdges).id(d => d.id).distance(d => d.strength >= 3 ? 110 : 150).strength(d => d.strength >= 3 ? 0.5 : 0.35))
+          .force("collide", d3.forceCollide(30))
+          .force("many", d3.forceManyBody().strength(-320));
         linkSel = g.append("g").selectAll("line").data(allEdges).join("line")
           .attr("stroke", d => d.strength >= 3 ? "rgba(255,255,255,.4)" : "rgba(167,139,250,.55)")
           .attr("stroke-width", d => Math.max(1, d.strength * 0.9));

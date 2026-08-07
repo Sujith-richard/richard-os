@@ -1470,3 +1470,26 @@ async def api_plugins_uninstall(name: str):
 @app.get("/api/v1/plugins/status")
 async def api_plugins_status():
     return _ps_status()
+
+# ===== v4.0 System Services (v3.37) =====
+import sys as _sys1, pathlib as _sys2
+_sys1.path.insert(0, str(_sys2.Path(__file__).resolve().parent))
+from system_services import health as _sys_health, metrics as _sys_metrics, \
+    emit as _sys_emit, events as _sys_events
+
+@app.get("/api/v1/system/health")
+async def api_system_health():
+    return _sys_health()
+
+@app.get("/api/v1/system/metrics")
+async def api_system_metrics():
+    return _sys_metrics()
+
+@app.post("/api/v1/system/event")
+async def api_system_event(payload: dict = None):
+    payload = payload or {}
+    return _sys_emit(payload.get("type", "event"), payload.get("payload", ""))
+
+@app.get("/api/v1/system/events")
+async def api_system_events():
+    return _sys_events()

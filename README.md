@@ -309,3 +309,10 @@ Every resource is an installable plugin — catalog + lifecycle.
 - **Store:** `scripts/plugin_store.py` — catalog from repo-intel repos (community) + tools + MCP + skills (local), install/uninstall persisted to plugins.db
 - **API:** `GET /api/v1/plugins` · `POST /install/{name}` · `POST /uninstall/{name}` · `GET /status`
 - **UI:** `ui/plugins.html` — storefront with All/Installed/Community/Local tabs + install buttons
+
+## v3.37.0 — Infrastructure + System Services (v4.0 #7)
+Health · Metrics · Event Bus — the layer that keeps Richard OS alive.
+
+- **Services:** `scripts/system_services.py` — live health monitor (database, integrations, GPU, model-proxy, scheduler, queue-manager, event-bus), GPU/CPU metrics, event bus (emit/feed)
+- **API:** `GET /api/v1/system/health` · `GET /metrics` · `POST /event` · `GET /events`
+- **UI:** `ui/system.html` — service grid with green/amber/red, metrics row, event feed (auto-refresh)

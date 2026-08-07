@@ -53,3 +53,4 @@ vendor/
 06-data/lifecycle.db
 06-data/memory.db
 06-data/plugins.db
+06-data/system_events.db

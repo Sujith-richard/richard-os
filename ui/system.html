@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Richard OS — System Services</title>
+<script>window.PAGE={title:"System",crumb:["System","Services"]};</script>
+<style>
+  .sy-wrap { max-width: 1000px; }
+  .sy-hero { margin-bottom: 1.25rem; }
+  .sy-hero h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+  .sy-hero p { color: var(--muted,#94a3b8); margin: 0; font-size: .85rem; }
+  .sy-overall { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; display: inline-block; padding: .4rem .9rem; border-radius: 8px; }
+  .sy-overall.green { color: #10B981; border: 1px solid #10B98155; }
+  .sy-overall.amber { color: #F59E0B; border: 1px solid #F59E0B55; }
+  .sy-overall.red { color: #ef4444; border: 1px solid #ef444455; }
+  .sy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+  .sy-card { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; border-left: 4px solid var(--dim); }
+  .sy-card.green { border-left-color: #10B981; }
+  .sy-card.amber { border-left-color: #F59E0B; }
+  .sy-card.red { border-left-color: #ef4444; }
+  .sy-card h2 { font-size: .9rem; margin: 0 0 .4rem; }
+  .sy-detail { font-size: .76rem; color: var(--muted,#94a3b8); }
+  .sy-metrics { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; font-size: .8rem; color: var(--muted,#94a3b8); }
+  .sy-metrics b { color: var(--fg,#e2e8f0); }
+  .sy-events { background: var(--card,#111827); border: 1px solid var(--border,#1f2937); border-radius: 10px; padding: 1rem; margin-top: 1rem; }
+  .sy-events h3 { font-size: .9rem; margin: 0 0 .5rem; }
+  .sy-ev { font-size: .76rem; padding: .3rem 0; border-bottom: 1px solid var(--border,#1f2937); color: var(--muted,#94a3b8); }
+</style>
+</head>
+<body>
+<div class="os-page">
+  <div class="sy-wrap">
+    <div class="sy-hero"><h1>🖥️ System Services</h1><p>Health · Metrics · Event Bus — infrastructure that keeps Richard OS alive</p></div>
+    <span class="sy-overall" id="sy-overall">checking…</span>
+    <div class="sy-metrics" id="sy-metrics"></div>
+    <div class="sy-grid" id="sy-grid"></div>
+    <div class="sy-events"><h3>Event bus feed</h3><div id="sy-events"></div></div>
+  </div>
+</div>
+<script src="/ui/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function api(p, o={}) { return fetch(p, { headers:{"Content-Type":"application/json"}, ...o }).then(r=>r.json()); }
+async function load() {
+  const h = await api("/api/v1/system/health");
+  const overall = document.getElementById("sy-overall");
+  overall.textContent = "OVERALL: " + (h.overall || "?").toUpperCase();
+  overall.className = "sy-overall " + (h.overall || "");
+  $("sy-grid").innerHTML = Object.entries(h.services || {}).map(([k, v]) =>
+    '<div class="sy-card ' + v.status + '"><h2>' + k + '</h2><div class="sy-detail">' + v.detail + '</div></div>').join("");
+  const m = await api("/api/v1/system/metrics");
+  const mt = m.metrics || {};
+  $("sy-metrics").innerHTML =
+    '<span>DBs: <b>' + mt.databases + '</b></span>' +
+    '<span>GPU: <b>' + (mt.gpu ? mt.gpu.split(",")[0] : "none") + '</b></span>' +
+    '<span>GPU mem: <b>' + mt.gpu_mem_mb + ' MB</b></span>' +
+    '<span>GPU util: <b>' + mt.gpu_util + '%</b></span>' +
+    '<span>CPU: <b>' + mt.cpu_count + ' cores</b></span>';
+  const e = await api("/api/v1/system/events");
+  $("sy-events").innerHTML = (e.events || []).map(x => '<div class="sy-ev">[' + x.id + '] ' + x.type + ' @ ' + x.at + ' — ' + x.payload + '</div>').join("") || '<div style="color:var(--dim)">no events</div>';
+}
+load(); setInterval(load, 5000);
+</script>
+</body>
+</html>

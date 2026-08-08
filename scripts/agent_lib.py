@@ -60,6 +60,24 @@ def call_llm(prompt, model=None, task_type="default", agent=None, context=None, 
     key = os.environ.get("FREELLMAPI_KEY", "freellmapi-c049fbfe5ac7efae7133cf8aec333d78337827c19a644ed7")
     payload = {"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 800}
     headers = {"Authorization": f"Bearer {key}"}
+    # v5.8 Pool #3: OmniRoute delegation (model resolved as omni://<model>)
+    if model and str(model).startswith("omni://"):
+        try:
+            import sys as _oc, pathlib as _op
+            _oc.path.insert(0, str(_op.Path(__file__).resolve().parent))
+            from omni_route import chat as _omni_chat
+            content = _omni_chat(str(model).split("://", 1)[1], [{"role": "user", "content": prompt}]).get("response", "[OmniRoute unavailable]")
+            try:
+                from ai_runtime import _log_call
+                _log_call(model, prompt, content, 0, True)
+                import sys as _eb3; _eb3.path.insert(0, str(_op.Path(__file__).resolve().parent))
+                from system_services import publish
+                publish("model.selected", f"{model} (pool omni-route)")
+            except Exception:
+                pass
+            return content
+        except Exception as e:
+            return f"[LLM unavailable: {e}]"
     t0 = time.time()
     try:
         r = httpx.post(f"{url}/chat/completions", json=payload, headers=headers, timeout=60)

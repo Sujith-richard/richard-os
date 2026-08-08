@@ -41,7 +41,7 @@ def _quality(result):
         score *= 0.3
     return round(score, 1)
 
-def learn(request, result, gap="coding", specialist="deepseek", append_dataset=True):
+def learn(request, result, gap="coding", specialist="deepseek", append_dataset=True, source=None):
     """Record a cloud-assisted success, extract knowledge, append to dataset."""
     init_db()
     q = _quality(result)
@@ -56,7 +56,8 @@ def learn(request, result, gap="coding", specialist="deepseek", append_dataset=T
         import sys
         sys.path.insert(0, str(ROOT / "scripts"))
         from memory_system import add
-        add("experience", f"[{specialist} assist] {request[:60]}: {result[:120]}", importance=2)
+        _who = source or specialist
+        add("experience", f"[{_who} assist] {request[:60]}: {result[:120]}", importance=2)
     except Exception:
         pass
     # append to training dataset (JSONL)
@@ -65,14 +66,15 @@ def learn(request, result, gap="coding", specialist="deepseek", append_dataset=T
         DATASET_DIR.mkdir(exist_ok=True)
         path = DATASET_DIR / "cloud-assisted.jsonl"
         with open(path, "a") as f:
+            _teacher = f"omni-route:{source.split('://',1)[1]}" if source and source.startswith("omni://") else (f"cloud-{source}" if source else f"cloud-{specialist}")
             f.write(json.dumps({"instruction": request, "input": "",
-                                "output": result[:800], "source": f"cloud-{specialist}"}) + "\n")
+                                "output": result[:800], "source": _teacher}) + "\n")
         appended = True
         c = _conn()
         c.execute("UPDATE cloud_learns SET dataset_appended=1 WHERE id=?", (lid,))
         c.commit(); c.close()
     return {"ok": True, "learn_id": lid, "quality": q, "gap": gap, "specialist": specialist,
-            "dataset_appended": appended, "memory_updated": True}
+            "source": source, "dataset_appended": appended, "memory_updated": True}
 
 def stats():
     init_db()

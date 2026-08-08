@@ -80,6 +80,12 @@ def resolve_model(task_type="default", agent=None):
         if m in avail:
             r["resolved"] = m
             return r
+    # v5.8 Pool #3: OmniRoute dynamic fallback when the direct chain is unavailable
+    omni = omni_route_models()
+    if omni:
+        r["resolved"] = "omni://" + omni[0]
+        r["pool"] = "omni-route"
+        return r
     r["resolved"] = r["model"]  # last resort: preferred even if not in live list
     return r
 
@@ -98,6 +104,7 @@ PROVIDER_CHAIN = [
     ("claude",   "gpt-oss-120b",             "complex reasoning"),
     ("gpt",      "gemini-3.5-flash",         "broad knowledge"),
     ("qwen",     "qwen3-32b",                "specialized language"),
+    ("omni-route", "omni-gateway",            "dynamic 500+ model pool (fallback/specialized)"),
     ("mistral",  "llama-3.3-70b-instruct",   "efficiency"),
 ]
 def provider_status():
@@ -137,3 +144,29 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ===== v5.8 Pool #3: OmniRoute gateway (separate from Direct AI Proxy) =====
+def omni_route_models():
+    """Dynamic OmniRoute catalog — only when the gateway is reachable."""
+    try:
+        import sys as _or, pathlib as _op
+        _or.path.insert(0, str(_op.Path(__file__).resolve().parent))
+        from omni_route import health, discover_models
+        if not health().get("reachable"):
+            return []
+        return discover_models().get("models", []) or []
+    except Exception:
+        return []
+
+def resolve_for_capability(capability, task_type="default"):
+    """Capability-based routing: if the direct chain lacks the capability, ask OmniRoute."""
+    r = route_model(task_type)
+    if capability in ("vision", "multimodal") and not any("vision" in str(m).lower() for m in r["fallback_chain"]):
+        omni = omni_route_models()
+        if omni:
+            r["resolved"] = "omni://" + omni[0]
+            r["pool"] = "omni-route"
+            r["why"] = f"capability {capability} -> omni-route"
+            return r
+    return resolve_model(task_type)

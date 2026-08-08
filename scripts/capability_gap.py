@@ -51,8 +51,20 @@ def detect(request, local_output=""):
         "coding": "deepseek", "vision": "gemini", "reasoning": "claude",
         "knowledge": "gpt", "speed": "groq",
     }[primary]
+    # v5.8 Pool #3: ask OmniRoute for a candidate model for this gap first
+    omni = None
+    try:
+        import sys as _cg, pathlib as _cp
+        _cg.path.insert(0, str(_cp.Path(__file__).resolve().parent))
+        from model_orchestrator import resolve_for_capability
+        _r = resolve_for_capability(primary, "default")
+        if _r.get("pool") == "omni-route" or str(_r.get("resolved", "")).startswith("omni://"):
+            omni = _r["resolved"]
+    except Exception:
+        omni = None
     return {"ok": True, "gaps": ranked, "primary": primary, "specialist": specialist,
-            "message": f"gap: {primary} -> escalate to {specialist}"}
+            "omni_candidate": omni,
+            "message": f"gap: {primary} -> escalate to {omni or specialist}"}
 
 def main():
     ap = argparse.ArgumentParser()

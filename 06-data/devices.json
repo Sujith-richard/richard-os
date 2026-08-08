@@ -12,8 +12,8 @@
       "id": "sujith-phone",
       "name": "Sujith Phone",
       "kind": "mobile",
-      "url": "http://192.168.1.10:9000",
-      "registered": "2026-08-08 19:04:27"
+      "url": "http://127.0.0.1:9999",
+      "registered": "2026-08-08 19:06:18"
     },
     {
       "id": "home-hub",

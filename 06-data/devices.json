@@ -1,0 +1,26 @@
+{
+  "devices": [
+    {
+      "id": "computer",
+      "name": "this pc",
+      "kind": "computer",
+      "url": null,
+      "reachable": true,
+      "registered": "2026-08-08 19:04:27"
+    },
+    {
+      "id": "sujith-phone",
+      "name": "Sujith Phone",
+      "kind": "mobile",
+      "url": "http://192.168.1.10:9000",
+      "registered": "2026-08-08 19:04:27"
+    },
+    {
+      "id": "home-hub",
+      "name": "Home Hub",
+      "kind": "home",
+      "url": "http://192.168.1.20:8001",
+      "registered": "2026-08-08 19:04:27"
+    }
+  ]
+}

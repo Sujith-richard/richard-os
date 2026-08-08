@@ -2200,3 +2200,20 @@ def _set_fake_data(payload: dict = None):
         return {"ok": True, "fake_data": on, "mode": mode, "note": "integration mode toggled (restart to fully apply)"}
     except Exception as e:
         return {"ok": False, "error": str(e)[:120]}
+
+
+# ===== v7.1 device registry endpoints =====
+@app.get("/api/v1/devices")
+def _devices_list():
+    import sys as _dv, pathlib as _dp
+    _dv.path.insert(0, str(_dp.Path(__file__).resolve().parent))
+    from device_registry import list_devices
+    return list_devices()
+
+@app.post("/api/v1/devices")
+def _devices_add(payload: dict = None):
+    payload = payload or {}
+    import sys as _dv, pathlib as _dp
+    _dv.path.insert(0, str(_dp.Path(__file__).resolve().parent))
+    from device_registry import register
+    return register(payload.get("name", ""), payload.get("kind", "mobile"), payload.get("url"))

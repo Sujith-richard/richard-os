@@ -35,6 +35,7 @@
   .card h3{font-size:15px;display:flex;align-items:center;gap:8px}
   .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
   .badge.kind{background:rgba(34,211,238,.12);color:var(--chrome)}
+  .badge.official{background:rgba(251,191,36,.16);color:#fbbf24;border:1px solid rgba(251,191,36,.4)}
   .badge.status.installed,.badge.status.published{background:rgba(16,185,129,.14);color:var(--accent)}
   .badge.status.available{background:rgba(251,191,36,.12);color:var(--warn)}
   .badge.status.removed{background:rgba(248,113,113,.12);color:var(--bad)}
@@ -113,6 +114,7 @@ async function loadStats(){
 async function render(pkgs){
   const g=$('grid');
   if(!pkgs||!pkgs.length){g.innerHTML='<div class="empty">No packages found in the Hub yet.</div>';return}
+  pkgs = [...pkgs].sort((a,b)=>((b.featured?1:0)-(a.featured?1:0)));
   g.innerHTML=pkgs.map(p=>{
     const name=esc(p.name),kind=esc(p.kind||'package'),ver=esc(p.version||'1.0.0'),desc=esc(p.desc||''),status=esc(p.status||'available');
     const dl=p.downloads||0, src=esc(p.source||'local'), auth=esc(p.author||'Developer-os');
@@ -120,7 +122,7 @@ async function render(pkgs){
       ? `<button class="ghost" disabled>✓ installed</button>`
       : `<button onclick="doPull('${esc(p.name)}')">Install</button>`;
     return `<div class="card">
-      <h3><span class="badge kind">${kind}</span> ${name}</h3>
+      <h3><span class="badge kind">${kind}</span> ${name}${p.featured?' <span class="badge official">★ OFFICIAL</span>':''}</h3>
       <div class="desc">${desc||'—'}</div>
       <div class="meta"><span>v${ver}</span><span>${auth}</span><span>${src}</span><span>⬇ ${dl}</span></div>
       <div class="card meta"><span class="badge status ${status}">${status}</span><button style="flex:1" onclick="doPull('${esc(p.name)}')">${status==='installed'?'✓ installed':'Install'}</button></div>

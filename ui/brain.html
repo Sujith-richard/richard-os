@@ -254,6 +254,26 @@
             });
           }).catch(() => {});
         }, 5000);
+
+        // v6.10: active-path glow (core→personal-assistant→mobile-agent / smart-home)
+        let pathHighlight = new Set();
+        setInterval(() => {
+          fetch("/api/v1/active-path").then(r => r.ok ? r.json() : null).then(d => {
+            const arr = (d && d.path) || [];
+            pathHighlight = new Set(arr.map(x => String(x).toLowerCase()));
+            nodeSel.attr("opacity", n => {
+              if (!pathHighlight.size) return 1;
+              return pathHighlight.has(String(n.id).toLowerCase()) ? 1 : 0.35;
+            }).attr("stroke", n => pathHighlight.has(String(n.id).toLowerCase()) ? "#22D3EE" : "rgba(255,255,255,.3)")
+              .attr("stroke-width", n => pathHighlight.has(String(n.id).toLowerCase()) ? 3 : 1)
+              .attr("r", n => pathHighlight.has(String(n.id).toLowerCase()) ? (n.r || 6) * 1.35 : (n.r || 6));
+            linkSel.attr("opacity", l => {
+              if (!pathHighlight.size) return 1;
+              const a = srcId(l), b = tgtId(l);
+              return pathHighlight.has(String(a).toLowerCase()) && pathHighlight.has(String(b).toLowerCase()) ? 1 : 0.25;
+            });
+          }).catch(() => {});
+        }, 2000);
       });
     }
     load();

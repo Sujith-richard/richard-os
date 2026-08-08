@@ -1,0 +1,9 @@
+{
+  "name": "api-deploy",
+  "kind": "skill",
+  "version": "1.0.0",
+  "author": "Developer-os",
+  "desc": "Ship FastAPI/Flask safely \u2014 Docker, gunicorn, health checks, reverse proxy",
+  "tier": "community",
+  "created_at": "2026-08-08T15:09:25"
+}

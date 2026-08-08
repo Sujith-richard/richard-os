@@ -1,0 +1,9 @@
+{
+  "name": "ai-agent-builder",
+  "kind": "workflow",
+  "version": "1.0.0",
+  "author": "Developer-os",
+  "desc": "End-to-end scaffold: define agent -> skills -> guardrails -> eval -> hub publish",
+  "tier": "community",
+  "created_at": "2026-08-08T15:09:25"
+}

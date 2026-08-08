@@ -88,11 +88,8 @@
       '<div class="os-content" id="os-content"></div>';
 
     while (body.firstChild) main.querySelector("#os-content").appendChild(body.firstChild);
-    var shell = document.createElement("div");
-    shell.className = "os-shell";
-    shell.appendChild(sidebar);
-    shell.appendChild(main);
-    body.appendChild(shell);
+    body.appendChild(sidebar);
+    body.appendChild(main);
     // ── Mobile drawer (v3.26): hamburger toggles sidebar on phones ──
     var backdrop = document.createElement("div");
     backdrop.className = "os-drawer-backdrop";

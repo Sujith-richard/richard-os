@@ -1,0 +1,9 @@
+{
+  "name": "onboarding-run",
+  "kind": "workflow",
+  "version": "1.0.0",
+  "author": "Developer-os",
+  "desc": "New-hire onboarding runbook \u2014 accounts, docs, permissions, first task",
+  "tier": "community",
+  "created_at": "2026-08-08T15:09:26"
+}

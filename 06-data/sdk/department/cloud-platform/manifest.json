@@ -1,0 +1,9 @@
+{
+  "name": "cloud-platform",
+  "kind": "department",
+  "version": "0.2.0",
+  "author": "Developer-os",
+  "desc": "Cloud infrastructure \u2014 deploy, scale, observe, secure",
+  "tier": "community",
+  "created_at": "2026-08-08T15:09:25"
+}

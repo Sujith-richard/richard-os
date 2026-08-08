@@ -1,0 +1,9 @@
+{
+  "name": "agent-debug",
+  "kind": "skill",
+  "version": "0.3.0",
+  "author": "Developer-os",
+  "desc": "Methodical AI-agent debugging: traces, tool logs, prompt deltas, evals",
+  "tier": "community",
+  "created_at": "2026-08-08T15:09:25"
+}

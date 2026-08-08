@@ -1,0 +1,9 @@
+{
+  "name": "ml-engineering",
+  "kind": "department",
+  "version": "1.0.0",
+  "author": "Richard OS",
+  "desc": "ML & Data Engineering department \u2014 model pipelines, feature stores, eval",
+  "tier": "community",
+  "created_at": "2026-08-08T15:09:25"
+}

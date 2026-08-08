@@ -1,0 +1,9 @@
+{
+  "name": "data-pipeline",
+  "kind": "skill",
+  "version": "1.0.0",
+  "author": "Developer-os",
+  "desc": "ETL/ELT patterns \u2014 ingestion, transforms, schedules, backfills",
+  "tier": "community",
+  "created_at": "2026-08-08T15:09:25"
+}

@@ -1,7 +1,7 @@
 {
   "hub": "hub-index",
   "version": 1,
-  "generated_at": "2026-08-08 17:00:46",
+  "generated_at": "2026-08-08 17:02:11",
   "count": 27,
   "packages": [
     {
@@ -13,7 +13,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "web-dev",
@@ -24,7 +25,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "departments-spec",
@@ -35,7 +37,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "always-ship-env-example",
@@ -46,7 +49,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "pin-dependency-versions",
@@ -57,7 +61,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "route-by-stack-keywords",
@@ -68,7 +73,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "new-job-lead",
@@ -79,7 +85,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "email-triage",
@@ -90,7 +97,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "daily-brief",
@@ -101,7 +109,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "content-pipeline",
@@ -112,7 +121,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "merged-training",
@@ -123,7 +133,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "cloud-assisted",
@@ -134,7 +145,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "richard-core-v2",
@@ -145,7 +157,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "merged-training-eval",
@@ -156,7 +169,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "merged-training-clean",
@@ -167,7 +181,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "richard-core-v1",
@@ -178,7 +193,8 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 17:00:46"
+      "featured": false,
+      "updated_at": "2026-08-08 17:02:11"
     },
     {
       "name": "playground-sdk",
@@ -189,6 +205,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
+      "featured": false,
       "updated_at": "2026-08-08 12:01:31"
     },
     {
@@ -200,6 +217,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
+      "featured": false,
       "updated_at": "2026-08-08 12:04:04"
     },
     {
@@ -211,6 +229,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
+      "featured": false,
       "updated_at": "2026-08-08 12:29:32"
     },
     {
@@ -222,6 +241,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
+      "featured": false,
       "updated_at": "2026-08-08 12:31:50"
     },
     {
@@ -233,6 +253,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
+      "featured": false,
       "updated_at": "2026-08-08 15:09:33"
     },
     {
@@ -244,6 +265,7 @@
       "tier": "official",
       "repo": "",
       "status": "available",
+      "featured": true,
       "updated_at": "2026-08-08 17:00:38"
     },
     {
@@ -255,6 +277,7 @@
       "tier": "official",
       "repo": "",
       "status": "available",
+      "featured": true,
       "updated_at": "2026-08-08 17:00:38"
     },
     {
@@ -266,6 +289,7 @@
       "tier": "official",
       "repo": "",
       "status": "available",
+      "featured": true,
       "updated_at": "2026-08-08 17:00:38"
     },
     {
@@ -277,6 +301,7 @@
       "tier": "official",
       "repo": "",
       "status": "available",
+      "featured": true,
       "updated_at": "2026-08-08 17:00:38"
     },
     {
@@ -288,6 +313,7 @@
       "tier": "official",
       "repo": "",
       "status": "available",
+      "featured": true,
       "updated_at": "2026-08-08 17:00:38"
     },
     {
@@ -299,6 +325,7 @@
       "tier": "official",
       "repo": "",
       "status": "available",
+      "featured": true,
       "updated_at": "2026-08-08 17:00:38"
     }
   ]

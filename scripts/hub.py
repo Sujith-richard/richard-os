@@ -25,7 +25,7 @@ def init_db():
         author TEXT DEFAULT 'Developer-os', tier TEXT DEFAULT 'community',
         source TEXT DEFAULT 'local', repo TEXT DEFAULT '',
         status TEXT DEFAULT 'available', downloads INTEGER DEFAULT 0,
-        installed_at TEXT, published_at TEXT, created_at TEXT);""")
+        installed_at TEXT, published_at TEXT, created_at TEXT, featured INTEGER DEFAULT 0);""")
     c.commit(); c.close()
 
 def _dedupe(items):
@@ -103,7 +103,7 @@ def index(include_remote=True):
         n = p.get("name")
         if n in rows:
             x = rows[n]
-            p.update({k: x.get(k) for k in ("status", "downloads", "installed_at", "published_at", "version") if x.get(k)})
+            p.update({k: x.get(k) for k in ("status", "downloads", "installed_at", "published_at", "version", "featured") if x.get(k) is not None})
     return {"ok": True, "count": len(pkgs), "packages": pkgs}
 
 def search(q=""):
@@ -122,9 +122,9 @@ def publish(name, kind="package", version="1.0.0", desc="", author="Developer-os
     path.write_text(json.dumps(manifest, indent=2))
     c = _conn()
     c.execute("""INSERT OR REPLACE INTO hub_packages
-        (name, kind, version, desc, author, tier, source, repo, status, published_at, created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
-              (name, kind, version, desc or "", author, tier, "local", repo or "", "published", _now(), _now()))
+        (name, kind, version, desc, author, tier, source, repo, status, published_at, created_at, featured)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+              (name, kind, version, desc or "", author, tier, "local", repo or "", "published", _now(), _now(), 1 if featured else 0))
     c.commit(); c.close()
     try:
         sys.path.insert(0, str(ROOT / "scripts"))
@@ -231,7 +231,7 @@ def export_index():
             "name": p["name"], "kind": p.get("kind") or "package",
             "version": p.get("version") or "1.0.0", "desc": (p.get("desc") or "")[:200],
             "author": p.get("author") or "Developer-os", "tier": p.get("tier") or "community",
-            "repo": p.get("repo") or "", "status": "available",
+            "repo": p.get("repo") or "", "status": "available", "featured": bool(p.get("featured")),
             "updated_at": p.get("published_at") or _now(),
         })
     out = {"hub": "hub-index", "version": 1, "generated_at": _now(), "count": len(pkgs), "packages": pkgs}

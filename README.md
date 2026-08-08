@@ -505,3 +505,14 @@ Everything versioned — skills, knowledge, departments.
 
 - **Versioning:** `scripts/version_manager.py` — snapshot + hash + version bump + history + rollback for skills/departments/knowledge
 - **API:** `POST /api/v1/versions/{kind}/{name}` · `GET /api/v1/versions` · `POST /{kind}/{name}/rollback/{v}`
+
+## 🏆 v5.0.0 — Platform Architecture (all 7 v5 gaps)
+1. **AI Runtime** (v5.1) — unified per-call layer: tokens/cost/timeout/validate
+2. **Event Bus spine** (v5.2) — publish/subscribe central bus, engines wired
+3. **Package Manager** (v5.3) — everything installable (depts/skills/workflows/structures)
+4. **AI Observability** (v5.4) — per-model cost/tokens/latency/errors
+5. **Agent Runtime** (v5.5) — unified registry + run/schedule/logging
+6. **Version Manager** (v5.6) — version everything + rollback
+7. **Kernel managers** (v5.7) — config/process/storage services
+
+The platform vision: Richard Core (kernel) · Richard Engine (brain+models) · Richard Studio (UI) · Richard SDK · Richard Hub — built on packages + events.

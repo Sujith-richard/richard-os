@@ -1897,3 +1897,20 @@ async def api_version_history(kind: str = "", name: str = ""):
 @app.post("/api/v1/versions/{kind}/{name}/rollback/{version}")
 async def api_version_rollback(kind: str, name: str, version: int):
     return _vm_rb(kind, name, version)
+
+# ===== v5.7 Kernel managers (v5.0) =====
+import sys as _km1, pathlib as _km2
+_km1.path.insert(0, str(_km2.Path(__file__).resolve().parent))
+from kernel import config_manager as _km_cfg, process_manager as _km_proc, storage_manager as _km_store
+
+@app.get("/api/v1/kernel/config")
+async def api_kernel_config():
+    return _km_cfg()
+
+@app.get("/api/v1/kernel/processes")
+async def api_kernel_processes():
+    return _km_proc()
+
+@app.get("/api/v1/kernel/storage")
+async def api_kernel_storage():
+    return _km_store()

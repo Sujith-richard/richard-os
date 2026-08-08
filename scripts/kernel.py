@@ -62,3 +62,45 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ===== v5.7 Kernel completeness: config/process/storage managers =====
+def config_manager():
+    """Configuration manager: reads settings + model routes + integrations config."""
+    out = {}
+    for name, path in [("settings", "settings.json"), ("model_routes", "model_routes.json"),
+                       ("integrations", "integrations.json")]:
+        try:
+            p = ROOT / "06-data" / path
+            out[name] = json.loads(p.read_text()) if p.exists() else {}
+        except Exception:
+            out[name] = {}
+    return {"ok": True, "configs": list(out.keys()), "detail": {k: len(v) for k, v in out.items()}}
+
+def process_manager():
+    """Process manager: list running OS processes (server, autonomy, scheduler)."""
+    import subprocess as sp
+    procs = []
+    try:
+        r = sp.run(["ps", "aux"], capture_output=True, text=True)
+        for line in r.stdout.splitlines():
+            if any(k in line for k in ["uvicorn scripts.server", "autonomy.py", "scheduler.py"]):
+                parts = line.split(None, 10)
+                if len(parts) >= 11:
+                    procs.append({"pid": parts[1], "cpu": parts[2], "mem": parts[3], "cmd": parts[10][:60]})
+    except Exception:
+        pass
+    return {"ok": True, "processes": procs}
+
+def storage_manager():
+    """Storage manager: DB inventory + sizes + datasets."""
+    dbs = list((ROOT / "06-data").glob("*.db"))
+    sizes = []
+    for d in dbs:
+        try:
+            sizes.append({"name": d.name, "kb": round(d.stat().st_size / 1024, 1)})
+        except Exception:
+            pass
+    datasets = sum(1 for f in (ROOT / "06-data" / "datasets").glob("*.jsonl"))
+    return {"ok": True, "databases": len(dbs), "total_kb": round(sum(s["kb"] for s in sizes), 1),
+            "datasets": datasets, "sizes": sorted(sizes, key=lambda x: -x["kb"])[:8]}

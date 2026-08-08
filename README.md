@@ -5,6 +5,46 @@
 A personal AI operating system: memory, tools, agents, and skills in one folder your AI runs.
 Built by Sujith Richard. Free. Files you own outright — no subscription.
 
+## The 5-Product Platform (v6.0.0)
+
+Richard OS grew from a single assistant repo into a full platform — the same 5-product vision it takes to scale like VS Code / Docker:
+
+| # | Product | What it is | Version |
+|---|---|---|---|
+| ① | **Core** | Kernel: boot, config/process/storage managers, event bus, scheduler, autonomy, security | v5.0–v5.7 |
+| ② | **Engine** | AI brain: model orchestrator + runtime, local inference + LoRA, 8 departments, 30 agents, memory, knowledge graph | v5.0–v5.7 |
+| ③ | **Studio** | Web UI: 46-page console + PWA + launcher — live dashboards for every subsystem | v5.0+ |
+| ④ | **SDK** | Authoring layer: `richard-sdk new|validate|pack|publish` — scaffold skills, departments, plugins, agents | **v6.0.0** |
+| ⑤ | **Hub** | Marketplace: registry, publish/pull, portable remote index, Studio page | **v5.9.0** |
+| ➕ | **OmniRoute pool** | 3-pool model orchestration: Local → DeepSeek (free) → OmniRoute (281-model keyless `auto`) with a teacher/learning loop | **v5.8.0** |
+
+### The 3-pool model flow
+```
+                         RICHARD OS  (KERNEL → BRAIN → STUDIO)
+                                  │
+                          MODEL ORCHESTRATOR
+                                  │
+              ┌───────────────────┼───────────────────┐
+              │                   │                   │
+       LOCAL POOL #1        DIRECT PROXY #2      OMNIROUTE POOL #3
+       richard-local       deepseek-v4-flash     281-keyless 'auto'
+                                 big-pickle             │
+              └───────────────────┼───────────────────┘
+                                  ▼
+                      AUTO MERGE → VALIDATION → EXECUTE
+                                  │
+                          LEARNING LOOP → Local v2
+```
+
+### The extension loop (SDK → Hub)
+```
+richard-sdk new skill my-tool       # scaffold (manifest + skill.md/examples/reference)
+richard-sdk validate skill my-tool  # ok
+richard-sdk pack skill my-tool      # .zip artifact
+richard-sdk publish skill my-tool   # → Hub registry
+… any machine → hub pull my-tool → package_manager install → live
+```
+
 ## What it is
 - 5 systems of record: second brain, PM, finance, CRM, creator (SQLite)
 - Agents with honest run logs: job_hunter, content_ops, freelance_biz, pm_assistant, portfolio_builder
@@ -527,3 +567,16 @@ The platform vision: Richard Core (kernel) · Richard Engine (brain+models) · R
 7. **Kernel managers** (v5.7) — config/process/storage services
 
 The platform vision: Richard Core (kernel) · Richard Engine (brain+models) · Richard Studio (UI) · Richard SDK · Richard Hub — built on packages + events.
+
+
+## Version history (shipped)
+| Tag | What |
+|---|---|
+| v5.8.0 | OmniRoute gateway (Pool #3) — keyless `auto` router, capability escalation, learn-from-OmniRoute |
+| v5.9.0 | Richard Hub — registry, `/api/v1/hub/*`, Studio marketplace page, remote index |
+| v6.0.0 | Richard SDK — authoring CLI + API + Studio SDK page (scaffold/validate/pack/publish) |
+
+## Stats
+- **52/52** phase plan complete + all **7 v5 platform gaps**
+- **46** Studio pages · **198** API endpoints · **6** systems of record
+- **28** GitHub releases tagged (v1.0.0 → v6.0.0) · MIT · free · $0 infra

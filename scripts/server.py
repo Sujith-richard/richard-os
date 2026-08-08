@@ -2068,3 +2068,11 @@ def _sdk_publish(payload: dict):
     _sk.path.insert(0, str(_sp.Path(__file__).resolve().parent))
     from sdk import publish
     return publish(payload.get("kind", ""), payload.get("name", ""), payload.get("desc", ""))
+
+
+@app.post("/api/v1/hub/export-index")
+def _hub_export_index():
+    import sys as _h, pathlib as _hp
+    _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from hub import export_index
+    return export_index()

@@ -1,8 +1,8 @@
 {
   "hub": "hub-index",
   "version": 1,
-  "generated_at": "2026-08-08 12:25:39",
-  "count": 18,
+  "generated_at": "2026-08-08 12:56:19",
+  "count": 20,
   "packages": [
     {
       "name": "departments",
@@ -13,7 +13,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "web-dev",
@@ -24,7 +24,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "departments-spec",
@@ -35,7 +35,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "always-ship-env-example",
@@ -46,7 +46,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "pin-dependency-versions",
@@ -57,7 +57,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "route-by-stack-keywords",
@@ -68,7 +68,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "new-job-lead",
@@ -79,7 +79,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "email-triage",
@@ -90,7 +90,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "daily-brief",
@@ -101,7 +101,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "content-pipeline",
@@ -112,7 +112,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "merged-training",
@@ -123,7 +123,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "cloud-assisted",
@@ -134,7 +134,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "richard-core-v2",
@@ -145,7 +145,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "merged-training-eval",
@@ -156,7 +156,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "merged-training-clean",
@@ -167,7 +167,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "richard-core-v1",
@@ -178,7 +178,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:25:39"
+      "updated_at": "2026-08-08 12:56:19"
     },
     {
       "name": "playground-sdk",
@@ -201,6 +201,28 @@
       "repo": "",
       "status": "available",
       "updated_at": "2026-08-08 12:04:04"
+    },
+    {
+      "name": "my-hub-skill",
+      "kind": "skill",
+      "version": "1.0.0",
+      "desc": "A skill scaffolded by the SDK",
+      "author": "Developer-os",
+      "tier": "community",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 12:29:32"
+    },
+    {
+      "name": "api-built-plugin",
+      "kind": "plugin",
+      "version": "1.0.0",
+      "desc": "made via API",
+      "author": "Developer-os",
+      "tier": "community",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 12:31:50"
     }
   ]
 }

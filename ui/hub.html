@@ -70,6 +70,7 @@
       <input id="q" class="search" placeholder="search packages (e.g. memory, skill, workflow)…">
       <button onclick="doSearch()">Search</button>
       <button class="ghost" onclick="loadHub()">Refresh</button>
+      <button class="ghost" onclick="doExport()">Sync remote index</button>
     </div>
 
     <div class="col-exp">
@@ -132,7 +133,8 @@ async function loadHub(){
   catch(e){$('grid').innerHTML='<div class="empty">Hub API unreachable — is the server running on :8000?</div>'}
 }
 async function doSearch(){try{const d=await j('/api/v1/hub/search?q='+encodeURIComponent($('q').value));render(d.packages)}catch(e){toast('search failed')}}
-async function doPull(n){try{const d=await j('/api/v1/hub/pull',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});toast(d.ok?('installed '+n):('error: '+(d.error||'?')));loadHub()}catch(e){toast('install failed')}}
+async function doExport(){try{const d=await j('/api/v1/hub/export-index',{method:'POST'});toast(d.ok?('exported '+(d.count||0)+' packages — push to GitHub to publish'):'export failed')}catch(e){toast('export failed')}}
+async function doSearch(n){try{const d=await j('/api/v1/hub/pull',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});toast(d.ok?('installed '+n):('error: '+(d.error||'?')));loadHub()}catch(e){toast('install failed')}}
 async function doPublish(){
   const name=$('p-name').value.trim();if(!name){toast('name required');return}
   const d=await j('/api/v1/hub/publish',{method:'POST',headers:{'Content-Type':'application/json'},

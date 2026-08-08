@@ -20,6 +20,8 @@
       { label: "Memory", href: "/ui/memory.html", ic: "\uD83E\uDDE0" },
       { label: "Knowledge Graph", href: "/ui/kg.html", ic: "\uD83D\uDD78\uFE0F" },
       { label: "Plugins", href: "/ui/plugins.html", ic: "\uD83E\uDDE9" },
+      { label: "Hub", href: "/ui/hub.html", ic: "\uD83D\uDED2" },
+      { label: "SDK", href: "/ui/sdk.html", ic: "\uD83D\uDEE0\uFE0F" },
       { label: "System", href: "/ui/system.html", ic: "\uD83D\uDDA5\uFE0F" },
       { label: "Settings", href: "/ui/settings.html", ic: "\u2699\uFE0F" },
       { label: "Automations", href: "/ui/automations.html", ic: "\u23F0" },

@@ -139,10 +139,13 @@ function frame(){
     const ic=n._ic||iconFor(n.type||n.label||'');
     const col=n._c||typeColor(n.type||n.label||'');
     const depth=Math.max(0.25, Math.min(1,(p.z+base)/(2*base)));
-    const sz=Math.max(8, p.sc*zoom*1.2);
-    ctx.globalAlpha=0.2+depth*0.25; ctx.fillStyle=col;
-    ctx.beginPath(); ctx.arc(p.x,p.y,sz*0.75,0,Math.PI*2); ctx.fill();
-    ctx.globalAlpha=0.45+depth*0.5;
+    const sz=Math.max(13, p.sc*zoom*1.35);
+    // solid node dot (always visible) + bright ring + emoji on top
+    ctx.globalAlpha=0.85; ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(p.x,p.y,sz*0.55,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=0.95; ctx.strokeStyle='#ffffff'; ctx.lineWidth=1.3;
+    ctx.beginPath(); ctx.arc(p.x,p.y,sz*0.63,0,Math.PI*2); ctx.stroke();
+    ctx.globalAlpha=1;
     ctx.font=sz+'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(ic,p.x,p.y);

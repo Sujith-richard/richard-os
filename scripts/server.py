@@ -190,7 +190,7 @@ def graph():
     agents = [("agent-job_hunter","job_hunter","second_brain"),("agent-content_ops","content_ops","creator"),
               ("agent-freelance_biz","freelance_biz","finance"),("agent-pm_assistant","pm_assistant","pm"),
               ("agent-portfolio_builder","portfolio_builder","crm"),
-              ("agent-mobile","mobile-agent","personal")]
+              ("agent-mobile","mobile-agent","personal-assistant")]
     for i,(aid, alabel, target) in enumerate(agents):
         nodes.append({"id": aid, "label": alabel, "type": "agent", "x": 560, "y": 380 + i*40})
         edges.append({"source": core, "target": aid, "strength": 2})

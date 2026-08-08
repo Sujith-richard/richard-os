@@ -180,7 +180,11 @@
     function load() {
       fetch("/graph").then(r => r.json()).then(data => {
         allNodes = data.nodes.map(n => ({ ...n, r: n.type === "core" ? 22 : n.type === "domain" ? 16 : (n.type === "tool" || n.type === "agent") ? 10 : n.type === "dept" ? 9 : 6 }));
-        allEdges = data.edges;
+        allEdges = (data.edges || data.links || []).filter(l => {
+          const s = (typeof l.source === 'object') ? l.source.id : l.source;
+          const t = (typeof l.target === 'object') ? l.target.id : l.target;
+          return allNodes.some(n => n.id === s) && allNodes.some(n => n.id === t);
+        });
         // v4.2: derive TYPES from the LIVE graph + rebuild filter (covers engine/knowledge/service/etc.)
         TYPES = [...new Set(allNodes.map(n => n.type))].sort();
         activeTypes = new Set(TYPES);
@@ -200,10 +204,10 @@
           .attr("stroke-width", d => Math.max(1, d.strength * 0.9));
         nodeSel = g.append("g").selectAll("circle").data(allNodes).join("circle")
           .attr("r", d => d.r)
-          .attr("fill", d => d.color || (d.type === "core" ? "var(--core)" : d.type === "tool" ? "var(--tool)" : d.type === "agent" ? "var(--agent)" : "var(--data)"))
+          .attr("fill", d => d.color || (d.type === "core" ? "#ff8a3d" : d.type === "tool" ? "#22d3ee" : d.type === "agent" ? "#10b981" : d.type === "dept" ? "#a78bfa" : d.type === "employee" ? "#60a5fa" : "#a78bfa"))
           .attr("stroke", "rgba(255,255,255,.3)").attr("stroke-width", 1)
           .style("cursor", "pointer")
-          .style("filter", d => d.type === "core" ? "drop-shadow(0 0 12px var(--core))" : "none");
+          .style("filter", d => d.type === "core" ? "drop-shadow(0 0 12px #ff8a3d)" : "none");
         labelSel = g.append("g").selectAll("text").data(allNodes.filter(d => d.type !== "data" && d.type !== "employee")).join("text")
           .text(d => d.label).attr("fill", "var(--muted)").attr("font-size", 10)
           .attr("text-anchor", "middle").attr("dy", d => d.type === "core" ? -30 : 18);

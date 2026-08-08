@@ -1,5 +1,13 @@
 # Richard OS
 
+<p align="center"><img src="ui/assets/logo.png" width="120" alt="Richard OS"></p>
+
+
+
+<p align="center"><img src="ui/assets/logo.png" width="120" alt="Richard OS"></p>
+
+
+
 ![CI](https://github.com/Sujith-richard/richard-os/actions/workflows/ci.yml/badge.svg)
 
 A personal AI operating system: memory, tools, agents, and skills in one folder your AI runs.

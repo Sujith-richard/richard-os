@@ -2,13 +2,13 @@
 
 <p align="center"><img src="ui/assets/logo.png" width="120" alt="Richard OS"></p>
 
+╔══════════════════════════════════════════════╗
+║ RICHARD OS · personal AI operating system ║
+║ Core · Engine · Studio · SDK · Hub + Voice ║
+║ + OmniRoute gateway · 3D avatar · devices ║
+║ 30 releases · 48 pages · MIT · $0 ║
+╚══════════════════════════════════════════════╝
 
-
-<p align="center"><img src="ui/assets/logo.png" width="120" alt="Richard OS"></p>
-
-
-
-![CI](https://github.com/Sujith-richard/richard-os/actions/workflows/ci.yml/badge.svg)
 
 A personal AI operating system: memory, tools, agents, and skills in one folder your AI runs.
 Built by Sujith Richard. Free. Files you own outright — no subscription.

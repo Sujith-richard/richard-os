@@ -70,3 +70,4 @@ vendor/
 06-data/tmp_input.wav
 06-data/kernel_boot.json
 06-data/ai_runtime.db
+src-tauri/target/

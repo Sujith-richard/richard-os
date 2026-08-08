@@ -53,6 +53,23 @@ def set(on=None):
     _save(ACTIVE_FILE, {"listening": s["active_mic"], "master": s["active_mic"], "at": _now()})
     return {"ok": True, "listening": s["active_mic"], "master": s["active_mic"]}
 
+import urllib.request, json as _json
+def _device_call(kind, text):
+    """Route a command to the registered device's url (POST <url>/api/v1/<kind>/command)."""
+    try:
+        from device_registry import route
+        dev = route(kind)
+        url = dev.get("url")
+        if not url:
+            return None
+        endpoint = url.rstrip("/") + "/api/v1/" + kind + "/command"
+        req = urllib.request.Request(endpoint, data=_json.dumps({"request": text}).encode(),
+                                     headers={"Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(req, timeout=8) as r:
+            return _json.loads(r.read())
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:120]}
+
 def _route(text):
     lower = (text or "").lower()
     if any(k in lower for k in ("mobile", "phone", "youtube", "whatsapp")):
@@ -120,11 +137,19 @@ def command(text):
     detail = []
     try:
         if route == "home":
-            from home_agent import run as home_run
-            detail = home_run(t).get("log", [])
+            rremote = _device_call("home", t)
+            if rremote and not rremote.get("error"):
+                detail = ["remote node: " + str(rremote.get("ok"))] + (rremote.get("log") or [])
+            else:
+                from home_agent import run as home_run
+                detail = home_run(t).get("log", [])
         elif route == "mobile":
-            from mobile_agent import run as mob_run
-            detail = mob_run(t).get("log", [])
+            rremote = _device_call("mobile", t)
+            if rremote and not rremote.get("error"):
+                detail = ["remote node: " + str(rremote.get("ok"))] + (rremote.get("log") or [])
+            else:
+                from mobile_agent import run as mob_run
+                detail = mob_run(t).get("log", [])
         else:
             detail = ["(computer/auto): plan -> skills -> tools -> execute -> verify"]
         step("execute: ok")

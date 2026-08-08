@@ -97,7 +97,18 @@ def command(text):
         step("execute: ok")
     except Exception as e:
         step("error: " + str(e)[:80])
-    reply = "Done."
+    # v6.7.1 persona-aware reply
+    try:
+        from persona_engine import say
+        ok_all = True
+        if any("error" in str(x).lower() for x in detail): 
+            reply = say("FAILURE") if detail else say("SUCCESS")
+        elif route in ("home","mobile"):
+            reply = say("SUCCESS")
+        else:
+            reply = say("SUCCESS")
+    except Exception:
+        reply = "Done."
     if s.get("voice_reply", True):
         try:
             from voice_bridge import tts

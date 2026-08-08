@@ -25,6 +25,7 @@
       { label: "AI Avatar", href: "/ui/avatar.html", ic: "\uD83D\uDD2E" },
       { label: "Mobile", href: "/ui/mobile.html", ic: "\uD83D\uDCF1" },
       { label: "Home", href: "/ui/home.html", ic: "\uD83C\uDFE0" },
+      { label: "Voice", href: "/ui/voice.html", ic: "\uD83C\uDFA4" },
       { label: "System", href: "/ui/system.html", ic: "\uD83D\uDDA5\uFE0F" },
       { label: "Settings", href: "/ui/settings.html", ic: "\u2699\uFE0F" },
       { label: "Automations", href: "/ui/automations.html", ic: "\u23F0" },

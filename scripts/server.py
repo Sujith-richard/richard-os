@@ -1974,3 +1974,48 @@ def _omni_escalate(payload: dict):
             lr = learn(req, "[escalated to " + str(cand) + "] " + str(r.get("response", "")), gap=d["primary"], specialist=cand)
         return {"escalated": True, "gateway": "omni-route", "model": d["omni_candidate"], "detect": d, "learn": lr}
     return {"escalated": False, "gateway": cand, "detect": d, "note": "omni-route unreachable or not needed; use direct pool"}
+
+
+# ===== v5.9.0 Richard Hub endpoints =====
+@app.get("/api/v1/hub/index")
+def _hub_index():
+    import sys as _h, pathlib as _hp
+    _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from hub import index
+    return index()
+
+@app.get("/api/v1/hub/search")
+def _hub_search(q: str = ""):
+    import sys as _h, pathlib as _hp
+    _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from hub import search
+    return search(q)
+
+@app.post("/api/v1/hub/publish")
+def _hub_publish(payload: dict):
+    import sys as _h, pathlib as _hp
+    _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from hub import publish
+    return publish(
+        payload.get("name", ""),
+        payload.get("kind", "package"),
+        payload.get("version", "1.0.0"),
+        payload.get("desc", payload.get("description", "")),
+        payload.get("author", "Developer-os"),
+        payload.get("tier", "community"),
+        payload.get("repo"),
+    )
+
+@app.post("/api/v1/hub/pull")
+def _hub_pull(payload: dict):
+    import sys as _h, pathlib as _hp
+    _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from hub import pull
+    return pull(payload.get("name", ""), payload.get("kind"))
+
+@app.get("/api/v1/hub/stats")
+def _hub_stats():
+    import sys as _h, pathlib as _hp
+    _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from hub import stats
+    return stats()

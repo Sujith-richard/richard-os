@@ -1,0 +1,10 @@
+{
+  "name": "playground-sdk",
+  "kind": "sdk",
+  "version": "0.1.0",
+  "desc": "Hub test package (playground)",
+  "author": "Developer-os",
+  "tier": "community",
+  "repo": "",
+  "published_at": "2026-08-08 12:01:31"
+}

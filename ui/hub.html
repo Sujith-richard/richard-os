@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard Hub · Package Marketplace</title>
+<style>
+  :root{
+    --bg:#0A101F; --panel:#121A2E; --panel2:#0E1626; --line:#1E2A44;
+    --portrait:#A78BFA; --portrait2:#7C3AED; --chrome:#22D3EE; --chrome2:#0891B2;
+    --accent:#10B981; --text:#D7E0F5; --muted:#8B9AC0; --warn:#FBBF24; --bad:#F87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  a{color:var(--chrome);text-decoration:none}
+  .top{display:flex;align-items:center;gap:14px;padding:18px 26px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#0E1626,#121A2E)}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--portrait),var(--chrome));display:grid;place-items:center;font-weight:800;color:#0A101F;font-size:18px}
+  h1{font-size:20px;font-weight:700}
+  .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .tags{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .stat{padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:12px}
+  .stat b{color:var(--chrome);font-size:16px}
+  .wrap{padding:22px 26px;max-width:1180px;margin:0 auto}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  input,select,button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font-size:13px}
+  input:focus,select:focus{outline:none;border-color:var(--chrome)}
+  button{cursor:pointer;background:linear-gradient(135deg,var(--portrait2),var(--chrome2));color:#fff;font-weight:600;border:none}
+  button:hover{filter:brightness(1.12)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  button.danger{background:linear-gradient(135deg,#7f1d1d,#991b1b)}
+  .search{flex:1;min-width:220px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;transition:.15s}
+  .card:hover{border-color:var(--portrait);transform:translateY(-2px)}
+  .card h3{font-size:15px;display:flex;align-items:center;gap:8px}
+  .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .badge.kind{background:rgba(34,211,238,.12);color:var(--chrome)}
+  .badge.status.installed,.badge.status.published{background:rgba(16,185,129,.14);color:var(--accent)}
+  .badge.status.available{background:rgba(251,191,36,.12);color:var(--warn)}
+  .badge.status.removed{background:rgba(248,113,113,.12);color:var(--bad)}
+  .desc{color:var(--muted);font-size:12px;min-height:32px;flex:1}
+  .meta{display:flex;gap:10px;font-size:11px;color:var(--muted)}
+  .meta b{color:var(--chrome)}
+  .card .row{display:flex;gap:8px;margin-top:4px}
+  .card button{flex:1;font-size:12px;padding:7px}
+  .col-exp{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;max-width:520px}
+  summary{cursor:pointer;font-weight:600;color:var(--chrome);font-size:13px}
+  .form{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .form .row{display:flex;gap:8px;flex-wrap:wrap}
+  .foot{color:var(--muted);font-size:11px;padding:16px 26px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .toast{position:fixed;right:16px;bottom:16px;background:var(--panel);border:1px solid var(--chrome);color:var(--text);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none}
+  .toast.show{opacity:1}
+  .empty{color:var(--muted);padding:40px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="logo">H</div>
+    <div><h1>Richard Hub</h1><div class="sub">marketplace · publish / pull packages</div></div>
+    <div class="tags">
+      <div class="stat"><b id="st-count">–</b><br>packages</div>
+      <div class="stat"><b id="st-down">–</b><br>downloads</div>
+      <div class="stat"><b id="st-kinds">–</b><br>kinds</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <input id="q" class="search" placeholder="search packages (e.g. memory, skill, workflow)…">
+      <button onclick="doSearch()">Search</button>
+      <button class="ghost" onclick="loadHub()">Refresh</button>
+    </div>
+
+    <div class="col-exp">
+      <details>
+        <summary>＋ Publish a package to the Hub</summary>
+        <div class="form">
+          <div class="row"><input id="p-name" placeholder="name (e.g. my-skill)"><input id="p-kind" placeholder="kind" list="kinds" value="package"><datalist id="kinds"><option>department</option><option>skill</option><option>workflow</option><option>plugin</option><option>sdk</option><option>prompt</option></datalist><input id="p-ver" placeholder="version" value="1.0.0"></div>
+          <input id="p-desc" placeholder="short description">
+          <button onclick="doPublish()">Publish</button>
+        </div>
+      </details>
+    </div>
+
+    <div id="grid" class="grid" style="margin-top:18px">
+      <div class="empty">Loading Hub index…</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>v5.9.0 · Richard Hub — extends the v5.3 Package Manager</span>
+    <span id="foot-status">hub://local · 127.0.0.1:8000</span>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600)};
+const esc=s=>(s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function j(u,o){const r=await fetch(u,o);return r.json()}
+
+async function loadStats(){
+  try{const s=await j('/api/v1/hub/stats');
+    $('st-count').textContent=s.in_registry||0;
+    $('st-down').textContent=s.downloads||0;
+    $('st-kinds').textContent=Object.keys(s.kinds||{}).length||0;
+  }catch(e){}
+}
+
+async function render(pkgs){
+  const g=$('grid');
+  if(!pkgs||!pkgs.length){g.innerHTML='<div class="empty">No packages found in the Hub yet.</div>';return}
+  g.innerHTML=pkgs.map(p=>{
+    const name=esc(p.name),kind=esc(p.kind||'package'),ver=esc(p.version||'1.0.0'),desc=esc(p.desc||''),status=esc(p.status||'available');
+    const dl=p.downloads||0, src=esc(p.source||'local'), auth=esc(p.author||'Developer-os');
+    const btn= (status==='installed')
+      ? `<button class="ghost" disabled>✓ installed</button>`
+      : `<button onclick="doPull('${esc(p.name)}')">Install</button>`;
+    return `<div class="card">
+      <h3><span class="badge kind">${kind}</span> ${name}</h3>
+      <div class="desc">${desc||'—'}</div>
+      <div class="meta"><span>v${ver}</span><span>${auth}</span><span>${src}</span><span>⬇ ${dl}</span></div>
+      <div class="card meta"><span class="badge status ${status}">${status}</span><button style="flex:1" onclick="doPull('${esc(p.name)}')">${status==='installed'?'✓ installed':'Install'}</button></div>
+      <div class="meta" style="margin-top:6px"><span>${btn}</span></div>
+    </div>`;
+  }).join('');
+}
+
+async function loadHub(){
+  try{const d=await j('/api/v1/hub/index');render(d.packages);loadRubin()}
+  catch(e){$('grid').innerHTML='<div class="empty">Hub API unreachable — is the server running on :8000?</div>'}
+}
+async function doSearch(){try{const d=await j('/api/v1/hub/search?q='+encodeURIComponent($('q').value));render(d.packages)}catch(e){toast('search failed')}}
+async function doPull(n){try{const d=await j('/api/v1/hub/pull',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});toast(d.ok?('installed '+n):('error: '+(d.error||'?')));loadHub()}catch(e){toast('install failed')}}
+async function doPublish(){
+  const name=$('p-name').value.trim();if(!name){toast('name required');return}
+  const d=await j('/api/v1/hub/publish',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name,kind:$('p-kind').value||'package',version:$('p-ver').value||'1.0.0',description:$('p-desc').value})});
+  toast(d.ok?('published '+name):('error: '+(d.error||'?')));loadHub()
+}
+loadHub();
+</script>
+</body>
+</html>

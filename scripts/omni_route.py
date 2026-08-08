@@ -39,28 +39,35 @@ def health():
                 "error": str(e)[:80], "hint": "start OmniRoute or update 06-data/omni_route.json"}
 
 def discover_models():
-    """Dynamic model catalog from the gateway (fallback to documented free pool)."""
+    """Dynamic model catalog. Keyed -> live list; keyless reachable -> OmniRoute 'auto' router;
+    gateway down -> sample list."""
     cfg = _cfg()
+    key = (cfg.get("api_key") or "").strip()
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
     try:
-        r = httpx.get(f"{cfg['base_url'].rstrip('/')}/models",
-                      headers={"Authorization": f"Bearer {cfg['api_key']}"}, timeout=10)
+        r = httpx.get(f"{cfg['base_url'].rstrip('/')}/v1/models", headers=headers, timeout=10)
         if r.status_code == 200:
             data = r.json()
             models = [m["id"] for m in data.get("data", [])] or (data.get("models") or [])
-            return {"ok": True, "source": "live", "models": models}
+            if models:
+                return {"ok": True, "source": "live", "models": models}
     except Exception:
         pass
-    # fallback: documented free-tier sample (dynamic list will replace on live)
-    return {"ok": True, "source": "sample", "models": ["gemini-flash-free", "qwen-coder-free", "claude-sonnet-free", "gpt-oss-free"]}
+    return {"ok": True, "source": "keyless-auto",
+            "models": ["auto"],
+            "note": "gateway reachable — using keyless 'auto' router; set an API key for the full live catalog"}
 
 def chat(model, messages, temperature=0.3):
     """OpenAI-compatible chat call through the gateway + AI Runtime telemetry."""
     cfg = _cfg()
+    key = (cfg.get("api_key") or "").strip()
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    model = model or "auto"
     payload = {"model": model, "messages": messages, "temperature": temperature}
     try:
-        r = httpx.post(f"{cfg['base_url'].rstrip('/')}/chat/completions",
+        r = httpx.post(f"{cfg['base_url'].rstrip('/')}/v1/chat/completions",
                        json=payload,
-                       headers={"Authorization": f"Bearer {cfg['api_key']}"},
+                       headers=headers or {},
                        timeout=cfg["timeout"])
         r.raise_for_status()
         return {"ok": True, "response": r.json()["choices"][0]["message"]["content"]}

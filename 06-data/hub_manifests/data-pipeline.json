@@ -2,9 +2,9 @@
   "name": "data-pipeline",
   "kind": "skill",
   "version": "1.0.0",
-  "desc": "Richard Hub seed \u2014 data-pipeline (skill)",
-  "author": "Developer-os",
-  "tier": "community",
+  "desc": "ETL/ELT: validation, schedules, backfills",
+  "author": "Richard Core",
+  "tier": "official",
   "repo": "",
-  "published_at": "2026-08-08 15:09:33"
+  "published_at": "2026-08-08 17:00:38"
 }

@@ -1,8 +1,8 @@
 {
   "hub": "hub-index",
   "version": 1,
-  "generated_at": "2026-08-08T13:05:00Z",
-  "count": 20,
+  "generated_at": "2026-08-08 17:00:46",
+  "count": 27,
   "packages": [
     {
       "name": "departments",
@@ -13,7 +13,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "web-dev",
@@ -24,7 +24,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "departments-spec",
@@ -35,7 +35,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "always-ship-env-example",
@@ -46,7 +46,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "pin-dependency-versions",
@@ -57,7 +57,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "route-by-stack-keywords",
@@ -68,7 +68,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "new-job-lead",
@@ -79,7 +79,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "email-triage",
@@ -90,7 +90,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "daily-brief",
@@ -101,7 +101,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "content-pipeline",
@@ -112,7 +112,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "merged-training",
@@ -123,7 +123,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "cloud-assisted",
@@ -134,7 +134,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "richard-core-v2",
@@ -145,7 +145,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "merged-training-eval",
@@ -156,7 +156,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "merged-training-clean",
@@ -167,7 +167,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "richard-core-v1",
@@ -178,7 +178,7 @@
       "tier": "community",
       "repo": "",
       "status": "available",
-      "updated_at": "2026-08-08 12:56:19"
+      "updated_at": "2026-08-08 17:00:46"
     },
     {
       "name": "playground-sdk",
@@ -223,6 +223,83 @@
       "repo": "",
       "status": "available",
       "updated_at": "2026-08-08 12:31:50"
+    },
+    {
+      "name": "onboarding-run",
+      "kind": "workflow",
+      "version": "1.0.0",
+      "desc": "Richard Hub seed \u2014 onboarding-run (workflow)",
+      "author": "Developer-os",
+      "tier": "community",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 15:09:33"
+    },
+    {
+      "name": "ml-engineering",
+      "kind": "department",
+      "version": "1.0.0",
+      "desc": "ML&Data dept: pipelines, feature stores, evals, LoRA loop",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 17:00:38"
+    },
+    {
+      "name": "cloud-platform",
+      "kind": "department",
+      "version": "0.2.0",
+      "desc": "Cloud infra: IAC, k8s, secrets, FinOps, regions",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 17:00:38"
+    },
+    {
+      "name": "ai-agent-builder",
+      "kind": "workflow",
+      "version": "1.0.0",
+      "desc": "Scaffold an AI agent end-to-end -> skills -> guardrails -> eval -> publish",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 17:00:38"
+    },
+    {
+      "name": "data-pipeline",
+      "kind": "skill",
+      "version": "1.0.0",
+      "desc": "ETL/ELT: validation, schedules, backfills",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 17:00:38"
+    },
+    {
+      "name": "api-deploy",
+      "kind": "skill",
+      "version": "1.0.0",
+      "desc": "Ship FastAPI/Flask safely: Docker, gunicorn, health",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 17:00:38"
+    },
+    {
+      "name": "agent-debug",
+      "kind": "skill",
+      "version": "0.3.0",
+      "desc": "AI-agent debugging: traces, tool logs, evals",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "updated_at": "2026-08-08 17:00:38"
     }
   ]
 }

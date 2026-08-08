@@ -2,9 +2,9 @@
   "name": "ml-engineering",
   "kind": "department",
   "version": "1.0.0",
-  "desc": "Richard Hub seed \u2014 ml-engineering (department)",
-  "author": "Developer-os",
-  "tier": "community",
+  "desc": "ML&Data dept: pipelines, feature stores, evals, LoRA loop",
+  "author": "Richard Core",
+  "tier": "official",
   "repo": "",
-  "published_at": "2026-08-08 15:09:33"
+  "published_at": "2026-08-08 17:00:38"
 }

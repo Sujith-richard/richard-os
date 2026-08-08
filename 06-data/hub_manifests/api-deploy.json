@@ -2,9 +2,9 @@
   "name": "api-deploy",
   "kind": "skill",
   "version": "1.0.0",
-  "desc": "Richard Hub seed \u2014 api-deploy (skill)",
-  "author": "Developer-os",
-  "tier": "community",
+  "desc": "Ship FastAPI/Flask safely: Docker, gunicorn, health",
+  "author": "Richard Core",
+  "tier": "official",
   "repo": "",
-  "published_at": "2026-08-08 15:09:33"
+  "published_at": "2026-08-08 17:00:38"
 }

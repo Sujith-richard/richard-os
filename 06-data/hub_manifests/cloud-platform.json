@@ -2,9 +2,9 @@
   "name": "cloud-platform",
   "kind": "department",
   "version": "0.2.0",
-  "desc": "Richard Hub seed \u2014 cloud-platform (department)",
-  "author": "Developer-os",
-  "tier": "community",
+  "desc": "Cloud infra: IAC, k8s, secrets, FinOps, regions",
+  "author": "Richard Core",
+  "tier": "official",
   "repo": "",
-  "published_at": "2026-08-08 15:09:33"
+  "published_at": "2026-08-08 17:00:38"
 }

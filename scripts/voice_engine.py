@@ -74,8 +74,12 @@ def _capture_mic(seconds=3.0):
         idx = None
         try:
             for i, d in enumerate(sd.query_devices()):
-                if d["max_input_channels"] > 0 and ("pipewire" in d["name"].lower() or "default" in d["name"].lower()):
+                if d["max_input_channels"] > 0 and any(k in d["name"].lower() for k in ("pipewire", "default")):
                     idx = i; break
+            if idx is None:
+                for i, d in enumerate(sd.query_devices()):
+                    if d["max_input_channels"] > 0 and any(k in d["name"].lower() for k in ("sof-hda", "hda", "mic", "analog", "input")):
+                        idx = i; break
             if idx is None:
                 for i, d in enumerate(sd.query_devices()):
                     if d["max_input_channels"] > 0:

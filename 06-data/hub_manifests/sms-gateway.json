@@ -1,0 +1,10 @@
+{
+  "name": "sms-gateway",
+  "kind": "plugin",
+  "version": "0.1.0",
+  "desc": "SMS hook (plugin)",
+  "author": "Richard Core",
+  "tier": "official",
+  "repo": "",
+  "published_at": "2026-08-08 18:27:25"
+}

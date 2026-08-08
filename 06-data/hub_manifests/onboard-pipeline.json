@@ -1,0 +1,10 @@
+{
+  "name": "onboard-pipeline",
+  "kind": "workflow",
+  "version": "1.0.0",
+  "desc": "Content pipeline: plan -> draft -> publish",
+  "author": "Richard Core",
+  "tier": "official",
+  "repo": "",
+  "published_at": "2026-08-08 18:27:25"
+}

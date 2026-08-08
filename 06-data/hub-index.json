@@ -1,8 +1,8 @@
 {
   "hub": "hub-index",
   "version": 1,
-  "generated_at": "2026-08-08 17:02:11",
-  "count": 27,
+  "generated_at": "2026-08-08 18:27:25",
+  "count": 32,
   "packages": [
     {
       "name": "departments",
@@ -14,7 +14,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "web-dev",
@@ -26,7 +26,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "departments-spec",
@@ -38,7 +38,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "always-ship-env-example",
@@ -50,7 +50,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "pin-dependency-versions",
@@ -62,7 +62,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "route-by-stack-keywords",
@@ -74,7 +74,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "new-job-lead",
@@ -86,7 +86,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "email-triage",
@@ -98,7 +98,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "daily-brief",
@@ -110,7 +110,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "content-pipeline",
@@ -122,7 +122,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "merged-training",
@@ -134,7 +134,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "cloud-assisted",
@@ -146,7 +146,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "richard-core-v2",
@@ -158,7 +158,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "merged-training-eval",
@@ -170,7 +170,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "merged-training-clean",
@@ -182,7 +182,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "richard-core-v1",
@@ -194,7 +194,7 @@
       "repo": "",
       "status": "available",
       "featured": false,
-      "updated_at": "2026-08-08 17:02:11"
+      "updated_at": "2026-08-08 18:27:25"
     },
     {
       "name": "playground-sdk",
@@ -327,6 +327,66 @@
       "status": "available",
       "featured": true,
       "updated_at": "2026-08-08 17:00:38"
+    },
+    {
+      "name": "output-copy",
+      "kind": "skill",
+      "version": "1.0.0",
+      "desc": "Cold-outreach & follow-up copywriting patterns",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": true,
+      "updated_at": "2026-08-08 18:27:25"
+    },
+    {
+      "name": "resume-tailor",
+      "kind": "skill",
+      "version": "1.0.0",
+      "desc": "ATS-safe resume tailoring",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": true,
+      "updated_at": "2026-08-08 18:27:25"
+    },
+    {
+      "name": "invoice-run",
+      "kind": "workflow",
+      "version": "1.0.0",
+      "desc": "Invoice: create -> approve -> send -> paid",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": true,
+      "updated_at": "2026-08-08 18:27:25"
+    },
+    {
+      "name": "onboard-pipeline",
+      "kind": "workflow",
+      "version": "1.0.0",
+      "desc": "Content pipeline: plan -> draft -> publish",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": true,
+      "updated_at": "2026-08-08 18:27:25"
+    },
+    {
+      "name": "sms-gateway",
+      "kind": "plugin",
+      "version": "0.1.0",
+      "desc": "SMS hook (plugin)",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": true,
+      "updated_at": "2026-08-08 18:27:25"
     }
   ]
 }

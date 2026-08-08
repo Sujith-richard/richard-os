@@ -1,0 +1,9 @@
+{
+  "name": "sms-gateway",
+  "kind": "plugin",
+  "version": "0.1.0",
+  "author": "Developer-os",
+  "desc": "Twilio-style SMS send/receive hook (fake-first)",
+  "tier": "community",
+  "created_at": "2026-08-08T18:27:25"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "content-pipeline",
+  "kind": "workflow",
+  "version": "1.0.0",
+  "author": "Developer-os",
+  "desc": "Blog/LinkedIn pipeline: research -> draft -> review -> publish",
+  "tier": "community",
+  "created_at": "2026-08-08T18:27:25"
+}

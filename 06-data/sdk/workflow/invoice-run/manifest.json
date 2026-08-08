@@ -1,0 +1,9 @@
+{
+  "name": "invoice-run",
+  "kind": "workflow",
+  "version": "1.0.0",
+  "author": "Developer-os",
+  "desc": "End-to-end invoice: create -> approve -> send -> track payment",
+  "tier": "community",
+  "created_at": "2026-08-08T18:27:25"
+}

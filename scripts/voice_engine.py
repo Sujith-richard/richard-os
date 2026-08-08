@@ -168,12 +168,21 @@ def command(text):
     except Exception:
         reply = "Done."
     if s.get("voice_reply", True):
+        said = False
         try:
             from voice_bridge import tts
-            tts(reply)
-            step("tts: " + reply)
+            tts(reply); said = True
+            step("tts(cloud): " + reply)
         except Exception:
-            step("tts: unavailable (skipped)")
+            pass
+        if not said:
+            try:
+                import subprocess
+                subprocess.run(["espeak-ng", reply], timeout=15,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                said = True; step("tts(local espeak-ng): " + reply)
+            except Exception:
+                step("tts: unavailable (no engine)")
     _save(ACTIVE_FILE, {"listening": False, "last": t[:40], "at": _now()})
     return {"ok": True, "intent": t[:60], "route": route, "reply": reply, "log": log, "detail": detail}
 

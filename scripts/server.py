@@ -189,7 +189,8 @@ def graph():
             pass
     agents = [("agent-job_hunter","job_hunter","second_brain"),("agent-content_ops","content_ops","creator"),
               ("agent-freelance_biz","freelance_biz","finance"),("agent-pm_assistant","pm_assistant","pm"),
-              ("agent-portfolio_builder","portfolio_builder","crm")]
+              ("agent-portfolio_builder","portfolio_builder","crm"),
+              ("agent-mobile","mobile-agent","personal")]
     for i,(aid, alabel, target) in enumerate(agents):
         nodes.append({"id": aid, "label": alabel, "type": "agent", "x": 560, "y": 380 + i*40})
         edges.append({"source": core, "target": aid, "strength": 2})
@@ -2076,3 +2077,19 @@ def _hub_export_index():
     _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
     from hub import export_index
     return export_index()
+
+
+# ===== v6.5.0 Mobile Assistant endpoints =====
+@app.get("/api/v1/mobile/state")
+def _mobile_state():
+    import sys as _mb, pathlib as _mp
+    _mb.path.insert(0, str(_mp.Path(__file__).resolve().parent))
+    from mobile_bridge import state
+    return state()
+
+@app.post("/api/v1/mobile/command")
+def _mobile_command(payload: dict):
+    import sys as _mb, pathlib as _mp
+    _mb.path.insert(0, str(_mp.Path(__file__).resolve().parent))
+    from mobile_agent import run
+    return run(payload.get("request", ""), payload.get("force_level", "L1"))

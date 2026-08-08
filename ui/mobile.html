@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richard Mobile Assistant</title>
+<style>
+  :root{
+    --bg:#0A101F; --panel:#121A2E; --panel2:#0E1626; --line:#1E2A44;
+    --portrait:#A78BFA; --portrait2:#7C3AED; --chrome:#22D3EE; --chrome2:#0891B2;
+    --accent:#10B981; --text:#D7E0F5; --muted:#8B9AC0; --warn:#FBBF24; --bad:#F87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  a{color:var(--chrome);text-decoration:none}
+  .top{display:flex;align-items:center;gap:14px;padding:18px 26px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#0E1626,#121A2E)}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--portrait),var(--chrome));display:grid;place-items:center;font-weight:800;color:#0A101F;font-size:18px}
+  h1{font-size:20px;font-weight:700}
+  .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .tags{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .stat{padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:12px}
+  .stat b{color:var(--chrome);font-size:16px}
+  .wrap{padding:22px 26px;max-width:1180px;margin:0 auto}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  input,select,button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font-size:13px}
+  input:focus,select:focus{outline:none;border-color:var(--chrome)}
+  button{cursor:pointer;background:linear-gradient(135deg,var(--portrait2),var(--chrome2));color:#fff;font-weight:600;border:none}
+  button:hover{filter:brightness(1.12)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  button.danger{background:linear-gradient(135deg,#7f1d1d,#991b1b)}
+  .search{flex:1;min-width:220px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;transition:.15s}
+  .card:hover{border-color:var(--portrait);transform:translateY(-2px)}
+  .card h3{font-size:15px;display:flex;align-items:center;gap:8px}
+  .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .badge.kind{background:rgba(34,211,238,.12);color:var(--chrome)}
+  .badge.status.installed,.badge.status.published{background:rgba(16,185,129,.14);color:var(--accent)}
+  .badge.status.available{background:rgba(251,191,36,.12);color:var(--warn)}
+  .badge.status.removed{background:rgba(248,113,113,.12);color:var(--bad)}
+  .desc{color:var(--muted);font-size:12px;min-height:32px;flex:1}
+  .meta{display:flex;gap:10px;font-size:11px;color:var(--muted)}
+  .meta b{color:var(--chrome)}
+  .card .row{display:flex;gap:8px;margin-top:4px}
+  .card button{flex:1;font-size:12px;padding:7px}
+  .col-exp{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;max-width:520px}
+  summary{cursor:pointer;font-weight:600;color:var(--chrome);font-size:13px}
+  .form{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .form .row{display:flex;gap:8px;flex-wrap:wrap}
+  .foot{color:var(--muted);font-size:11px;padding:16px 26px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .toast{position:fixed;right:16px;bottom:16px;background:var(--panel);border:1px solid var(--chrome);color:var(--text);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none}
+  .toast.show{opacity:1}
+  .empty{color:var(--muted);padding:40px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="logo">H</div>
+    <div><h1>Richard Mobile</h1><div class="sub">marketplace · publish / pull packages</div></div>
+    <div class="tags">
+      <div class="stat"><b id="st-count">–</b><br>packages</div>
+      <div class="stat"><b id="st-down">–</b><br>downloads</div>
+      <div class="stat"><b id="st-kinds">–</b><br>kinds</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+  <div class="card"><h2>📱 Device</h2><div id="dev"></div><div id="apps"></div></div>
+  <div class="card"><h2>⌨ Command</h2><input id="req" placeholder="e.g. play the specific video on YouTube"><button onclick="go()">Run</button><div id="result"></div></div>
+</div>
+<script src="/ui/shell.js"></script>
+
+<script>
+const $=id=>document.getElementById(id);
+async function j(u,o){const r=await fetch(u,o);return r.json()}
+async function loadState(){try{const s=await j('/api/v1/mobile/state');
+  const d=$('dev'); const rows=[['Device',s.device],['Battery',s.battery+'%'],['Network',s.network],['Screen',s.screen?'on':'off'],['Locked',s.locked?'yes':'no'],['Foreground',s.foreground],['Notifications',(s.notifications||[]).length]];
+  d.innerHTML=rows.map(r=>`<div class="devrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+  const apps=$('apps'); apps.innerHTML=(s.apps||[]).map(a=>`<span class="chip">${a}</span>`).join('');
+ }catch(e){}}
+async function go(){const req=$('cmd').value.trim();if(!req)return;const r=await j('/api/v1/mobile/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request:req,force_level:'L2'})});
+  const out=$('result');
+  if(r.need_unlock){out.innerHTML='<b style="color:var(--warn)">🔒 Please unlock the phone, then retry.</b>';return}
+  if(!r.ok){out.innerHTML='<b style="color:var(--bad)">'+ (r.error||'failed') +'</b>';return}
+  out.innerHTML='<pre style="margin-top:6px">'+ (r.log||[]).join('\n') +'</pre>';
+  loadState();}
+loadState();
+</script>
+
+</body>
+</html>

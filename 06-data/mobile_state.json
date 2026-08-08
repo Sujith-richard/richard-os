@@ -1,0 +1,23 @@
+{
+  "device": "Pixel 8 (fake)",
+  "locked": false,
+  "screen": true,
+  "battery": 54,
+  "network": "wifi",
+  "foreground": "YouTube",
+  "notifications": [],
+  "apps": [
+    "YouTube",
+    "WhatsApp",
+    "Gmail",
+    "Chrome",
+    "Maps",
+    "Spotify"
+  ],
+  "updated_at": "2026-08-08 15:25:11",
+  "last_text": "specific video",
+  "last_tap": [
+    300,
+    600
+  ]
+}

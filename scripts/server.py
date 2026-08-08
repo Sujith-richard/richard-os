@@ -2156,3 +2156,20 @@ def _voice_command(payload: dict):
     _ve.path.insert(0, str(_vp.Path(__file__).resolve().parent))
     from voice_engine import command
     return command(payload.get("text", ""))
+
+
+# ===== v6.8.0 Hub health (pings remote raw index) =====
+@app.get("/api/v1/hub/health")
+def _hub_health():
+    import json as _hj, pathlib as _hp2, httpx as _hx
+    try:
+        cfg = _hj.loads((__import__("pathlib").Path(__file__).resolve().parent.parent / "06-data" / "hub_remote.json").read_text())
+        url = cfg.get("url", "")
+        if not url:
+            return {"ok": True, "reachable": False, "detail": "no remote configured"}
+        r = _hx.get(url, timeout=6)
+        d = r.json() if r.status_code == 200 else {}
+        return {"ok": True, "reachable": r.status_code == 200,
+                "status": r.status_code, "count": d.get("count"), "detail": url}
+    except Exception as e:
+        return {"ok": True, "reachable": False, "detail": str(e)[:120]}

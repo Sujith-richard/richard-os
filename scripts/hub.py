@@ -79,7 +79,7 @@ def index(include_remote=True):
     for p in pkgs:
         p.setdefault("kind", "package"); p.setdefault("version", "1.0.0")
         p.setdefault("desc", ""); p.setdefault("author", "Developer-os")
-        p.setdefault("tier", "community"); p.setdefault("repo", "")
+        p.setdefault("tier", "community"); p.setdefault("repo", ""); p.setdefault("featured", False)
         p.setdefault("status", "available")
     if include_remote:
         r = _remote_index()
@@ -114,7 +114,7 @@ def search(q=""):
         pkgs = [p for p in pkgs if ql in (p.get("name", "") + " " + p.get("kind", "") + " " + p.get("desc", "")).lower()]
     return {"ok": True, "query": q, "count": len(pkgs), "packages": pkgs}
 
-def publish(name, kind="package", version="1.0.0", desc="", author="Developer-os", tier="community", repo=None):
+def publish(name, kind="package", version="1.0.0", desc="", author="Developer-os", tier="community", repo="", featured=False):
     init_db(); MANIFEST_DIR.mkdir(exist_ok=True)
     manifest = {"name": name, "kind": kind, "version": version, "desc": desc,
                 "author": author, "tier": tier, "repo": repo or "", "published_at": _now()}

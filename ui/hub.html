@@ -70,6 +70,7 @@
       <input id="q" class="search" placeholder="search packages (e.g. memory, skill, workflow)…">
       <button onclick="doSearch()">Search</button>
       <button class="ghost" onclick="loadHub()">Refresh</button>
+      <span id="hub-health" style="font-size:11px;color:var(--muted)">·</span>
       <button class="ghost" onclick="doExport()">Sync remote index</button>
     </div>
 
@@ -142,10 +143,19 @@ async function doPublish(){
   toast(d.ok?('published '+name):('error: '+(d.error||'?')));loadHub()
 }
 loadHub();
+
+async function hubHealth(){try{const h=await j('/api/v1/hub/health');const e=$(id('hub-health'));if(e)e.textContent=h.reachable?'✓ marketplace live':('· '+ (h.detail||'offline')); }catch(e){}}
+window.addEventListener('load',function(){ hubHealth(); setInterval(hubHealth,10000); });
 </script>
 
-<script src="/ui/avatar-widget.js"></script>
+<script src="/ui/avatar-widget.js">
+async function hubHealth(){try{const h=await j('/api/v1/hub/health');const e=$(id('hub-health'));if(e)e.textContent=h.reachable?'✓ marketplace live':('· '+ (h.detail||'offline')); }catch(e){}}
+window.addEventListener('load',function(){ hubHealth(); setInterval(hubHealth,10000); });
+</script>
 
-<script src="/ui/shell.js"></script>
+<script src="/ui/shell.js">
+async function hubHealth(){try{const h=await j('/api/v1/hub/health');const e=$(id('hub-health'));if(e)e.textContent=h.reachable?'✓ marketplace live':('· '+ (h.detail||'offline')); }catch(e){}}
+window.addEventListener('load',function(){ hubHealth(); setInterval(hubHealth,10000); });
+</script>
 </body>
 </html>

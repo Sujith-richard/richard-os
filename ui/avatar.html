@@ -30,6 +30,8 @@
 <button class="back" onclick="goBack()">← Back</button>
 <canvas id="cv"></canvas>
 <div class="hud"><h1>⚛ Richard · 3D Neural Core</h1><div class="sub">drag rotate · scroll zoom · dblclick reset · hover for name</div></div>
+<button id="lbl-toggle" style="position:absolute;top:64px;left:22px;z-index:8;background:rgba(18,26,46,.85);border:1px solid var(--chrome);color:var(--chrome);border-radius:14px;padding:5px 12px;font:11px 'Segoe UI',sans-serif;cursor:pointer">Labels: off</button>
+<div id="detail" style="position:absolute;bottom:52px;right:22px;z-index:8;background:rgba(10,16,31,.92);border:1px solid var(--chrome);border-radius:10px;padding:10px 14px;font:12px 'Segoe UI',sans-serif;color:var(--text);display:none;max-width:260px"></div>
 <div class="pill"><span class="dot" id="dot"></span><span id="mood">idle</span></div>
 <div class="zpill" id="zpill">100%</div>
 <div class="statline">nodes <b id="st-n">–</b> · links <b id="st-l">–</b></div>
@@ -43,9 +45,23 @@ const tip=document.getElementById('tip');
 let W=innerWidth,H=innerHeight;
 let rotY=0.6, rotX=0.35, zoom=1;
 let dragging=false, lastX=0, lastY=0, interacted=false;
-let mood='idle', nodes=[], links=[], dot3=[], lastProj=[], hoverIdx=-1;
+let showLabels=false, selected=-1;
+function toggleLabels(){
+  labelsOn=!labelsOn;
+  document.getElementById('lbl-toggle').textContent='Labels: '+(labelsOn?'on':'off');
+}
+function showDetail(i){
+  const n=nodes[i]; if(!n) return;
+  const d=document.getElementById('detail');
+  const deg = degreeOf(i);
+  d.style.display='block';
+  d.innerHTML='<b>'+String(n.label||n.id||'')+'</b><br><span style="color:var(--muted)">type: '+(n.type||'?')+'</span><br><span style="color:var(--muted)">id: <code>'+(n.id||'?')+'</code></span><br><span style="color:var(--muted)">links: '+deg+'</span>';
+}
 const MOODS={idle:'#A78BFA', thinking:'#22D3EE', executing:'#10B981', error:'#F87171'};
 function baseR(){ return Math.min(W,H)*0.34; }
+function degreeOf(i){
+  let n=0; for(const l of links){ if(l[0]===i||l[1]===i) n++; } return n;
+}
 function iconFor(type){
   const s=String(type||'').toLowerCase();
   if(/dept|department|org/.test(s)) return '🏛️';
@@ -106,6 +122,13 @@ function showZoom(){
   clearTimeout(showZoom._t);
   showZoom._t=setTimeout(function(){ zp.classList.remove('show'); },900);
 }
+function setDetail(i){
+  const n=nodes[i]; if(!n) return;
+  const d=document.getElementById('detail');
+  let deg=0; for(const l of links){ if(l[0]===i||l[1]===i) deg++; }
+  d.style.display='block';
+  d.innerHTML='<b>'+String(n.label||n.id||'')+'</b><br><span style="color:var(--muted)">type: '+(n.type||'?')+'</span><br><span style="color:var(--muted)">id: <code>'+(n.id||'?')+'</code></span><br><span style="color:var(--muted)">links: '+deg+'</span>';
+}
 function frame(){
   requestAnimationFrame(frame);
   ctx.fillStyle='rgba(10,16,31,0.25)'; ctx.fillRect(0,0,W,H);
@@ -160,6 +183,11 @@ function frame(){
       ctx.globalAlpha=.95; ctx.strokeStyle='#22D3EE'; ctx.lineWidth=2.6;
       ctx.beginPath(); ctx.arc(p.x,p.y,sz*1.5,0,Math.PI*2); ctx.stroke();
     }
+    }
+    if(labelsOn){
+      ctx.globalAlpha=Math.min(0.9,depth+0.2); ctx.fillStyle='#D7E0F5';
+      ctx.font='10px "Segoe UI",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(String(n.label||n.id||'').slice(0,24), p.x, p.y+sz+10);
     } else if(zoom>1.5 && depth>0.4){
       ctx.globalAlpha=Math.min(0.9,depth); ctx.fillStyle='#D7E0F5';
       ctx.font='10px "Segoe UI",sans-serif';
@@ -224,6 +252,22 @@ cv.addEventListener('pointermove',function(e){
     if(best>thr) hoverIdx=-1; }
 });
 cv.addEventListener('pointerup',function(){ dragging=false; cv.classList.remove('drag'); });
+cv.addEventListener('click',function(e){
+  if(dragging) return;
+  // pick nearest node
+  let best=1e9, bi=-1;
+  const thr=Math.max(18, 26*zoom);
+  for(let i=0;i<lastProj.length;i++){
+    const p=lastProj[i]; const d=Math.hypot(p.x-e.clientX, p.y-e.clientY);
+    if(d<best){ best=d; bi=i; }
+  }
+  if(best<=thr){ selected=bi; setDetail(bi); }
+  else { selected=-1; document.getElementById('detail').style.display='none'; }
+});
+document.getElementById('lbl-toggle').addEventListener('click', function(){
+  labelsOn=!labelsOn; this.textContent='Labels: '+(labelsOn?'on':'off');
+});
+
 cv.addEventListener('pointercancel',function(){ dragging=false; cv.classList.remove('drag'); });
 cv.addEventListener('dblclick',function(){ zoom=1; rotY=0.6; rotX=0.35; placeNodes(); showZoom(); });
 cv.addEventListener('wheel',function(e){ e.preventDefault(); zoom=Math.max(0.35, Math.min(3, zoom*(e.deltaY<0?1.1:0.9))); showZoom(); }, {passive:false});

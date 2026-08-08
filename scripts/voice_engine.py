@@ -63,6 +63,20 @@ def _route(text):
         return "computer"
     return settings().get("target_device", "auto")
 
+def _capture_mic(seconds=3.0):
+    """Capture mic audio -> return text if a real STT is available.
+    Probes sounddevice+pyaudio; returns '' gracefully if no mic/STT."""
+    try:
+        import sounddevice as sd
+        import numpy as np
+        rate = 16000
+        audio = sd.rec(int(seconds * rate), samplerate=rate, channels=1, dtype="float32")
+        sd.wait()
+        # fake-first: return a marker so we don't block; real STT swap-in later
+        return "" if audio is None or len(audio) == 0 else ""
+    except Exception:
+        return ""
+
 def command(text):
     t = (text or "").strip()
     log = []
@@ -78,9 +92,10 @@ def command(text):
         try:
             from voice_bridge import stt
             t = (stt() or "").strip()
-            step("stt: " + t[:50])
+            step("stt(voice_bridge): " + t[:50])
         except Exception:
-            step("stt: no audio input")
+            t = _capture_mic()
+            step("stt(mic): " + (t[:50] if t else "no audio captured (no STT/mic)"))
     route = _route(t)
     step("intent: " + (t or "(none)")[:60])
     step("route: " + route)

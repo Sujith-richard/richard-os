@@ -1931,3 +1931,46 @@ async def api_kernel_processes():
 @app.get("/api/v1/kernel/storage")
 async def api_kernel_storage():
     return _km_store()
+
+
+# ===== v5.8 Pool #3: OmniRoute gateway endpoints =====
+@app.get("/api/v1/omni-route/health")
+def _omni_health():
+    import sys as _sr, pathlib as _sp
+    _sr.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from omni_route import health
+    return health()
+
+@app.get("/api/v1/omni-route/models")
+def _omni_models():
+    import sys as _sr, pathlib as _sp
+    _sr.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from omni_route import discover_models
+    return discover_models()
+
+@app.post("/api/v1/omni-route/config")
+def _omni_config(payload: dict):
+    import sys as _sr, pathlib as _sp
+    _sr.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from omni_route import _save_cfg
+    return _save_cfg({k: v for k, v in payload.items() if k in ("base_url", "api_key", "timeout")})
+
+@app.post("/api/v1/omni-route/escalate")
+def _omni_escalate(payload: dict):
+    import sys as _sr, pathlib as _sp
+    _sr.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from capability_gap import detect
+    from learn_from_cloud import learn
+    req = payload.get("request", "")
+    out = payload.get("output", "")
+    d = detect(req, out)
+    cand = d.get("omni_candidate") or d.get("specialist")
+    if d.get("omni_candidate") and str(d["omni_candidate"]).startswith("omni://"):
+        from omni_route import chat
+        r = chat(str(d["omni_candidate"]).split("://", 1)[1], [{"role": "user", "content": req}])
+        if r.get("ok"):
+            lr = learn(req, r.get("response", ""), gap=d["primary"], specialist=cand, source=d["omni_candidate"])
+        else:
+            lr = learn(req, "[escalated to " + str(cand) + "] " + str(r.get("response", "")), gap=d["primary"], specialist=cand)
+        return {"escalated": True, "gateway": "omni-route", "model": d["omni_candidate"], "detect": d, "learn": lr}
+    return {"escalated": False, "gateway": cand, "detect": d, "note": "omni-route unreachable or not needed; use direct pool"}

@@ -19,6 +19,12 @@
   .sub{color:var(--muted);font-size:12px;margin-top:2px}
   .tags{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
   .stat{padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:12px}
+  .bars{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:8px}
+  .bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+  .bar span{width:80px}
+  .bar .track{flex:1;height:8px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .bar .track i{display:block;height:100%;background:linear-gradient(90deg,var(--portrait),var(--chrome));border-radius:6px}
+  .bar b{width:22px;text-align:right;color:var(--chrome)}
   .stat b{color:var(--chrome);font-size:16px}
   .wrap{padding:22px 26px;max-width:1180px;margin:0 auto}
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
@@ -63,6 +69,8 @@
       <div class="stat"><b id="st-count">–</b><br>packages</div>
       <div class="stat"><b id="st-down">–</b><br>downloads</div>
       <div class="stat"><b id="st-kinds">–</b><br>kinds</div>
+      <div class="stat"><b id="st-down">–</b><br>downloads</div>
+      <div id="kindbars"></div>
     </div>
   </div>
 
@@ -101,78 +109,54 @@
 
 <script>
 const $=id=>document.getElementById(id);
-const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600)};
-const esc=s=>(s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function j(u,o){const r=await fetch(u,o);return r.json()}
-
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(m){const e=$('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600);}
+async function j(u,o){const r=await fetch(u,o);return r.json();}
 async function loadStats(){
   try{const s=await j('/api/v1/hub/stats');
     $('st-count').textContent=s.in_registry||0;
-    $('st-down').textContent=s.downloads||0;
     $('st-kinds').textContent=Object.keys(s.kinds||{}).length||0;
+    $('st-down').textContent=s.downloads||0;
+    const kb=$('kindbars'); if(kb){
+      const kinds=s.kinds||{}; const vals=Object.values(kinds); const max=Math.max(1,...vals);
+      kb.innerHTML='<div class="bars">'+Object.entries(kinds).map(function(kv){
+        const v=kv[1], w=Math.round((v/max)*100);
+        return '<div class="bar"><span>'+kv[0]+'</span><div class="track"><i style="width:'+w+'%"></i></div><b>'+v+'</b></div>';
+      }).join('')+'</div>';
+    }
   }catch(e){}
 }
-
 async function render(pkgs){
   const g=$('grid');
-  if(!pkgs||!pkgs.length){g.innerHTML='<div class="empty">No packages found in the Hub yet.</div>';return}
-  pkgs = [...pkgs].sort((a,b)=>((b.featured?1:0)-(a.featured?1:0)));
+  if(!pkgs||!pkgs.length){g.innerHTML='<div class="empty">No packages found.</div>';return;}
+  pkgs=[...pkgs].sort((a,b)=>(b.featured?1:0)-(a.featured?1:0));
   g.innerHTML=pkgs.map(p=>{
-    const name=esc(p.name),kind=esc(p.kind||'package'),ver=esc(p.version||'1.0.0'),desc=esc(p.desc||''),status=esc(p.status||'available');
-    const dl=p.downloads||0, src=esc(p.source||'local'), auth=esc(p.author||'Developer-os');
-    const btn= (status==='installed')
-      ? `<button class="ghost" disabled>✓ installed</button>`
-      : `<button onclick="doPull('${esc(p.name)}')">Install</button>`;
-    return `<div class="card">
-      <h3><span class="badge kind">${kind}</span> ${name}${p.featured?' <span class="badge official">★ OFFICIAL</span>':''}</h3>
-      <div class="desc">${desc||'—'}</div>
-      <div class="meta"><span>v${ver}</span><span>${auth}</span><span>${src}</span><span>⬇ ${dl}</span></div>
-      <div class="card meta"><span class="badge status ${status}">${status}</span><button style="flex:1" onclick="doPull('${esc(p.name)}')">${status==='installed'?'✓ installed':'Install'}</button></div>
-      <div class="meta" style="margin-top:6px"><span>${btn}</span></div>
-    </div>`;
+    const st=p.status||'available';
+    const on = st==='installed' ? '<button class="ghost" disabled>Installed</button>'
+           : '<button onclick="doPull(\''+esc(p.name)+'\')">Install</button>';
+    return '<div class="card"><h3><span class="badge kind">'+esc(p.kind)+'</span> '+esc(p.name)+'</h3>'
+      + '<div class="desc">'+esc(p.desc||'')+'</div>'
+      + '<div class="meta"><span>v'+esc(p.version)+'</span><span>'+esc(p.author||'')+'</span><span>'+ (p.featured?'★ featured':'') +'</span></div>'
+      + '<div>'+on+'</div></div>';
   }).join('');
 }
-
 async function loadHub(){
-  try{const d=await j('/api/v1/hub/index');render(d.packages);loadRubin()}
-  catch(e){$('grid').innerHTML='<div class="empty">Hub API unreachable — is the server running on :8000?</div>'}
+  try{const d=await j('/api/v1/hub/index'); render(d.packages||[]);}
+  catch(e){$('grid').innerHTML='<div class="empty">Hub API unreachable.</div>';}
 }
 async function doSearch(){
   try{
-    const d=await j('/api/v1/hub/search?q='+encodeURIComponent($('q').value));
+    const d=await j('/api/v1/hub/search?q='+encodeURIComponent($('q')?$('q').value:''));
     let pkgs=d.packages||[];
-    const kf=$('kindf').value;
+    const kf=$('kindf')?$('kindf').value:'';
     if(kf) pkgs=pkgs.filter(p=>p.kind===kf);
-    // featured banner row (top)
-    const feat=pkgs.filter(p=>p.featured);
-    const b=$('feat-banner');
-    if(b && feat.length) b.innerHTML='<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px">★ <b>Official featured</b>: '+feat.map(p=>p.name).join(', ')+'</div>';
-    else if(b) b.innerHTML='';
     render(pkgs);
-  }catch(e){toast('search failed')}
+  }catch(e){}
 }
-async function doExport(){try{const d=await j('/api/v1/hub/export-index',{method:'POST'});toast(d.ok?('exported '+(d.count||0)+' packages — push to GitHub to publish'):'export failed')}catch(e){toast('export failed')}}
-async function doSearch(n){try{const d=await j('/api/v1/hub/pull',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});toast(d.ok?('installed '+n):('error: '+(d.error||'?')));loadHub()}catch(e){toast('install failed')}}
-async function doPublish(){
-  const name=$('p-name').value.trim();if(!name){toast('name required');return}
-  const d=await j('/api/v1/hub/publish',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name,kind:$('p-kind').value||'package',version:$('p-ver').value||'1.0.0',description:$('p-desc').value})});
-  toast(d.ok?('published '+name):('error: '+(d.error||'?')));loadHub()
-}
+async function doPull(n){const d=await j('/api/v1/hub/pull',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});toast(d.ok?('installed '+n):'error');loadHub();}
+async function hubHealth(){try{const h=await j('/api/v1/hub/health');const e=$('hub-health');if(e)e.textContent=h.reachable?'marketplace live':'offline';}catch(e){}}
 loadHub();
-
-async function hubHealth(){try{const h=await j('/api/v1/hub/health');const e=$(id('hub-health'));if(e)e.textContent=h.reachable?'✓ marketplace live':('· '+ (h.detail||'offline')); }catch(e){}}
-window.addEventListener('load',function(){ hubHealth(); setInterval(hubHealth,10000); });
-</script>
-
-<script src="/ui/avatar-widget.js">
-async function hubHealth(){try{const h=await j('/api/v1/hub/health');const e=$(id('hub-health'));if(e)e.textContent=h.reachable?'✓ marketplace live':('· '+ (h.detail||'offline')); }catch(e){}}
-window.addEventListener('load',function(){ hubHealth(); setInterval(hubHealth,10000); });
-</script>
-
-<script src="/ui/shell.js">
-async function hubHealth(){try{const h=await j('/api/v1/hub/health');const e=$(id('hub-health'));if(e)e.textContent=h.reachable?'✓ marketplace live':('· '+ (h.detail||'offline')); }catch(e){}}
-window.addEventListener('load',function(){ hubHealth(); setInterval(hubHealth,10000); });
+hubHealth(); setInterval(hubHealth,10000);
 </script>
 </body>
 </html>

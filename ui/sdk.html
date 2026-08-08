@@ -60,4 +60,6 @@ async function validate(){const r=await j('/api/v1/sdk/validate',{method:'POST',
 async function pack(){const r=await j('/api/v1/sdk/pack',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:$('a-kind').value,name:$('a-name').value})});out(r);toast(r.ok?'packed ✓':'error')}
 async function pub(){const r=await j('/api/v1/sdk/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:$('a-kind').value,name:$('a-name').value})});out(r);toast(r.ok?'published → hub ✓':'error');load()}
 load();
-</script></body></html>
+</script>
+<script src="/ui/avatar-widget.js"></script>
+</body></html>

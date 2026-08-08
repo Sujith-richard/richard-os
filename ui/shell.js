@@ -217,3 +217,13 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();
+
+// v6.3: floating AI avatar widget on every studio page
+(function(){
+  if (window.__richWidgetInjected) return;
+  window.__richWidgetInjected = true;
+  var w = document.createElement('script');
+  w.src = '/ui/avatar-widget.js';
+  (document.body || document.documentElement).appendChild(w);
+})();
+

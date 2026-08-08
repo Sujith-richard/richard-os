@@ -64,17 +64,31 @@ def _route(text):
     return settings().get("target_device", "auto")
 
 def _capture_mic(seconds=3.0):
-    """Capture mic audio -> return text if a real STT is available.
-    Probes sounddevice+pyaudio; returns '' gracefully if no mic/STT."""
+    """Record mic -> transcribe with whisper (local). Auto-picks a working input device."""
     try:
-        import sounddevice as sd
-        import numpy as np
+        import numpy as np, sounddevice as sd
+        import whisper
+        model = whisper.load_model("tiny")
         rate = 16000
-        audio = sd.rec(int(seconds * rate), samplerate=rate, channels=1, dtype="float32")
+        # choose an input-capable device: prefer known-good names
+        idx = None
+        try:
+            for i, d in enumerate(sd.query_devices()):
+                if d["max_input_channels"] > 0 and ("pipewire" in d["name"].lower() or "default" in d["name"].lower()):
+                    idx = i; break
+            if idx is None:
+                for i, d in enumerate(sd.query_devices()):
+                    if d["max_input_channels"] > 0:
+                        idx = i; break
+        except Exception:
+            idx = None
+        audio = sd.rec(int(seconds * rate), samplerate=rate, channels=1, dtype="float32", device=idx)
         sd.wait()
-        # fake-first: return a marker so we don't block; real STT swap-in later
-        return "" if audio is None or len(audio) == 0 else ""
-    except Exception:
+        if audio is None or len(audio) == 0:
+            return ""
+        text = model.transcribe(audio.flatten(), fp16=False)["text"].strip()
+        return text
+    except Exception as e:
         return ""
 
 def command(text):

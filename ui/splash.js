@@ -1,6 +1,8 @@
 /* Richard OS — splash overlay: black bg + logo, then fade to dashboard */
 (function () {
   function show() {
+    try { if (localStorage.getItem('rich_splash_seen')) return; localStorage.setItem('rich_splash_seen','1'); } catch(e){}
+
     var s = document.createElement('div');
     s.id = 'rich-splash';
     s.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#22D3EE;font:12px "Segoe UI",sans-serif;transition:opacity .5s';

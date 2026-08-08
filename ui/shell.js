@@ -74,7 +74,7 @@
     const sidebar = document.createElement("aside");
     sidebar.className = "os-sidebar";
     sidebar.innerHTML =
-      '<div class="os-brand"><span class="dot"></span><b>Richard OS</b></div>' +
+      '<div class="os-brand"><img src="/ui/assets/logo.png" style="width:26px;height:26px;border-radius:7px" alt=""><b>Richard OS</b></div>' +
       '<nav class="os-nav">' + NAV.map(g =>
         '<div class="group">' + g.group + '</div>' +
         g.items.map(i => '<a href="' + i.href + '" class="' + (i.href === location.pathname ? "active" : "") + '"><span class="ic">' + i.ic + '</span>' + i.label + '</a>').join("")

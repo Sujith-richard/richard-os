@@ -69,6 +69,7 @@
   <div class="wrap">
     <div class="toolbar">
       <input id="q" class="search" placeholder="search packages (e.g. memory, skill, workflow)…">
+      <select id="kindf" onchange="doSearch()"><option value="">all kinds</option><option>department</option><option>skill</option><option>workflow</option><option>plugin</option><option>sdk</option><option>prompt</option></select>
       <button onclick="doSearch()">Search</button>
       <button class="ghost" onclick="loadHub()">Refresh</button>
       <span id="hub-health" style="font-size:11px;color:var(--muted)">·</span>
@@ -86,6 +87,7 @@
       </details>
     </div>
 
+    <div id="feat-banner"></div>
     <div id="grid" class="grid" style="margin-top:18px">
       <div class="empty">Loading Hub index…</div>
     </div>
@@ -135,7 +137,20 @@ async function loadHub(){
   try{const d=await j('/api/v1/hub/index');render(d.packages);loadRubin()}
   catch(e){$('grid').innerHTML='<div class="empty">Hub API unreachable — is the server running on :8000?</div>'}
 }
-async function doSearch(){try{const d=await j('/api/v1/hub/search?q='+encodeURIComponent($('q').value));render(d.packages)}catch(e){toast('search failed')}}
+async function doSearch(){
+  try{
+    const d=await j('/api/v1/hub/search?q='+encodeURIComponent($('q').value));
+    let pkgs=d.packages||[];
+    const kf=$('kindf').value;
+    if(kf) pkgs=pkgs.filter(p=>p.kind===kf);
+    // featured banner row (top)
+    const feat=pkgs.filter(p=>p.featured);
+    const b=$('feat-banner');
+    if(b && feat.length) b.innerHTML='<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:12px">★ <b>Official featured</b>: '+feat.map(p=>p.name).join(', ')+'</div>';
+    else if(b) b.innerHTML='';
+    render(pkgs);
+  }catch(e){toast('search failed')}
+}
 async function doExport(){try{const d=await j('/api/v1/hub/export-index',{method:'POST'});toast(d.ok?('exported '+(d.count||0)+' packages — push to GitHub to publish'):'export failed')}catch(e){toast('export failed')}}
 async function doSearch(n){try{const d=await j('/api/v1/hub/pull',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});toast(d.ok?('installed '+n):('error: '+(d.error||'?')));loadHub()}catch(e){toast('install failed')}}
 async function doPublish(){

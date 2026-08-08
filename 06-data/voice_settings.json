@@ -1,0 +1,10 @@
+{
+  "active_mic": true,
+  "wake_word": "hey richard",
+  "mic_device": "builtin",
+  "sensitivity": 0.5,
+  "language": "en",
+  "voice_reply": true,
+  "privacy_mode": true,
+  "target_device": "auto"
+}

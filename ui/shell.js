@@ -85,7 +85,7 @@
     main.innerHTML =
       '<header class="os-topbar">' +
         '<div class="os-crumb">' + PAGE.crumb.map((c, i) => '<span>' + c + '</span>' + (i < PAGE.crumb.length - 1 ? '<span class="sep">/</span>' : "")).join("") + '</div>' +
-        '<div class="os-sync"><button class="os-menu-btn" id="os-menu-btn">☰</button><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span> <span id="notify-count" style="color:var(--ok)"></span><span id="notify-badge" style="display:none;background:var(--err);color:var(--bg);border-radius:8px;font-size:9px;padding:0 5px;font-weight:700"></span></button><button class="theme-btn">THEME</button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><span id="live-pill" class="live-pill">&#9899; DEMO</span><kbd>CMD K</kbd></div>' +
+        '<div class="os-sync"><button class="os-menu-btn" id="os-menu-btn">☰</button><button class="qa-btn">QUICK ADD</button><button class="notify-btn">NOTIFY <span class="dot"></span> <span id="notify-count" style="color:var(--ok)"></span><span id="notify-badge" style="display:none;background:var(--err);color:var(--bg);border-radius:8px;font-size:9px;padding:0 5px;font-weight:700"></span></button><button class="theme-btn">THEME</button><span class="ws-label">SUJITH</span><span class="led"></span><span id="sched-label">SCHEDULER ON</span><span id="live-pill" class="live-pill">&#9899; DEMO</span><span id="voice-pill" class="live-pill" style="display:none;color:var(--ok)">🎙 LISTENING</span><kbd>CMD K</kbd></div>' +
       '</header>' +
       '<div class="os-content" id="os-content"></div>';
 
@@ -229,3 +229,13 @@
   (document.body || document.documentElement).appendChild(w);
 })();
 
+(function(){
+  setInterval(function(){
+    fetch('/api/v1/voice/status').then(r=>r.json()).then(d=>{
+      var p=document.getElementById('voice-pill');
+      if(!p) return;
+      var on = d && d.listening;
+      p.style.display = on ? 'inline' : 'none';
+    }).catch(function(){});
+  }, 3000);
+})();

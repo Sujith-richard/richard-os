@@ -2127,3 +2127,32 @@ def _home_command(payload: dict):
     _hb.path.insert(0, str(_hp.Path(__file__).resolve().parent))
     from home_agent import run
     return run(payload.get("request", ""))
+
+# ===== v6.7.0 Active Voice Engine endpoints =====
+@app.get("/api/v1/voice/status")
+def _voice_status():
+    import sys as _ve, pathlib as _vp
+    _ve.path.insert(0, str(_vp.Path(__file__).resolve().parent))
+    from voice_engine import status
+    return status()
+
+@app.post("/api/v1/voice/settings")
+def _voice_settings(payload: dict):
+    import sys as _ve, pathlib as _vp
+    _ve.path.insert(0, str(_vp.Path(__file__).resolve().parent))
+    from voice_engine import set_settings
+    return set_settings(**{k: v for k, v in payload.items() if k in ("active_mic","wake_word","sensitivity","language","voice_reply","privacy_mode","target_device")})
+
+@app.post("/api/v1/voice/toggle")
+def _voice_toggle(payload: dict):
+    import sys as _ve, pathlib as _vp
+    _ve.path.insert(0, str(_vp.Path(__file__).resolve().parent))
+    from voice_engine import set
+    return set(payload.get("on"))
+
+@app.post("/api/v1/voice/command")
+def _voice_command(payload: dict):
+    import sys as _ve, pathlib as _vp
+    _ve.path.insert(0, str(_vp.Path(__file__).resolve().parent))
+    from voice_engine import command
+    return command(payload.get("text", ""))

@@ -2019,3 +2019,52 @@ def _hub_stats():
     _h.path.insert(0, str(_hp.Path(__file__).resolve().parent))
     from hub import stats
     return stats()
+
+
+
+
+
+# ===== v6.0.0 Richard SDK endpoints =====
+@app.get("/api/v1/sdk/list")
+def _sdk_list():
+    import sys as _sk, pathlib as _sp
+    _sk.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from sdk import STAGE, KINDS
+    out = []
+    for k in KINDS:
+        pth = STAGE / k
+        if pth.is_dir():
+            for d in sorted(pth.glob("*")):
+                out.append({"kind": k, "name": d.name})
+    return {"ok": True, "count": len(out), "packages": out}
+
+@app.post("/api/v1/sdk/scaffold")
+def _sdk_scaffold(payload: dict):
+    import sys as _sk, pathlib as _sp
+    _sk.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from sdk import scaffold
+    return scaffold(payload.get("kind", "skill"), payload.get("name", ""),
+                    payload.get("version", "1.0.0"),
+                    payload.get("desc", payload.get("description", "")),
+                    payload.get("author", ""))
+
+@app.post("/api/v1/sdk/validate")
+def _sdk_validate(payload: dict):
+    import sys as _sk, pathlib as _sp
+    _sk.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from sdk import validate
+    return validate(payload.get("kind", ""), payload.get("name", ""))
+
+@app.post("/api/v1/sdk/pack")
+def _sdk_pack(payload: dict):
+    import sys as _sk, pathlib as _sp
+    _sk.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from sdk import pack
+    return pack(payload.get("kind", ""), payload.get("name", ""))
+
+@app.post("/api/v1/sdk/publish")
+def _sdk_publish(payload: dict):
+    import sys as _sk, pathlib as _sp
+    _sk.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    from sdk import publish
+    return publish(payload.get("kind", ""), payload.get("name", ""), payload.get("desc", ""))

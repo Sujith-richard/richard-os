@@ -1,0 +1,9 @@
+{
+  "name": "api-built-plugin",
+  "kind": "plugin",
+  "version": "1.0.0",
+  "author": "Developer-os",
+  "desc": "made via API",
+  "tier": "community",
+  "created_at": "2026-08-08T12:31:50"
+}

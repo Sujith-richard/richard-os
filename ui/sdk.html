@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Richard SDK · Extension Authoring</title>
+<style>
+  :root{--bg:#0A101F;--panel:#121A2E;--panel2:#0E1626;--line:#1E2A44;--portrait:#A78BFA;--portrait2:#7C3AED;--chrome:#22D3EE;--chrome2:#0891B2;--accent:#10B981;--text:#D7E0F5;--muted:#8B9AC0;--warn:#FBBF24;--bad:#F87171}
+  *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  .top{display:flex;align-items:center;gap:14px;padding:18px 26px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#0E1626,#121A2E)}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--portrait),var(--chrome));display:grid;place-items:center;font-weight:800;color:#0A101F;font-size:18px}
+  h1{font-size:20px;font-weight:700}.sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .wrap{padding:22px 26px;max-width:1100px;margin:0 auto}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
+  .card h2{font-size:15px;color:var(--chrome);margin-bottom:12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+  input,select,button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font-size:13px}
+  input:focus,select:focus{outline:none;border-color:var(--chrome)}
+  button{cursor:pointer;background:linear-gradient(135deg,var(--portrait2),var(--chrome2));color:#fff;font-weight:600;border:none}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;background:rgba(34,211,238,.12);color:var(--chrome)}
+  pre{background:#0B1120;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12px;overflow:auto;color:var(--muted);max-height:280px}
+  table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600}
+  .ok{color:var(--accent)}.bad{color:var(--bad)}
+  .toast{position:fixed;right:16px;bottom:16px;background:var(--panel);border:1px solid var(--chrome);color:var(--text);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1}
+  .foot{color:var(--muted);font-size:11px;padding:16px 26px;border-top:1px solid var(--line)}
+</style></head><body>
+<div class="top"><div class="logo">SDK</div><div><h1>Richard SDK</h1><div class="sub">author extensions · validate · pack · publish to Hub</div></div></div>
+<div class="wrap">
+  <div class="card"><h2>＋ Scaffold a new package</h2>
+    <div class="row">
+      <input id="s-name" placeholder="package name (slug)">
+      <select id="s-kind"><option>skill</option><option>department</option><option>workflow</option><option>plugin</option><option>agent</option><option>structure</option></select>
+      <input id="s-ver" value="1.0.0" style="width:80px">
+      <input id="s-desc" placeholder="description" style="flex:1">
+      <button onclick="scaffold()">Scaffold</button>
+      <button class="ghost" onclick="load()">Refresh list</button>
+    </div>
+  </div>
+  <div class="card"><h2>Package actions</h2>
+    <div class="row">
+      <select id="a-kind"><option>skill</option><option>department</option><option>workflow</option><option>plugin</option><option>agent</option><option>structure</option></select>
+      <input id="a-name" placeholder="package name" style="flex:1">
+      <button onclick="validate()">Validate</button><button onclick="pack()">Pack</button><button onclick="pub()">Publish → Hub</button>
+    </div>
+  </div>
+  <div class="card"><h2>Local SDK packages</h2><div id="list"><table><thead><tr><th>kind</th><th>name</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card"><h2>Output</h2><pre id="out">ready.</pre></div>
+</div>
+<div class="foot">v6.0.0 · richard-sdk — scaffold → validate → pack → publish (Hub v5.9)</div>
+<div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const toast=m=>{const e=$('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600)};
+const out=o=>$('out').textContent=(typeof o==='string'?o:JSON.stringify(o,null,2));
+async function j(u,o){const r=await fetch(u,o);return r.json()}
+async function load(){try{const d=await j('/api/v1/sdk/list');$('list').innerHTML='<table><thead><tr><th>kind</th><th>name</th></tr></thead><tbody>'+d.packages.map(p=>`<tr><td>${p.kind}</td><td>${p.name}</td></tr>`).join('')+'</tbody></table>';toast('loaded '+d.count)}catch(e){toast('failed to load')}}
+async function scaffold(){const r=await j('/api/v1/sdk/scaffold',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:$('s-kind').value,name:$('s-name').value,version:$('s-ver').value||'1.0.0',description:$('s-desc').value})});out(r);toast(r.ok?'scaffolded '+r.name:'error');load()}
+async function validate(){const r=await j('/api/v1/sdk/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:$('a-kind').value,name:$('a-name').value})});out(r);toast(r.ok?'valid ✓':'error: '+(r.error||''))}
+async function pack(){const r=await j('/api/v1/sdk/pack',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:$('a-kind').value,name:$('a-name').value})});out(r);toast(r.ok?'packed ✓':'error')}
+async function pub(){const r=await j('/api/v1/sdk/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:$('a-kind').value,name:$('a-name').value})});out(r);toast(r.ok?'published → hub ✓':'error');load()}
+load();
+</script></body></html>

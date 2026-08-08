@@ -1,0 +1,10 @@
+{
+  "name": "my-hub-skill",
+  "kind": "skill",
+  "version": "1.0.0",
+  "desc": "A skill scaffolded by the SDK",
+  "author": "Developer-os",
+  "tier": "community",
+  "repo": "",
+  "published_at": "2026-08-08 12:29:32"
+}

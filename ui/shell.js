@@ -240,3 +240,6 @@
     }).catch(function(){});
   }, 3000);
 })();
+// v6.10 splash
+(function(){var sc=document.createElement('script');sc.src='/ui/splash.js';(document.body||document.documentElement).appendChild(sc);})();
+

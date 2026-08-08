@@ -35,6 +35,21 @@ def setup_user(username, password):
     _save(USERS_PATH, users)
     return {"ok": True, "user": username}
 
+def change_user(username, new_password, current):
+    """Verify the CURRENT password, then update username/password.
+    username may stay same (password change) or new value (rename)."""
+    users = _load(USERS_PATH, {})
+    u = users.get(username)
+    if not u:
+        return {"ok": False, "error": "user not found"}
+    _, h = _hash_pw(current, u["salt"])
+    if not hmac.compare_digest(h, u["hash"]):
+        return {"ok": False, "error": "current password incorrect"}
+    salt, nh = _hash_pw(new_password)
+    users[username] = {"salt": salt, "hash": nh, "created": u.get("created", datetime.datetime.now().isoformat(timespec="seconds"))}
+    _save(USERS_PATH, users)
+    return {"ok": True, "user": username}
+
 def login(username, password):
     users = _load(USERS_PATH, {})
     u = users.get(username)

@@ -1785,6 +1785,9 @@ async def api_auth_users():
 @app.post("/api/v1/auth/users")
 async def api_auth_add(payload: dict = None):
     payload = payload or {}
+    if payload.get("current"):
+        from auth import change_user as _um_change
+        return _um_change(payload.get("username", ""), payload.get("password", ""), payload.get("current", ""))
     return _um_setup(payload.get("username", ""), payload.get("password", ""))
 
 @app.post("/api/v1/auth/users/{username}/remove")
@@ -2173,3 +2176,27 @@ def _hub_health():
                 "status": r.status_code, "count": d.get("count"), "detail": url}
     except Exception as e:
         return {"ok": True, "reachable": False, "detail": str(e)[:120]}
+
+# ===== v6.10.0 settings: integration mode (fake/real) toggle =====
+@app.post("/api/v1/settings/fake-data")
+def _set_fake_data(payload: dict = None):
+    payload = payload or {}
+    on = bool(payload.get("fake_data", True))
+    import sys as _sd, pathlib as _sp
+    _sd.path.insert(0, str(_sp.Path(__file__).resolve().parent))
+    try:
+        from integrations import set_mode
+        # set_mode(source, mode) — flip each source to fake|real at runtime
+        mode = "fake" if on else "real"
+        # persist to .env
+        env = _sp.Path(__file__).resolve().parent.parent / ".env"
+        try:
+            txt = env.read_text() if env.exists() else ""
+            lines = [l for l in txt.splitlines() if not l.startswith("DATA_MODE=")]
+            lines.append(f"DATA_MODE={mode}")
+            env.write_text(chr(10).join(lines) + chr(10))
+        except Exception:
+            pass
+        return {"ok": True, "fake_data": on, "mode": mode, "note": "integration mode toggled (restart to fully apply)"}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:120]}

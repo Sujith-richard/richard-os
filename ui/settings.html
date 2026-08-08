@@ -40,6 +40,18 @@
       <div class="st-field"><label>Notifications</label><input id="st-notif" type="checkbox"/></div>
       <div class="st-field"><label>Morning brief</label><input id="st-brief" type="checkbox"/></div>
     </div>
+    <div class="st-card">
+      <h2>Integration mode</h2>
+      <div class="st-field"><label>Fake data</label><input id="st-fake" type="checkbox" checked/></div>
+      <p style="font-size:.75rem;color:var(--muted)">On = demo/sample data. Turn OFF once you connect real accounts (Gmail, DBs, devices).</p>
+    </div>
+    <div class="st-card">
+      <h2>Credentials</h2>
+      <div class="st-field"><label>Username</label><input id="st-user" placeholder="new username"/></div>
+      <div class="st-field"><label>Password</label><input id="st-pass" type="password" placeholder="new password"/></div>
+      <div class="st-field"><label>Current password</label><input id="st-cur" type="password" placeholder="required to change"/></div>
+      <button class="st-btn" style="background:transparent;border:1px solid var(--border);color:var(--fg)" onclick="creds()">Change credentials</button>
+    </div>
     <button class="st-btn" onclick="save()">Save settings</button>
     <button class="st-btn" style="background:transparent;border:1px solid var(--border);color:var(--fg)" onclick="reset()">Reset</button>
     <div class="st-saved" id="st-saved"></div>
@@ -55,6 +67,7 @@ async function load() {
   $("st-name").value = s.name || ""; $("st-city").value = s.city || ""; $("st-tz").value = s.timezone || "";
   $("st-dept").value = s.preferred_dept || "web"; $("st-model").value = s.default_model || "auto"; $("st-auto").value = s.autonomy_level || 2;
   $("st-theme").value = s.theme || "dark"; $("st-notif").checked = !!s.notifications; $("st-brief").checked = !!s.morning_brief;
+  if($("st-fake")) $("st-fake").checked = s.fake_data !== false;
 }
 async function save() {
   const body = {
@@ -65,6 +78,17 @@ async function save() {
   };
   await api("/api/v1/settings", { method:"POST", body: JSON.stringify(body) });
   $("st-saved").textContent = "✓ saved " + new Date().toLocaleTimeString();
+}
+async function fakeToggle(){
+  const on = $("st-fake").checked;
+  await api("/api/v1/settings/fake-data", { method:"POST", body: JSON.stringify({ fake_data: on }) });
+  $("st-saved").textContent = "integration mode: " + (on ? "fake" : "real") + " (restart to fully apply)";
+}
+async function creds(){
+  const user=$("st-user").value, pass=$("st-pass").value, cur=$("st-cur").value;
+  if(!user || !pass || !cur){ $("st-saved").textContent="fill all three"; return; }
+  const r = await api("/api/v1/auth/users", { method:"POST", body: JSON.stringify({ username: user, password: pass, current: cur }) });
+  $("st-saved").textContent = r && r.ok ? "✓ credentials updated" : (r && r.error ? "✗ " + r.error : "✗ failed");
 }
 async function reset() { await api("/api/v1/settings/reset", { method:"POST" }); load(); $("st-saved").textContent = "reset to defaults"; }
 load();

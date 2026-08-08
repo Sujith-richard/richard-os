@@ -9,6 +9,16 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from mobile_bridge import (state, open_app, tap, swipe, type_text, press_back,
                            press_home, take_screenshot, get_notifications)
 
+def _active_path(path):
+    try:
+        import json as _j
+        from pathlib import Path as _P
+        f = _P(__file__).resolve().parent.parent / "06-data" / "active_path.json"
+        f.write_text(_j.dumps({"path": path, "at": time.strftime("%Y-%m-%d %H:%M:%S")}))
+    except Exception:
+        pass
+
+
 PERMISSIONS = {
     "L0": ["get_device_state", "get_screen", "get_battery", "get_notifications"],
     "L1": ["open_app", "search", "scroll", "screenshot", "launch_url"],
@@ -52,6 +62,7 @@ def run(request, force_level="L1"):
                 "log": log, "state": st}
     step("device unlocked")
     if intent == "status":
+        _active_path(["core", "personal-assistant", "mobile-agent"])
         return {"ok": True, "result": st, "log": log, "intent": intent}
     app = "YouTube" if intent == "play" else (request.split("open")[-1].strip().title() or "YouTube")
     step("plan: open " + app + " -> search -> select -> verify")
@@ -64,5 +75,6 @@ def run(request, force_level="L1"):
         step("verify: found target video (title match) -> tap")
         tap(300, 600); step("act: tap video")
     step("verify: playback started")
+    _active_path(["core", "personal-assistant", "mobile-agent", "YouTube"])
     return {"ok": True, "result": {"foreground": state().get("foreground"), "playing": intent == "play"},
             "log": log, "intent": intent, "permission": lvl}

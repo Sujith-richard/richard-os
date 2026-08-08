@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Richard Mobile Assistant</title>
+<title>Richard Home Assistant</title>
 <style>
   :root{
     --bg:#0A101F; --panel:#121A2E; --panel2:#0E1626; --line:#1E2A44;
@@ -74,12 +74,12 @@
 <script>
 const $=id=>document.getElementById(id);
 async function j(u,o){const r=await fetch(u,o);return r.json()}
-async function loadState(){try{const s=await j('/api/v1/mobile/state');
-  const d=$('dev'); const rows=[['Device',s.device],['Battery',s.battery+'%'],['Network',s.network],['Screen',s.screen?'on':'off'],['Locked',s.locked?'yes':'no'],['Foreground',s.foreground],['Notifications',(s.notifications||[]).length]];
+async function loadState(){try{const s=await j('/api/v1/home/state');
+  const d=$('dev'); const rows=Object.entries(s.devices||{}).map(([k,v])=>[k, (v.on?'●':'○')+(v.temp?' '+v.temp+'°C':'')+(v.level?' '+v.level+'%':'')]);
   d.innerHTML=rows.map(r=>`<div class="devrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
   const apps=$('apps'); apps.innerHTML=(s.apps||[]).map(a=>`<span class="chip">${a}</span>`).join('');
  }catch(e){}}
-async function go(){const req=$('cmd').value.trim();if(!req)return;const r=await j('/api/v1/mobile/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request:req,force_level:'L2'})});
+async function go(){const req=$('cmd').value.trim();if(!req)return;const r=await j('/api/v1/home/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request:req,force_level:'L2'})});
   const out=$('result');
   if(r.need_unlock){out.innerHTML='<b style="color:var(--warn)">🔒 Please unlock the phone, then retry.</b>';return}
   if(!r.ok){out.innerHTML='<b style="color:var(--bad)">'+ (r.error||'failed') +'</b>';return}

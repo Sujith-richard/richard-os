@@ -2093,3 +2093,37 @@ def _mobile_command(payload: dict):
     _mb.path.insert(0, str(_mp.Path(__file__).resolve().parent))
     from mobile_agent import run
     return run(payload.get("request", ""), payload.get("force_level", "L1"))
+
+# ===== v6.6.0 active-path endpoint (avatar glow) =====
+import json as _apj, pathlib as _app, time as _apt
+_ACTIVE_PATH = _app.Path(__file__).resolve().parent.parent / "06-data" / "active_path.json"
+
+@app.post("/api/v1/active-path")
+def _set_active_path(payload: dict):
+    path = payload.get("path", [])
+    _ACTIVE_PATH.write_text(_apj.dumps({"path": path, "at": _apt.strftime("%Y-%m-%d %H:%M:%S")}))
+    return {"ok": True, "path": path}
+
+@app.get("/api/v1/active-path")
+def _get_active_path():
+    try:
+        d = _apj.loads(_ACTIVE_PATH.read_text())
+        return {"ok": True, "path": d.get("path", []), "at": d.get("at", "")}
+    except Exception:
+        return {"ok": True, "path": [], "at": ""}
+
+
+# ===== v6.6.0 Home Assistant endpoints =====
+@app.get("/api/v1/home/state")
+def _home_state():
+    import sys as _hb, pathlib as _hp
+    _hb.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from home_bridge import state
+    return state()
+
+@app.post("/api/v1/home/command")
+def _home_command(payload: dict):
+    import sys as _hb, pathlib as _hp
+    _hb.path.insert(0, str(_hp.Path(__file__).resolve().parent))
+    from home_agent import run
+    return run(payload.get("request", ""))

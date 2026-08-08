@@ -1,0 +1,30 @@
+{
+  "hub": "smart-home (fake)",
+  "devices": {
+    "lights": {
+      "on": true,
+      "level": 70
+    },
+    "ac": {
+      "on": false,
+      "temp": 24
+    },
+    "tv": {
+      "on": false,
+      "channel": 1
+    },
+    "camera": {
+      "on": true
+    },
+    "speaker": {
+      "on": false
+    },
+    "plug": {
+      "on": true
+    },
+    "light": {
+      "on": true
+    }
+  },
+  "updated_at": "2026-08-08 15:58:21"
+}

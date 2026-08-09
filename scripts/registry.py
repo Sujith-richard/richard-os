@@ -31,41 +31,30 @@ def _mcp():
         return [{"error": str(e)}]
 
 def _repos():
-    # prefer live-github from the integrations hub
-    live = ROOT / "06-data" / "live_github.json"
-    if live.exists():
-        try:
-            d = json.loads(live.read_text())
-            return [{"name": r} for r in d.get("repos", [])]
-        except Exception:
-            pass
-    # NEW v7.6: include repo_intel entries (Fooocus, Keycloak, etc.)
-    intel_dir = ROOT / "06-data" / "repo_intel"
-    intel_repos = []
-    if intel_dir.exists():
-        for f in sorted(intel_dir.glob("*.json")):
-            try:
-                d = json.loads(f.read_text())
-                name = d.get("name") or f.stem
-                intel_repos.append({"name": name, "status": "intel"})
-            except Exception:
-                pass
-    if intel_repos or not (live.exists() and json.loads(live.read_text()).get("repos")):
-        if intel_repos:
-            return intel_repos
-    if REPOS_JSON.exists():
-        try:
-            d = json.loads(REPOS_JSON.read_text())
-            out = []
-            for k, v in d.items():
-                if isinstance(v, list):
-                    out += [{"name": x.get("name", k), "status": x.get("status")} for x in v]
-                else:
-                    out.append({"name": k, "status": v.get("status") if isinstance(v, dict) else v})
-            return out
-        except Exception:
-            pass
-    return []
+    import json as _j
+    out, seen = [], set()
+    def add(n, st):
+        if n and n not in seen:
+            out.append({"name": n, "status": st}); seen.add(n)
+    try:
+        live = ROOT / "06-data" / "live_github.json"
+        if live.exists():
+            for r in _j.loads(live.read_text()).get("repos", []):
+                add(r, "live")
+    except Exception: pass
+    try:
+        idir = ROOT / "06-data" / "repo_intel"
+        if idir.exists():
+            for f in sorted(idir.glob("*.json")):
+                d = _j.loads(f.read_text())
+                add(d.get("name") or f.stem, "intel")
+    except Exception: pass
+    try:
+        if REPOS_JSON.exists():
+            for k, v in _j.loads(REPOS_JSON.read_text()).items():
+                add(v.get("name", k) if isinstance(v, dict) else k, "static")
+    except Exception: pass
+    return out
 
 def _packages():
     try:

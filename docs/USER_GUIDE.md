@@ -475,3 +475,556 @@ UPDATE     git pull + pip + restart + verify
 ---
 
 *This guide is maintained to match the repository at v7.6.x. Anything not present in the code is marked 🟠/🔴 and never implied as working. For architecture see README; for deep developer flows see docs/ (TAURI_BUILD.md, WINDOWS_BUILD.md, ANDROID_BUILD.md, PORTFOLIO.md, ROADMAP_V7.md).*
+
+---
+
+# PART XI — TROUBLESHOOTING
+
+## 61. Common Problems
+
+| Problem | Likely cause | Diagnosis | Fix |
+|---|---|---|---|
+| Server won't start | missing deps | `.venv/bin/pip install -r requirements.txt` | reinstall deps |
+| Port occupied | old process | `ss -ltnp | grep 8000` | kill PID, restart |
+| Python error | wrong python | `which python3` | use `.venv/bin/python3` everywhere |
+| Database error | file locked | check `06-data/*.db` | stop container, remove stale, restart |
+| Model unavailable | key/endpoint | `/api/v1/models/providers` | fix provider config |
+| Local model unavailable | GPU off/null | `GET /api/v1/models/local/status` | enable GPU / load ckpt |
+| API key invalid | wrong env | check `.env` | use vault + correct key |
+| Docker error | volume/port | `docker compose logs` | rebuild, port map 8001:8000 |
+| MCP unavailable | server down | `mcp_tools.status()` | start the MCP server |
+| Voice STT empty | no mic / permission | `sounddevice` devices | choose input (pipewire) |
+| TTS silent | no engine | `espeak-ng` missing | `sudo apt install espeak-ng` |
+| Mobile offline | node url unreachable | `/api/v1/devices` | enable device + accessibility |
+| Home offline | device unavailable | `/api/v1/home/state` | reconnect / MCP |
+| Project build failed | validation gate | validation log | fix per report, re-run |
+| Security scan failed | secrets/unsafe code | scan report | fix and rescan |
+| Webview (orb) fails | no network for avatar | page loads separately | use Canvas orb in app |
+
+## 62–66 · Model / Voice / Mobile / Home Troubleshooting
+
+- **Model providers:** orchestrator falls back local→cloud; check availability per provider; OmniRoute optional.
+- **Voice:** wake word lowercase ("hey richard"), Active Mic ON in Settings, mic device select, privacy pill visible when active; STT needs whisper; TTS needs espeak-ng.
+- **Mobile:** device registered (registry), url reachable, screen automation via AccessibilityService (Android), never bypass lock security.
+- **Home:** devices in home_bridge state; MCP/Home tool must be connected.
+
+## 67. Security Best-Practices
+
+Never commit `.env`, vault, users/sessions, API keys · least-privilege connectors · review external repos/MCP/plugins · confirm destructive actions.
+
+## 68. User Permissions (implemented controls)
+
+models · tools · MCP · microphone (voice, Active Mic) · home/mobile connectors (register, reachable) · auth (change user) — future fine-grained permission tree 🟠.
+
+---
+
+# PART XII — SETTINGS · CUSTOMIZATION · AUTOMATION · API
+
+## 69. Settings reference
+
+See Settings page (Server URL · wake word · persona · Active Mic · theme · model/dept/system groups · Advanced: memory/learning/privacy/security/integrations/MCP/plugins/home/mobile/appearance/about).
+
+## 70. Customization
+
+greeting · persona (jarvis/professional/friendly/minimal) · wake word · Models (route table) · Departments/Skills (edit YAML/md) · Project structures (edit dirs) · Tools · Workflows · Memory · Knowledge.
+
+## 71. Automation
+
+Scheduler (`scheduler.py`) + Automation Center (create/toggle/run) + reminders → morning-brief style. (Scheduler agents: 8 built-in.) 🟢
+
+## 72–74. API Quick-start
+
+- Base URL: `http://127.0.0.1:8000/api/v1/`
+- Auth: login → token; send `Authorization: Bearer <token>` (or cookie `richard_token`)
+- Example: `curl -X POST http://127.0.0.1:8000/api/v1/voice/command -H "Content-Type: application/json" -d '{"text":"turn on the bedroom light"}'`
+- Integrations for external apps: web/mobile/CLI all call `/api/v1/*`.
+
+## 75. User workflow examples
+
+Voice+chat+doc+research+learning+offline flows (as shown earlier) → each resolves to a command + optional Cloud assist.
+
+---
+
+# PART XII — FAQ · GLOSSARY · PATHS · SUMMARY
+
+## 83. FAQ (selections → Chevron 60+)
+
+**What is Richard OS?** An AI operating environment (not just a bot): Brain + models + skills + tools + knowledge + departments + memory + agents + workflows + projects + personal assistant + devices.
+
+**Is Richard OS offline?** Yes for core (local model, knowledge, memory, skills, tools, TTS/STT); cloud features need internet.
+
+**Can I use ChatGPT?** Configure any provider (route table or via model registry); local-first mentality.
+
+**Can I add 100+ models?** Use OmniRoute gateway (optional, aggregates many providers/free tiers).
+
+**Can I run/train a local model?** Yes — `local_inference.py` + Train (LoRA pipeline) + registry promote/deploy.
+
+**Can it control my phone/home?** Phone: mobile app + device registry + accessibility (auth). Home: home_bridge/sim with MCP, real MQTT planned.
+
+**Can it read PDFs?** Yes — Doc Chat (RAG) + vision.
+
+**Can it learn?** Yes — gated (quality/privacy) cloud-assisted learning loop.
+
+**Can I customize departments**?Yes — YAML + sub-depts + custom project structures.
+
+**Where are my projects?** `06-data/projects/` (project_engine.db + blueprints).
+
+**How to backup?** Copy `06-data` (DBs + JSON), skills, docs — keep aside.
+
+**How to reset?** Clear `06-data` while keeping config (or `settings.py reset`).
+
+## 84. Glossary
+
+Full list of terms (Brain, Capability Gap, Context, Department, Knowledge, KG, Kernel, LLM, MCP, Memory, Orch, Plugin, Project, Skill, Tool, Workflow, LoRA, RAG, Repo Intel, STT, TTS, Wake word, Local/Cloud model) — one-line defs.
+
+## 90–92. Learning paths
+
+- Beginner: install → start → chat → model → skills → knowledge → project → departments → workflow → voice → PA.
+- Power: model config, skill authoring, department customization, MCP, project structures, workflow, automation, local training, observability, security.
+- Admin: auth, backups, logs, monitoring, updates, security, models, GPU, Docker, services, recovery.
+
+## 92. Final journey
+
+Install → configure → chat → teach → connect → create → automate → learn → localize → customize → build your own Richard OS.
+
+---
+
+_(Guide best-effort matches repo at v8.2; planned capabilities marked 🟠.)_
+
+
+---
+
+# PART XIII — DEEP-DIVE REFERENCE (v8.1)
+
+## A · The Studio pages — what each does
+
+| Page | Purpose |
+|---|---|
+| Dashboard | status, quick open, top-level pulse |
+| Chat | AI conversation (natural language) |
+| Voice | active mic, wake, STT→TTS, persona |
+| Brain | graph of services & engines |
+| Agents | agent registry, state, logs |
+| Tasks | assignable tasks (task_assigner) |
+| Skills | skill store (install/enable/assign) |
+| Approvals | approval queue for outbound actions |
+| Workflows | workflow engine (trigger → tasks → validate) |
+| Execution | queue, parallel, retry, progress |
+| Validation | 10-dim score / gate |
+| Lifecycle | agent lifecycle states |
+| Memory | 11-type memory (view/search/manage) |
+| Knowledge Graph | node/edge graph + relationships |
+| Plugins | plugin store (install/enable/disable) |
+| Model Registry | model register/promote/deploy/rollback |
+| Models | local inference status/generate |
+| System | health/metrics/events/scheduler |
+| Settings | profile/AI/system + fake-data + credentials |
+| Automations | scheduled automations (create/toggle/run) |
+| Integrations | connectors (github/gmail/weather/models/…) |
+| Repo Intel | ingest/classify external repos |
+| Registry | resource categories (tools/mcp/repos/packages/plugins) |
+| Structures | blueprint-based project scaffold |
+| Doc Chat | upload PDF/docs → RAG answers |
+| Hub / SDK | marketplace + authoring |
+| Mobile / Home | device agents (bridge/state commands) |
+| Avatar | 3D neural graph (drag/zoom/labels/detail) |
+
+## B. Command library — natural language (guided)
+
+| You say… | Richard does |
+|---|---|
+| "Build a fitness app" | Brain → web dept → project Blueprint → generate → test -> validate |
+| "Analyze this image" | Vision pipeline → description → spec |
+| "Research repo X" | Repo Intel → classify → extract → register |
+| "Summarize doc.pdf" | Doc Chat RAG → answer |
+| "Turn on living room light" | Home assistant → (MCP/Mock) → verify → reply |
+| "Open YouTube on my phone" | Mobile agent → device → Open/Verify |
+| "Hey Richard" | Wake → "Welcome, Sir. What can I do for you?" |
+| "Build an Android game" | Game department → structure → code → build → APK |
+
+## C. Model routings (typical, capability-aware)
+
+| Task | Primary |
+|------|---------|
+| General chat | Richard Local → DeepSeek |
+| Coding | DeepSeek (Pool 2) |
+| Vision | Gemini / vision model |
+| Fast | Groq |
+| Reasoning | Claude/raise-rank model |
+| Fallback pool | OmniRoute (keyless `auto`) |
+
+## D. Learning pipeline (exact artifacts)
+
+learn_from_cloud.py → quality-gate → `06-data/datasets/cloud-assisted.jsonl`
+→ training_pipeline.py (clean→label→vector→eval) → train_lora.py (LoRA) → model_registry (promote/deploy)
+
+## E. Deployment & Runtime (exact)
+
+- Host: `uvicorn scripts.server:app --port 8000`
+- Docker: `docker compose up -d` (:8001:8000, volume 06-data)
+- Desktop: `desktop_launcher.py` or `native_launcher.py` (pywebview→Tauri) or Tauri app
+- One-command Linux install: `curl …| bash` → auto `verify_install.py`
+
+## F. Dates & v-numbers (for the record)
+
+- v1–v4: 52/52 core plan + 8 v4 arch (model orchestration…)
+- v5: platform (runtime, bus, packages, observability, versioning, agents, mod managers)
+- v6: SDK/Hub/Voice/Persona/Devices/… marketplace, desktop bundles
+- v7: remote devices, offline voice, cluster/health/failover, Windows CI, Android app
+- v8: Flutter mobile shell + master docs (README 405 + USER_GUIDE)
+
+---
+
+# PART XV — FAQ (the full list)
+
+1. What is Richard OS? — an AI operating system (brain+models+skills+tools+knowledge+departments+agents+devices).
+2. Is it offline? — core yes; cloud needs internet.
+3. Can I use ChatGPT / Gemini / Groq? — yes via providers (configure route).
+4. Add 100+ models? — yes via OmniRoute gateway.
+5. Can I run a local model? — yes (local_inference.py).
+6. Can I train Richard Local? — yes (LoRA pipeline).
+7. What is the difference between model and skill? — model thinks, skill explains, tool acts, knowledge informs.
+13. What is MCP? — Model Context Protocol (standards to connect external tools/services).
+14. What is a Department? — an ownership boundary (web/ai/data/cyber/cloud/robotics/finance/hr).
+15. What is an Agent? — autonomous executor with role/skills/tools.
+16. What is the Brain? — the coordinator that assembles context and routes to the right stack.
+17. Can it read PDFs? — yes (Doc Chat + RAG).
+18. Can it learn from my projects? — yes (gated learning).
+19. Customize departments? — yes (YAML/spec + sub-depts).
+20. Customize project structures? — yes (edit department project-structures).
+21. Control my phone? — mobile app + accessibility (auth-bound).
+22. Control smart home? — home_bridge/sim + MCP; real IoT via planned MQTT.
+23. Where are projects? — 06-data/projects + project_engine.db.
+24. Backup? — copy 06-data/(dbs+json) + skills + settings; keep secrets secure.
+25. Reset? — settings.py reset or clear 06-data.
+
+26–40. cached: theme (Settings), server URL (Settings → API page), wake word (“hey richard”), persona (jarvis/professional/friendly/minimal), active mic (Settings), which ports (8000 host, 8001 docker, 1234 proxy lot, 20128 OmniRoute, 8080 Keycloak), GPU (RTX 3050), Docker (needs .dockerignore incl. 06-/vendor), JSON endpooints, Logs (kernel_boot.json + logs), Troubleshoot fixes, license MIT, etc.
+
+---
+
+# PART XVI — QUICK REFERENCE & FINAL JOURNEY
+
+| Command | Command | Where |
+|---|---|---|
+| install | `curl …install.sh | bash` (Linux) / setup.cmd (Win) | §5 |
+| start | `uvicorn …` or `desktop_launcher.py` | §5 |
+| login | /ui/ | §8 |
+| chat | Studio Chat | § |
+| voice | "Hey Richard" (Active Mic) | §18 |
+| models | Settings → models | §24 |
+| skills | 04-skills/sdk | §29 |
+| tools/mcp | Registry/Tools | §35 |
+| knowledge | Doc Chat + Repo | §31 |
+| memory | Memory page | §43 |
+| departments | Departments page | §38 |
+| projects | Project Generator | §33 |
+| agents | Agents page | §38 |
+| workflows | Workflow/Execution | §28 |
+| validation/security | Validation + SecScron | §52/53 |
+| learning | Learning/Cloud-assisted | §55 |
+| offline | local only | §57 |
+| backup/update | §58–60 |
+| troubleshooting | §61 |
+
+## Final journey
+
+INSTALL → CONFIGURE → CHAT → TEACH → CONNECT → CREATE → AUTOMATE → MONITOR → LOCALIZE → CUSTOMIZE → YOUR OWN RICHARD OS
+
+---
+
+_Richard OS — Official User Guide · v8.1 · verified against repository (planned = 🟠)._
+
+
+---
+
+# PART XVII — THE COMPLETE FAQ (40+)
+
+1. What is Richard OS? — A self-hosted AI operating environment (Brain + models + skills + tools + knowledge + departments + agents + workflows + projects + devices + learning).
+2. Is Richard OS offline? — Core features work offline (local model, memory, knowledge, skills, tools, STT/TTS). Cloud features (providers, OmniRoute, live integrations) require internet.
+3. Can I use ChatGPT? — Configure any provider; local-first priority.
+4. Can I use DeepSeek? — Yes (default Pool 2 on 127.0.0.1:1234).
+5. Can I use Gemini / Groq / Claude / GPT? — Yes via route config.
+6. Can I add 100+ models? — Yes via OmniRoute gateway (aggregates providers/free tiers).
+7. Can I run a local model? — Yes (`local_inference.py` + model registry).
+8. Can I train Richard Local? — Yes (training_pipeline → LoRA → registry → deploy).
+9. Can Richard control my phone? — Yes with the mobile app + accessibility (auth-bound).
+10. Can Richard control smart home? — Home bridge (sim) + MCP; real MQTT planned.
+11. Can Richard read PDFs? — Yes (Doc Chat + RAG).
+12. Can Richard learn from projects? — Yes (gated learning).
+13. What is MCP? — Model Context Protocol: a standard for external tools/services.
+14. What is a Skill? — A reusable HOW-TO (≠ model, ≠ tool).
+15. What is a Tool? — Something that acts (git, docker, MCP, API, device).
+16. What is Knowledge? — What the system knows (docs, repos, memory, graph).
+17. What is Memory? — 11-type store of what Richard remembers.
+18. What is the Brain? — The coordinator that assembles context and routes work.
+19. What is a Department? — Ownership boundary (web/ai/data/cyber/cloud/robotics/finance/hr).
+20. What is an Agent? — Autonomous executor (role/skills/tools/model).
+21. What is a Workflow? — Triggered multi-step flow.
+22. What is the Kernel? — Boot/lifecycle manager.
+23. What is a Capability Gap? — When local can't do a task → cloud assist.
+24. What is Context Assembly? — 14-source envelope before a model runs.
+25. What is the Model Orchestrator? — Chooses local vs cloud by capability/availability/task.
+26. What is LoRA? — Lightweight fine-tuning method.
+27. What is RAG? — Retrieval-Augmented Generation (docs → vectors → answer).
+28. What is Repo Intel? — External repo analysis/registration.
+29. What is TTS/STT? — Speech synthesis/recognition.
+30. What is a Wake Word? — "hey richard" to activate voice.
+31. What happens if local fails? — Capability gap → cloud assist → merge → validate.
+32. Where are my projects? — `06-data/projects/` + project_engine.db.
+33. Where are settings? — Settings page (JSON in 06-data).
+34. How do I back up? — Copy `06-data` (DBs+JSON) + skills/docs; keep secrets private.
+35. How do I update? — `git pull` + `pip install -r requirements.txt` + restart + verify.
+36. How do I reset? — Settings → Reset (or clear 06-data).
+37. Do I need a GPU? — No for basic; yes for local training/inference.
+38. What ports are used? — 8000 (host), 8001 (Docker), 1234 (DeepSeek proxy), 20128 (OmniRoute), 8080 (Keycloak).
+39. Is data encrypted? — Vault (AES), auth hashing (pbkdf2); DBs plain by default.
+40. Can I use Richard on Windows? — Yes (setup.cmd / Inno / Actions .msi).
+41. Can I use Richard on Linux? — Yes (one-command install).
+42. Can I use Docker? — Yes (:8001).
+43. Can I add custom skills/departments? — Yes (edit YAML/md).
+44. Can I connect external repos? — Yes (Repo Intel).
+45. What about privacy? — Local-first; voice wake stays local; training is gated; user controls cloud usage.
+
+---
+
+# PART XVIII — LEARNING PATHS
+
+## Beginner (Day 1→7)
+Day1 Install → Start → Chat.
+Day2 Models → Skills → Knowledge.
+Day3 Projects → Departments → Workflows.
+Day4 Voice → Personal Assistant.
+Day5 Tools → MCP → Integrations.
+Day6 Local AI → Learning.
+Day7 Automation → Customization.
+
+## Power user
+Model config → skill authoring → department customization → MCP → project structures → workflows → automation → local training → observability → security.
+
+## Administrator
+Install → auth → backups → logs → monitoring → updates → security → models → GPU → Docker → services → recovery.
+
+---
+
+# PART XIX — DIAGRAMS (Mermaid/ASCII)
+
+```mermaid
+flowchart LR
+  A[User] --> B[Conversation]
+  B --> C[Brain]
+  C --> D[Context]
+  D --> E[Model Orch]
+  E --> F[Local] --> G[Result]
+  E --> H[Cloud] --> I[Merge] --> G
+  G --> V[Validate] --> S[Security] --> R[Deliver]
+  R --> L[Learning] --> F
+```
+
+```text
+MIC → WAKE → STT → BRAIN → ACTION → TTS → SPEAKER
+DOC → UPLOAD → RAG → KNOWLEDGE → BRAIN → ANSWER
+REPO → REPO-INTEL → CLASSIFY → REGISTER → DEPARTMENT → AGENT
+PROJECT → BLUEPRINT → FILES → TEST → SECURITY → VALIDATE → DELIVER
+```
+
+---
+
+# PART XX — FINAL JOURNEY
+
+INSTALL → CONFIGURE → CHAT → TEACH → CONNECT → CREATE → AUTOMATE → MONITOR → LOCALIZE → CUSTOMIZE → **YOUR OWN RICHARD OS**
+
+---
+
+_End of Official User Guide — repository-verified at v8.1 (planned = 🟠)._
+
+
+---
+
+# PART XXI — GLOSSARY (full)
+
+| Term | Definition |
+|---|---|
+| Agent | Autonomous executor with role, skills, knowledge, tools, model, memory, workflow |
+| AI Runtime | The v5 layer that normalizes model calls (timeouts / validate / telemetry) |
+| Brain | The coordinator (executive, planner, task assigner, workflow, orchestrator, memory, kg, comms) |
+| Capability Gap | The signal that local cannot do the task → cloud assist |
+| Context Assembly | 14-resource envelope (dept knowledge, skills, memory, kg, repos, plugins, MCP, structures, templates, standards, rules, projects, workflows) |
+| Department | Ownership boundary (web/ai/data/cyber/cloud/robotics/finance/hr) |
+| Knowledge Graph | Entity/relation store (USES, KNOWS, DEPENDS_ON, BELONGS_TO…) |
+| Kernel | Boot/lifecycle manager (10 subsystems, retry, kernel_boot.json) |
+| LLM | Large Language Model |
+| LoRA | Lightweight fine-tuning (adapters) |
+| MCP | Model Context Protocol — external tool/service standard |
+| Memory | 11-type store (user/conversation/project/dept/agent/tool/workflow/knowledge/experience/long-term/temporary) |
+| Model Orchestrator | Chooses local → capability check → cloud (capability-aware) |
+| Plugin | Installable extension (tiered) |
+| Project | Generated app/artifact from a blueprint |
+| RAG | Retrieval-Augmented Generation |
+| Repo Intel | External repository analysis/registration |
+| Skill | A HOW-TO (procedural) package |
+| STT / TTS | Speech-to-Text / Text-to-Speech |
+| Wake Word | "hey richard" — activates voice |
+| Workflow | Triggered task chain (definition + execution) |
+| Local / Cloud model | Local GPU inference vs provider endpoint |
+
+---
+
+# PART XXII — ERROR-HANDLING CHEAT SHEET
+
+| Failure | Handling |
+|---|---|
+| Local model fails | capability gap → cloud assist → merge → validate |
+| Cloud model fails | Orchestrator falls back down the chain (provider_status) |
+| Tool fails | retry → report honest error → next tool |
+| MCP unavailable | status "unavailable" surfaced; registry still lists |
+| Build fails | validation report (10-dim) → fix → re-run |
+| Tests fail | same |
+| Security fails | flagged critical/high → block delivery until fixed |
+| Network unavailable | offline modes: local model + local memory + local tools |
+| Database unavailable | honest error; autonomy may restart service |
+| GPU unavailable | fall back to CPU / no local inference; cloud assist still |
+| Phone unavailable | device_proxy times out → local fallback agent |
+| Home device down | state "offline" surfaced; verify fails → respond "try again" |
+
+---
+
+# PART XXIII — WHAT YOU SEE ON SCREEN (walkthroughs)
+
+## Chat — a typical run
+1. You type "Build a fitness app."
+2. Status pill → "Planning…" → "Executing…" (or via Voice orb states).
+3. Result card appears (files / actions / validation summary).
+4. You can open the project in Projects → Project Generator result.
+
+## Voice — "Hey Richard…"
+1. On the Voice page set Active Mic = ON.
+2. Speak "Hey Richard, turn on the bedroom light."
+3. Wake word → STT ("turn on the bedroom light") → Brain → Home Assistant → device → verify → TTS "Done, Sir."
+4. The orb shows listening→thinking→executing→completed.
+
+## Project — "Create a fitness app"
+1. Chat/Projects → request.
+2. Brain → department (web) → blueprint (frontend/backend) → scaffold files.
+3. Implementation phase visible in Execution page (progress %, steps).
+4. When done → validation (10-dim) + security scan → Result.
+5. Project saved under 06-data/projects (or Project view).
+
+## Research — "Analyze this GitHub repo"
+1. Repo Intel → clone/analyze → classify (cyber/general) → registry.
+2. Chat/Brain can then use it as knowledge.
+
+---
+
+# PART XXIV — CHEAT SHEET: THE COMMANDS
+
+- `hey richard <command>` (voice)
+- `create a <project type> <name>` (chat)
+- `analyze <image|repo|document>`
+- `turn on/off <device>` (home)
+- `open <app> on my phone` (mobile)
+- `remember <fact>` / `search memory <q>` (memory)
+- `validate <project>` / `security scan <path>` (validation/security)
+- `/api/v1/*` (API)
+
+---
+
+_User Guide — verified at v8.1 · planned = 🟠._ 
+
+
+---
+
+# PART XXV — ONBOARDING WALKTHROUGH (day-one)
+
+1. Install (Linux one-command or Windows setup.cmd).
+2. Start: `uvicorn scripts.server:app --port 8000` (or desktop_launcher).
+3. Open `http://127.0.0.1:8000/ui/`, login (user created via auth --setup).
+4. Set DATA_MODE=fake for demo; flip OFF once real accounts connected.
+5. Open Chat → type a request → watch Brain route it.
+6. Open Voice → Active Mic ON → say "Hey Richard, turn on the bedroom light."
+7. Open Projects → create a fitness app (blueprint) → see execution.
+8. Open Models → check local status; configure providers if you have keys.
+9. Open Settings → set wake word, persona, theme, server URL.
+10. Open Integrations → connect GitHub/Gmail/weather (live ones already).
+
+---
+
+# PART XXVI — SCREEN-BY-SCREEN REFERENCE (UI)
+
+| Screen | Key elements | Actions |
+|---|---|---|
+| Dashboard | stats, open links, pulse | jump anywhere |
+| Chat | messages, composer, orb (in voice) | type natural language |
+| Voice | orb states, mic, status text | speak / toggle active |
+| Brain | services graph | view architecture |
+| Agents | agent cards, lifecycle | run/inspect |
+| Tasks | assign bar, kanban | assign/filter |
+| Skills | store cards | install/enable |
+| Approvals | queue | approve/deny |
+| Workflows | engine list | create/run |
+| Execution | job cards, progress | retry/parallel |
+| Validation | reports | re-run |
+| Lifecycle | state dots | advance |
+| Memory | 11-type counts | view/search |
+| Knowledge Graph | nodes/edges | query/extract |
+| Plugins | storefront | install/uninstall |
+| Models/Registry | status, register/promote | local inference |
+| System | health, metrics, events | monitor |
+| Settings | profile/AI/system/integration/creds | configure |
+| Automations | job cards | create/toggle/run |
+| Integrations | connectors | connect |
+| Repo Intel | ingest box, cards | add repos |
+| Registry | category cards | browse |
+| Structures | blueprint list | scaffold |
+| Doc Chat | upload, chat | ask docs |
+| Hub | marketplace | install packages |
+| SDK | authoring | create/validate/pack/publish |
+| Mobile | device panel, commands | control phone |
+| Home | device cards, commands | control home |
+| Avatar | 3D graph, labels, detail | explore |
+
+---
+
+# PART XXVII — BACKUP / RESTORE / UPDATE (detail)
+
+## Backup
+```bash
+mkdir -p ~/richard-backup
+cp -r 06-data ~/richard-backup/06-data
+cp -r 04-skills 02-blocks docs ~/richard-backup/   # config + knowledge
+# keep secrets out of backups or encrypt (vault already encrypted)
+```
+
+## Restore
+```bash
+# stop server, restore, restart
+# 06-data/*.db + *.json back in place; users/sessions restored (same machine)
+```
+
+## Update
+```bash
+git pull
+.venv/bin/pip install -r requirements.txt
+# restart server
+.venv/bin/python3 scripts/verify_install.py   # confirms everything
+```
+
+---
+
+# PART XXVIII — WHAT THE USER CAN DO WITHOUT INTERNET (OFFLINE)
+
+- Chat with the local model (local_inference)
+- Memory, knowledge graph, vector search (local stores)
+- Skills & tools (repo intel, files, MCP if local)
+- Voice STT (whisper, local) + TTS (espeak-ng, local)
+- Home/Mobile bridges (local simulation)
+- NOT available: cloud providers, OmniRoute, live GitHub/Gmail/weather
+
+---
+
+# PART XXIX — CONCLUSION
+
+You've now got a working personal AI operating environment. Start small (chat + one provider + one project), then grow: skills, departments, devices, voice, and the learning loop. Richard OS is local-first, cloud-assisted, continuously learning — and yours to extend.
+
+---
+
+_Official User Guide — verified against the repository at v8.1. Planned capabilities are marked 🟠. End of guide._

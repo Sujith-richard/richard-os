@@ -1,39 +1,74 @@
-
 import 'package:flutter/material.dart';
 import 'home_dashboard.dart';
-import 'voice_screen.dart';
 import 'brain_screen.dart';
+import 'voice_screen.dart';
 import 'projects_screen.dart';
 import 'assistant_screen.dart';
+import '../theme.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
-  @override State<HomeShell> createState() => _HomeShellState();
+  @override
+  State<HomeShell> createState() => _HomeShellState();
 }
+
 class _HomeShellState extends State<HomeShell> {
-  int _i = 0;
-  final _tabs = const [HomeDashboard(), VoiceScreen(), BrainScreen(), ProjectsScreen(), AssistantScreen()];
-  @override Widget build(BuildContext context) {
+  int _index = 0;
+
+  late final List<Widget> _screens = [HomeDashboard(onNavigate: (i) => setState(() => _index = i)), BrainScreen(), VoiceScreen(), ProjectsScreen(), AssistantScreen()];
+  static const _tabs = [
+    (Icons.home_rounded, 'Home'),
+    (Icons.hub_rounded, 'Brain'),
+    (Icons.graphic_eq_rounded, 'Voice'),
+    (Icons.rocket_launch_rounded, 'Projects'),
+    (Icons.assistant_rounded, 'Assistant'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      body: IndexedStack(index: _i, children: _tabs),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .9),
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .08), blurRadius: 18, offset: const Offset(0, 6))],
-        ),
-        child: NavigationBar(
-          backgroundColor: Colors.transparent, elevation: 0, selectedIndex: _i,
-          onDestinationSelected: (i) => setState(() => _i = i),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home, color: Color(0xFF7C3AED)), label: 'Home'),
-            NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble, color: Color(0xFF7C3AED)), label: 'Chat'),
-            NavigationDestination(icon: Icon(Icons.blur_circular), selectedIcon: Icon(Icons.blur_on, color: Color(0xFF7C3AED)), label: 'Brain'),
-            NavigationDestination(icon: Icon(Icons.folder_outlined), selectedIcon: Icon(Icons.folder, color: Color(0xFF7C3AED)), label: 'Projects'),
-            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person, color: Color(0xFF7C3AED)), label: 'Assistant'),
-          ],
+      backgroundColor: dark ? RColors.bgDark : RColors.bg,
+      body: Container(padding: const EdgeInsets.only(bottom: 92), child: IndexedStack(index: _index, children: _screens)),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: dark ? RColors.surfaceDark.withValues(alpha: .92) : Colors.white.withValues(alpha: .96),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: RColors.lavender.withValues(alpha: .18)),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: dark ? .4 : .08), blurRadius: 20, offset: const Offset(0, 8))],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(_tabs.length, (i) {
+              final selected = i == _index;
+              final (icon, label) = _tabs[i];
+              return GestureDetector(
+                onTap: () => setState(() => _index = i),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  padding: EdgeInsets.symmetric(horizontal: selected ? 16 : 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: selected ? RColors.accent.withValues(alpha: .18) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(22),
+                    border: selected ? Border.all(color: RColors.accent.withValues(alpha: .55)) : null,
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(icon, size: 20, color: selected ? RColors.accent : (dark ? Colors.white38 : RColors.inkSoft)),
+                    if (selected) ...[
+                      const SizedBox(width: 6),
+                      Text(label, style: const TextStyle(color: RColors.accent, fontSize: 12, fontWeight: FontWeight.w700)),
+                    ],
+                  ]),
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class RColors {
@@ -20,6 +19,19 @@ class RColors {
     colors: [lavenderDeep, accent],
   );
   static const orbGlow = RadialGradient(colors: [lavender, Color(0x00A78BFA)]);
+
+  static BoxDecoration glass({required bool dark, double radius = 24}) => BoxDecoration(
+        color: dark ? surfaceDark.withValues(alpha: .55) : Colors.white.withValues(alpha: .92),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: lavender.withValues(alpha: dark ? .18 : .12), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: dark ? Colors.black.withValues(alpha: .35) : Colors.black.withValues(alpha: .06),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      );
 }
 
 class RTheme {
@@ -29,11 +41,14 @@ class RTheme {
         colorScheme: ColorScheme.light(primary: RColors.lavenderDeep, secondary: RColors.accent),
         scaffoldBackgroundColor: RColors.bg,
         appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true),
+        fontFamily: 'Inter',
       );
   static ThemeData dark() => ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
         colorScheme: ColorScheme.dark(primary: RColors.lavender, secondary: RColors.accent),
         scaffoldBackgroundColor: RColors.bgDark,
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true),
+        fontFamily: 'Inter',
       );
 }

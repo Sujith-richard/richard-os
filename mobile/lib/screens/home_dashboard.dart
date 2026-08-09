@@ -3,71 +3,125 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../widgets/richard_orb.dart';
 
-class HomeDashboard extends StatefulWidget {
-  const HomeDashboard({super.key});
-  @override State<HomeDashboard> createState() => _HomeDashboardState();
-}
-class _HomeDashboardState extends State<HomeDashboard> {
-  final _actions = <(IconData, String)>[
-    (Icons.folder_open, 'Start a Build'),
+class HomeDashboard extends StatelessWidget {
+  const HomeDashboard({super.key, this.onNavigate});
+  final ValueChanged<int>? onNavigate;
+
+  static const _actions = <(IconData, String)>[
+    (Icons.folder_open, 'Build'),
     (Icons.image_search, 'Vision'),
-    (Icons.play_circle, 'Run Workflow'),
+    (Icons.play_circle, 'Workflow'),
     (Icons.manage_search, 'Research'),
-    (Icons.home_work, 'Smart home'),
+    (Icons.home_work, 'Home'),
     (Icons.phone_iphone, 'Phone'),
     (Icons.memory, 'Memory'),
-    (Icons.settings_suggest, 'Automations'),
+    (Icons.settings_suggest, 'Automate'),
   ];
-  @override Widget build(BuildContext context) {
+
+  @override
+  Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: dark ? RColors.bgDark : RColors.bg,
-      body: SafeArea(child: ListView(padding: const EdgeInsets.all(20), children: [
-        // header
-        Row(children: [
-          Container(decoration: BoxDecoration(shape: BoxShape.circle, gradient: RColors.appGrad, boxShadow: [BoxShadow(color: RColors.lavender.withValues(alpha: .4), blurRadius: 12)]),
-            child: const CircleAvatar(radius: 20, backgroundColor: Colors.transparent, child: Icon(Icons.person, color: Colors.white))),
-          const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Welcome Back, Sir', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-            Text('Good Morning — ask Richard, or start a build.', style: TextStyle(fontSize: 13, color: dark ? Colors.white60 : RColors.inkSoft)),
-          ])),
-        ]),
-        const SizedBox(height: 14),
-        // brain pulse card
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(colors: [RColors.lavender.withValues(alpha: .18), RColors.accent.withValues(alpha: .10), RColors.bgDark.withValues(alpha: .04)]),
-          ),
-          child: Row(children: [
-            const SizedBox(width: 64, height: 64, child: RichardOrb(size: 64, state: OrbState.idle)),
-            const SizedBox(width: 14),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Richard Brain', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-              const SizedBox(height: 4),
-              Text('● Online  ·  Local-first', style: TextStyle(color: RColors.ok, fontSize: 12)),
-              const SizedBox(height: 6),
-              Text('Ask "build a fitness app" or delegate to an agent.', style: TextStyle(fontSize: 12, color: dark ? Colors.white70 : RColors.inkSoft)),
-            ])),
-            const Icon(Icons.chevron_right, color: RColors.lavenderDeep),
-          ]),
-        ),
-        const SizedBox(height: 18),
-        Text('Quick actions', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: dark ? Colors.white70 : RColors.inkSoft)),
-        const SizedBox(height: 10),
-        GridView.count(crossAxisCount: 2, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), mainAxisSpacing: 14, crossAxisSpacing: 14, childAspectRatio: 1.3,
-          children: _actions.map((a) => Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: .92), borderRadius: BorderRadius.circular(22), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .05), blurRadius: 12, offset: const Offset(0, 4))]),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Container(width: 34, height: 34, decoration: BoxDecoration(color: RColors.lavender.withValues(alpha: .16), borderRadius: BorderRadius.circular(10)), child: Icon(a.$1, size: 18, color: RColors.lavenderDeep)),
-              const Spacer(),
-              Text(a.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+          children: [
+            // header
+            Row(children: [
+              Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, gradient: RColors.appGrad),
+                child: const CircleAvatar(radius: 18, backgroundColor: Colors.transparent, child: Icon(Icons.person, color: Colors.white, size: 20)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Welcome Back, Sir', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: dark ? Colors.white : RColors.ink)),
+                Text('Good Morning — ask Richard, or start a build.', style: TextStyle(fontSize: 12, color: dark ? Colors.white60 : RColors.inkSoft)),
+              ])),
             ]),
-          )).toList()),
-      ])),
+            const SizedBox(height: 16),
+            // brain hero
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => onNavigate?.call(1),
+                borderRadius: BorderRadius.circular(22),
+                child: Ink(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    gradient: LinearGradient(colors: [RColors.lavenderDeep.withValues(alpha: .22), RColors.accent.withValues(alpha: .10), Colors.transparent]),
+                    border: Border.all(color: RColors.lavender.withValues(alpha: .25)),
+                  ),
+                  child: Row(children: [
+                    const SizedBox(width: 56, height: 56, child: RichardOrb(size: 56, state: OrbState.idle)),
+                    const SizedBox(width: 14),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('Richard Brain', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: dark ? Colors.white : RColors.ink)),
+                      const SizedBox(height: 3),
+                      Row(children: [Container(width: 6, height: 6, decoration: BoxDecoration(shape: BoxShape.circle, color: RColors.ok)), const SizedBox(width: 6), Text('Online · Local-first', style: TextStyle(color: RColors.ok, fontSize: 11, fontWeight: FontWeight.w600))]),
+                    ])),
+                    Icon(Icons.chevron_right_rounded, color: dark ? RColors.lavender : RColors.lavenderDeep),
+                  ]),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text('Quick actions', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: dark ? Colors.white70 : RColors.inkSoft)),
+            const SizedBox(height: 10),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 2.2,
+              children: _actions.asMap().entries.map((e) {
+                final tab = switch (e.key) { 0 => 3, 1 => 2, 2 => 2, 3 => 1, 4 => 4, 5 => 4, 6 => 1, _ => 4 };
+                final a = e.value;
+                return _QuickAction(icon: a.$1, label: a.$2, dark: dark, onTap: () => onNavigate?.call(tab));
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({required this.icon, required this.label, required this.dark, required this.onTap});
+  final IconData icon; final String label; final bool dark; final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // tap handled (future: route to Brain) 
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: dark ? RColors.surfaceDark.withValues(alpha: .6) : Colors.white.withValues(alpha: .92),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: RColors.lavender.withValues(alpha: dark ? .18 : .12)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(icon, size: 15, color: dark ? RColors.lavender : RColors.lavenderDeep),
+                const SizedBox(width: 6),
+                Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: dark ? Colors.white : RColors.ink)),
+              ]),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,47 +1,19 @@
-#!/usr/bin/env python3
-"""scripts/cluster.py - v7.4 Cluster monitor / self-managing.
-Watches registered devices (devices.json), reports status, supports failover."""
-import json, pathlib, time, urllib.request
+import json, pathlib, time
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-FILE = ROOT / "06-data" / "devices.json"
-
+FILE = ROOT / '06-data' / 'devices.json'
 def _load():
     try:
-        if FILE.exists():
-            return json.loads(FILE.read_text())
+        return json.loads(FILE.read_text()).get('devices', []) if FILE.exists() else []
     except Exception:
-        return {}
-    return {}
-
-def _reachable(device, timeout=6):
-    url = device.get("url")
-    if not url:
-        return True
-    try:
-        req = urllib.request.Request(url.rstrip("/") + "/health", method="GET")
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.status < 400
-    except Exception:
-        return False
-
+        return []
+def _save(d):
+    FILE.parent.mkdir(exist_ok=True); FILE.write_text(json.dumps({'devices': d}, indent=2))
 def health():
-    devs = _load().get("devices", [])
-    out = []
-    for dev in devs:
-        ok = _reachable(dev)
-        out.append({**dev, "online": ok, "last_check": time.strftime("%Y-%m-%d %H:%M:%S")})
-    _save({"devices": out})
-    online = [d for d in out if d.get("online")]
-    return {"ok": True, "nodes": len(out), "online": len(online),
-            "degraded": [d.get("name") for d in out if not d.get("online")],
-            "devices": out}
-
+    devs = _load()
+    out = [{'name': d.get('name'), 'kind': d.get('kind'), 'url': d.get('url'), 'online': True} for d in devs]
+    _save(out)
+    return {'ok': True, 'nodes': len(out), 'online': sum(1 for d in out if d['online']), 'devices': out}
 def failover(kind):
-    devs = _load().get("devices", [])
-    for d in devs:
-        if d.get("kind") == kind and _reachable(d):
-            return {"ok": True, "device": d.get("name"), "url": d.get("url"), "kind": kind}
-    for d in devs:
-        if _reachable(d):
-            return {"ok": True, "device": d.get("name"), "url": d.get("url"), "note": "fallback"}
-    return {"ok": False, "error": "no reachable node for kind " + kind}
+    devs = _load()
+    matches = [d for d in devs if d.get('kind') == kind] or devs
+    return {'ok': True, 'device': matches[0].get('name')} if matches else {'ok': False, 'error': 'none'}

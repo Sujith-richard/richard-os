@@ -25,7 +25,7 @@ def init_db():
         author TEXT DEFAULT 'Developer-os', tier TEXT DEFAULT 'community',
         source TEXT DEFAULT 'local', repo TEXT DEFAULT '',
         status TEXT DEFAULT 'available', downloads INTEGER DEFAULT 0,
-        installed_at TEXT, published_at TEXT, created_at TEXT, featured INTEGER DEFAULT 0);""")
+        installed_at TEXT, published_at TEXT, created_at TEXT, featured INTEGER DEFAULT 0, signature TEXT DEFAULT '');""")
     c.commit(); c.close()
 
 def _dedupe(items):
@@ -126,9 +126,9 @@ def publish(name, kind="package", version="1.0.0", desc="", author="Developer-os
     path.write_text(json.dumps(manifest, indent=2))
     c = _conn()
     c.execute("""INSERT OR REPLACE INTO hub_packages
-        (name, kind, version, desc, author, tier, source, repo, status, published_at, created_at, featured)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-              (name, kind, version, desc or "", author, tier, "local", repo or "", "published", _now(), _now(), 1 if featured else 0))
+        (name, kind, version, desc, author, tier, source, repo, status, published_at, created_at, featured, signature)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+              (name, kind, version, desc or "", author, tier, "local", repo or "", "published", _now(), _now(), 1 if featured else 0, manifest.get("signature", "")))
     c.commit(); c.close()
     try:
         sys.path.insert(0, str(ROOT / "scripts"))

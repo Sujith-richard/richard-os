@@ -1,0 +1,11 @@
+{
+  "name": "rag-indexer",
+  "kind": "prompt",
+  "version": "1.0.0",
+  "desc": "RAG ingestion + chunking playbook",
+  "author": "Richard Core",
+  "tier": "official",
+  "repo": "",
+  "published_at": "2026-08-09 15:40:05",
+  "signature": "ce13e1d630afadb0"
+}

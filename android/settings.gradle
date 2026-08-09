@@ -1,2 +1,5 @@
+pluginManagement {
+  repositories { gradlePluginPortal(); google(); mavenCentral() }
+}
 rootProject.name = "RichardOsDevice"
 include ':app'

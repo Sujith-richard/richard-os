@@ -1,8 +1,8 @@
 {
   "hub": "hub-index",
   "version": 1,
-  "generated_at": "2026-08-09 09:42:25",
-  "count": 32,
+  "generated_at": "2026-08-09 15:40:05",
+  "count": 37,
   "packages": [
     {
       "name": "departments",
@@ -15,7 +15,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "web-dev",
@@ -28,7 +28,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "departments-spec",
@@ -41,7 +41,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "always-ship-env-example",
@@ -54,7 +54,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "pin-dependency-versions",
@@ -67,7 +67,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "route-by-stack-keywords",
@@ -80,7 +80,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "new-job-lead",
@@ -93,7 +93,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "email-triage",
@@ -106,7 +106,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "daily-brief",
@@ -119,7 +119,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "content-pipeline",
@@ -132,7 +132,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "merged-training",
@@ -145,7 +145,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "cloud-assisted",
@@ -158,7 +158,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "richard-core-v2",
@@ -171,7 +171,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "merged-training-eval",
@@ -184,7 +184,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "merged-training-clean",
@@ -197,7 +197,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "richard-core-v1",
@@ -210,7 +210,7 @@
       "status": "available",
       "featured": false,
       "signature": "",
-      "updated_at": "2026-08-09 09:42:25"
+      "updated_at": "2026-08-09 15:40:05"
     },
     {
       "name": "playground-sdk",
@@ -419,6 +419,71 @@
       "featured": false,
       "signature": "17086eb52afc209d",
       "updated_at": "2026-08-09 09:42:25"
+    },
+    {
+      "name": "fooocus-image-gen",
+      "kind": "plugin",
+      "version": "1.0.0",
+      "desc": "Fooocus \u2014 local SDXL image generation (GPU)",
+      "author": "Developer-os",
+      "tier": "community",
+      "repo": "github.com/lllyasviel/Fooocus",
+      "status": "available",
+      "featured": true,
+      "signature": "9e4ed1a714012446",
+      "updated_at": "2026-08-09 10:24:50"
+    },
+    {
+      "name": "keycloak-idp",
+      "kind": "plugin",
+      "version": "1.0.0",
+      "desc": "Keycloak identity & access provider",
+      "author": "Developer-os",
+      "tier": "community",
+      "repo": "github.com/keycloak/keycloak",
+      "status": "available",
+      "featured": true,
+      "signature": "c86ddfb4a2eecd5a",
+      "updated_at": "2026-08-09 10:24:50"
+    },
+    {
+      "name": "prompt-chain",
+      "kind": "prompt",
+      "version": "1.0.0",
+      "desc": "Prompt engineering patterns (few-shot, CoT, personas)",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": false,
+      "signature": "35fc6b70ccf7b12c",
+      "updated_at": "2026-08-09 15:40:05"
+    },
+    {
+      "name": "rag-indexer",
+      "kind": "prompt",
+      "version": "1.0.0",
+      "desc": "RAG ingestion + chunking playbook",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": false,
+      "signature": "ce13e1d630afadb0",
+      "updated_at": "2026-08-09 15:40:05"
+    },
+    {
+      "name": "sql-optimizer",
+      "kind": "skill",
+      "version": "1.0.0",
+      "desc": "SQL query optimization checklist",
+      "author": "Richard Core",
+      "tier": "official",
+      "repo": "",
+      "status": "available",
+      "featured": false,
+      "signature": "392898d8ca556e04",
+      "updated_at": "2026-08-09 15:40:05"
     }
   ]
 }

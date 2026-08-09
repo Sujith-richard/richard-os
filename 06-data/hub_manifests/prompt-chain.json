@@ -1,0 +1,11 @@
+{
+  "name": "prompt-chain",
+  "kind": "prompt",
+  "version": "1.0.0",
+  "desc": "Prompt engineering patterns (few-shot, CoT, personas)",
+  "author": "Richard Core",
+  "tier": "official",
+  "repo": "",
+  "published_at": "2026-08-09 15:40:05",
+  "signature": "35fc6b70ccf7b12c"
+}

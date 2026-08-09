@@ -15,3 +15,10 @@
 - STAGE 2: install location + desktop/start-menu shortcut + optional permissions (changeable later in Settings).
 - STAGE 3: copy files, run `scripts/verify_install.py` (auto-checks all modules/files), download/emit user guide.
 - Post: run desktop_launcher.py (starts server + opens UI) or the Tauri exe.
+
+
+## Method 3 — GitHub Actions (no Windows box needed) ⭐
+Push a tag `v*` and the workflow `.github/workflows/windows-build.yml` builds
+`.msi` + `.exe` on a Windows runner and uploads them as artifacts:
+  Repository → Actions → "Windows Desktop Build" → run
+  Artifacts: richard-os-windows (msi) + richard-os-windows-exe (nsis exe)

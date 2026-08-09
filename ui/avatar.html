@@ -30,7 +30,7 @@
 <button class="back" onclick="goBack()">← Back</button>
 <canvas id="cv"></canvas>
 <div class="hud"><h1>⚛ Richard · 3D Neural Core</h1><div class="sub">drag rotate · scroll zoom · dblclick reset · hover for name</div></div>
-<button id="lbl-toggle" style="position:absolute;top:64px;left:22px;z-index:8;background:rgba(18,26,46,.85);border:1px solid var(--chrome);color:var(--chrome);border-radius:14px;padding:5px 12px;font:11px 'Segoe UI',sans-serif;cursor:pointer">Labels: off</button>
+<button id="lbl-toggle" style="position:absolute;top:112px;left:22px;z-index:8;background:rgba(18,26,46,.85);border:1px solid var(--chrome);color:var(--chrome);border-radius:14px;padding:5px 12px;font:11px 'Segoe UI',sans-serif;cursor:pointer">Labels: off</button>
 <div id="detail" style="position:absolute;bottom:52px;right:22px;z-index:8;background:rgba(10,16,31,.92);border:1px solid var(--chrome);border-radius:10px;padding:10px 14px;font:12px 'Segoe UI',sans-serif;color:var(--text);display:none;max-width:260px"></div>
 <div class="pill"><span class="dot" id="dot"></span><span id="mood">idle</span></div>
 <div class="zpill" id="zpill">100%</div>
@@ -44,10 +44,10 @@ const ctx=cv.getContext('2d');
 const tip=document.getElementById('tip');
 let W=innerWidth,H=innerHeight;
 let rotY=0.6, rotX=0.35, zoom=1;
+let mood='idle', labelsOn=false, selected=-1, nodes=[], links=[], dot3=[], lastProj=[], hoverIdx=-1;
 function saveCam(){ try{ localStorage.setItem('rich_cam', JSON.stringify({ry:rotY,rx:rotX,z:zoom})); }catch(e){} }
 function loadCam(){ try{ var c=JSON.parse(localStorage.getItem('rich_cam')||'null'); if(c){ rotY=c.ry||0.6; rotX=c.rx||0.35; zoom=c.z||1; } }catch(e){} }
 let dragging=false, lastX=0, lastY=0, interacted=false;
-let showLabels=false, selected=-1;
 function toggleLabels(){
   labelsOn=!labelsOn;
   document.getElementById('lbl-toggle').textContent='Labels: '+(labelsOn?'on':'off');

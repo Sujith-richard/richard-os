@@ -588,3 +588,14 @@ The platform vision: Richard Core (kernel) · Richard Engine (brain+models) · R
 - **52/52** phase plan complete + all **7 v5 platform gaps**
 - **46** Studio pages · **198** API endpoints · **6** systems of record
 - **28** GitHub releases tagged (v1.0.0 → v6.0.0) · MIT · free · $0 infra
+
+
+## Run / Get Richard OS
+
+- Quick demo: `git clone ... && bash scripts/demo.sh`
+- Linux one-command: `curl -fsSL .../install/linux/install.sh | bash`  (just worked for you ✓)
+- Windows: `install/windows/setup.cmd` (3-stage) or Actions → Windows Desktop Build (.msi/.exe)
+- Desktop bundles: `cd src-tauri && cargo tauri build` -> .deb/.rpm/.AppImage (just rebuilt ✓)
+- Android: Actions → Android APK Build (accessibility phone agent)
+- Docker: `docker run -p 8000:8000 ghcr.io/sujith-richard/richard-os`
+- Verify: `.venv/bin/python3 scripts/verify_install.py` -> ALL OK

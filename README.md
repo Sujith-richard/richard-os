@@ -15,582 +15,386 @@ Built by Sujith Richard. Free. Files you own outright — no subscription.
 
 ## The 5-Product Platform (v6.0.0)
 
-Richard OS grew from a single assistant repo into a full platform — the same 5-product vision it takes to scale like VS Code / Docker:
-
-| # | Product | What it is | Version |
-|---|---|---|---|
-| ① | **Core** | Kernel: boot, config/process/storage managers, event bus, scheduler, autonomy, security | v5.0–v5.7 |
-| ② | **Engine** | AI brain: model orchestrator + runtime, local inference + LoRA, 8 departments, 30 agents, memory, knowledge graph | v5.0–v5.7 |
-| ③ | **Studio** | Web UI: 46-page console + PWA + launcher — live dashboards for every subsystem | v5.0+ |
-| ④ | **SDK** | Authoring layer: `richard-sdk new|validate|pack|publish` — scaffold skills, departments, plugins, agents | **v6.0.0** |
-| ⑤ | **Hub** | Marketplace: registry, publish/pull, portable remote index, Studio page | **v5.9.0** |
-| ➕ | **OmniRoute pool** | 3-pool model orchestration: Local → DeepSeek (free) → OmniRoute (281-model keyless `auto`) with a teacher/learning loop | **v5.8.0** |
-
-### The 3-pool model flow
-```
-                         RICHARD OS  (KERNEL → BRAIN → STUDIO)
-                                  │
-                          MODEL ORCHESTRATOR
-                                  │
-              ┌───────────────────┼───────────────────┐
-              │                   │                   │
-       LOCAL POOL #1        DIRECT PROXY #2      OMNIROUTE POOL #3
-       richard-local       deepseek-v4-flash     281-keyless 'auto'
-                                 big-pickle             │
-              └───────────────────┼───────────────────┘
-                                  ▼
-                      AUTO MERGE → VALIDATION → EXECUTE
-                                  │
-                          LEARNING LOOP → Local v2
-```
-
-### The extension loop (SDK → Hub)
-```
-richard-sdk new skill my-tool       # scaffold (manifest + skill.md/examples/reference)
-richard-sdk validate skill my-tool  # ok
-richard-sdk pack skill my-tool      # .zip artifact
-richard-sdk publish skill my-tool   # → Hub registry
-… any machine → hub pull my-tool → package_manager install → live
-```
-
-## What it is
-- 5 systems of record: second brain, PM, finance, CRM, creator (SQLite)
-- Agents with honest run logs: job_hunter, content_ops, freelance_biz, pm_assistant, portfolio_builder
-- 5 skills: outreach, resume_tailor, invoice, linkedin_post, job_screen
-- Scheduler: agents run on a schedule while you sleep
-- Knowledge-graph UI: a live map of everything your OS knows
-
-## v2.0 — Domains, Approval & Live Graph
-- **Super-Orchestrator**: routes plain-English requests to company/home/personal trees (`scripts/orchestrator.py`)
-- **Company hierarchy**: HR (recruiter/payroll/onboarding), Dev (backend/frontend/tester), Finance (invoicing/expense), Ops (fulfillment/support) — `scripts/company_agents.py`
-- **Home control**: room-wise device agents (simulated, Home Assistant-ready) — `scripts/home_agents.py`
-- **Personal assistant**: email triage, calendar, reminders — `scripts/personal_agents.py`
-- **MCP layer**: web, weather, GitHub, email tools — `tools/mcp_bridge.py`
-- **Approval queue**: autonomy-2 drafts (email, invoices, outreach) queue for one-click approve — `scripts/approval_queue.py`
-- **Fake-data-first**: `DATA_MODE=fake` in `.env`; seed with `python scripts/seed_data.py`
-- **Knowledge graph v2**: zoom/pan, hover-glow of connections, click-to-drill with back button, live agent pulse
-
-## Cross-platform CI
-GitHub Actions verifies boot + DB init + seed + CLI smoke on Linux/Windows/macOS.
-
-## Quickstart
-```bash
-git clone https://github.com/Sujith-richard/richard-os.git
-cd richard-os
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python3 scripts/init_db.py
-python3 scripts/seed_data.py
-python3 run.py
-## Approval queue
-```bash
-python3 scripts/approval_queue.py list
-python3 scripts/approval_queue.py approve 1
-## Knowledge-graph UI
-```bash
-python3 -m uvicorn scripts.server:app --reload --port 8000
-# open http://localhost:8000/ui/
-## Structure
-01-root-spine/ system, encoding, invariants, config
-02-blocks/ departments (company/home/personal trees)
-03-agents/ named workers + logs
-04-skills/ repeatable moves
-05-systems-of-record/ CRM, finance, PM, content, second brain
-06-data/ SQLite DBs
-07-schedules/ scheduler + briefs
-scripts/ CLI, agents, orchestrator, server
-tools/ MCP bridge + home bridge
-ui/ knowledge-graph front-end
-
-## Autonomy levels
-1 Lookup · 2 Recommend · 3 Act & spot-check · 4 Runs independently · 5 Self-monitoring
-Set per agent in `01-root-spine/company.yaml`.
-## Screenshots
-![Console](docs/screenshots/01-console.png)
-![Brain — Knowledge Graph](docs/screenshots/02-brain.png)
-![Brain — Node Focus](docs/screenshots/03-brain-focus.png)
-![Agents](docs/screenshots/04-agents.png)
-![Finances](docs/screenshots/05-finances.png)
-![Funnel](docs/screenshots/06-funnel.png)
-![Comms](docs/screenshots/07-comms.png)
-![Social](docs/screenshots/08-social.png)
-
-## v3.0 — Full command center
-- Sidebar v2 (18 views) + 8 themes + ⌘K palette
-- Executive mission-control dashboard (stats + charts + AI feed)
-- Communications (7 channel tabs, sentiment, AI summary, suggested replies)
-- Funnel 7-stage kanban + KPIs + conversion chart
-- Social + Content analytics (reach, likes, SEO score, reading time)
-- Finance (MRR, ARR, runway, cash-flow chart)
-- Agents roster v2 (confidence, memory, runs, Run/Logs)
-- Integrations honest board (never fakes connectivity)
-- Analytics suite (9 charts: revenue, funnel, radar, heatmap, sparklines)
-- Tasks v2 + Skills library + Org tree + Workflows builder
-- Roadmap + Reference + Personas roster pages
-
-## Screenshots
-![Dashboard](docs/screenshots/01-console.png)
-![Brain](docs/screenshots/02-brain.png)
-![Agents](docs/screenshots/03-agents.png)
-![Finances](docs/screenshots/04-finances.png)
-![Funnel](docs/screenshots/05-funnel.png)
-![Comms](docs/screenshots/06-comms.png)
-![Social](docs/screenshots/07-social.png)
-![Content](docs/screenshots/08-content.png)
-
-## v3.0 — Full command center
-- Sidebar v2 (18 views) + 8 themes + ⌘K palette
-- Executive mission-control dashboard (stats + charts + AI feed)
-- Communications (7 channel tabs, sentiment, AI summary, suggested replies)
-- Funnel 7-stage kanban + KPIs + conversion chart
-- Social + Content analytics (reach, likes, SEO score, reading time)
-- Finance (MRR, ARR, runway, cash-flow chart)
-- Agents roster v2 (confidence, memory, runs, Run/Logs)
-- Integrations honest board (never fakes connectivity)
-- Analytics suite (9 charts: revenue, funnel, radar, heatmap, sparklines)
-- Tasks v2 + Skills library + Org tree + Workflows builder
-- Roadmap + Reference + Personas roster pages
-
-## Screenshots
-![Dashboard](docs/screenshots/01-console.png)
-![Brain](docs/screenshots/02-brain.png)
-![Agents](docs/screenshots/03-agents.png)
-![Finances](docs/screenshots/04-finances.png)
-![Funnel](docs/screenshots/05-funnel.png)
-![Comms](docs/screenshots/06-comms.png)
-![Social](docs/screenshots/07-social.png)
-![Content](docs/screenshots/08-content.png)
-
-## v3.0 — Full command center
-- Sidebar v2 (18 views) + 8 themes + ⌘K palette
-- Executive mission-control dashboard (stats + charts + AI feed)
-- Communications (7 channel tabs, sentiment, AI summary, suggested replies)
-- Funnel 7-stage kanban + KPIs + conversion chart
-- Social + Content analytics (reach, likes, SEO score, reading time)
-- Finance (MRR, ARR, runway, cash-flow chart)
-- Agents roster v2 (confidence, memory, runs, Run/Logs)
-- Integrations honest board (never fakes connectivity)
-- Analytics suite (9 charts: revenue, funnel, radar, heatmap, sparklines)
-- Tasks v2 + Skills library + Org tree + Workflows builder
-- Roadmap + Reference + Personas roster pages
-
-## Screenshots
-![Dashboard](docs/screenshots/01-console.png)
-![Brain](docs/screenshots/02-brain.png)
-![Agents](docs/screenshots/03-agents.png)
-![Finances](docs/screenshots/04-finances.png)
-![Funnel](docs/screenshots/05-funnel.png)
-![Comms](docs/screenshots/06-comms.png)
-![Social](docs/screenshots/07-social.png)
-![Content](docs/screenshots/08-content.png)
-
-## v3.3.0 — Project Generation Engine (#15)
-Turn a plain-English brief into a delivered, scored project scaffold.
-
-- **Pipeline:** brief-intake → route → scaffold → review-fix → security → quality → package → deliver → learning
-- **Routing:** word-boundary keyword match → frontend / backend / fullstack (web-dev.yaml)
-- **Scaffolding:** React+Vite, FastAPI, or fullstack docker-compose trees in `06-data/generated_projects/`
-- **Gates:** review-fix loop (max 3 iters) · security scan · quality score (≥80%)
-- **Delivery:** `.zip` archive + `delivery_manifest.json` per project
-- **Learning engine:** repeatable lessons auto-promote (count ≥3 → skill)
-- **API:** `POST /api/v1/project/generate` · `GET /api/v1/project/status/{id}` · `GET /api/v1/project/list`
-- **UI:** `ui/project-gen.html` — stage chips, file tree, learning log, history
-- **Dept block:** `02-blocks/company/web-dev.yaml`
-
-## v3.5.0 — Live Integrations Hub (real-data swap, UI-driven)
-Flip any data source from seeded FAKE to real LIVE — from the browser, no .env edits.
-
-- **Sources:** GitHub (public API), Gmail (IMAP app-password), Weather (Open-Meteo), Home Assistant (REST), AI Models (AI-Workspace proxy)
-- **Per-source status:** fake → unconfigured → live/error · LIVE/DEMO pill in every shell topbar
-- **UI:** `ui/integrations.html` — cards with badges, config fields, Test / Sync / mode toggle
-- **API:** `GET /api/v1/integrations` · `POST .../test|sync|mode|config`
-- **Swap:** consumers read `live_*.json` when live, seeded DBs when fake (no logic rewrites)
-- **Secrets:** config lives in `06-data/integrations.json` (gitignored, stays local)
-
-## v3.19.0 — Department Layer (#14)
-Every department is now a real, self-contained unit with a full 16-item spine.
-
-- **Spec:** `02-blocks/company/departments-spec.yaml` — 8 depts (web, ai, data, cyber, cloud, robotics, finance, hr): lead, specialists, skills, stacks, autonomy, decision rules, workflows, datasets
-- **Engine:** `scripts/department_engine.py` scaffolds each dept folder: knowledge/skills/agents/prompts/templates/standards/rules/workflows/docs/git/mcp/memory/datasets/training (15 files each)
-- **API:** `GET /api/v1/departments` · `GET /api/v1/departments/{name}` · `GET .../{name}/file?path=` · `POST /api/v1/departments/generate`
-- **UI:** `ui/departments.html` — dept cards → spine explorer → file viewer
-- **Org tree** now reads the live spec (was 19 hardcoded, now spec-driven)
-
-## v3.20.0 — Planner AI + Workflow Engine (#10)
-Goals become runnable workflows — real state machines, not static cards.
-
-- **Planner AI:** `scripts/planner.py` turns a goal into a step plan (trigger/agent/data/approve/action)
-- **Workflow Engine:** `scripts/workflow_engine.py` executes workflows step-by-step, tracks status (idle/running/done/error), persists runs + step logs to `06-data/workflows.db`
-- **API:** `GET /api/v1/workflows` · `GET /{name}` · `POST /plan` · `POST /{name}/run` · `POST /seed`
-- **UI:** `ui/workflows.html` — live workflows with real status/runs, RUN button + step log, Planner AI input (goal → plan)
-- **Honest status:** `/workflow-status` now reads the DB (was hardcoded fake)
-
-## v3.21.0 — Continuous Learning (#16)
-The feedback loop: capture → dataset → fine-tune → improve core.
-
-- **Capture:** run logs + project learnings + workflow runs → samples/lessons (`scripts/learning_engine.py`)
-- **Dataset:** generate JSONL training set (instruction/input/output) → `06-data/datasets/`
-- **Fine-tune:** mark a model fine-tuned on the dataset (fake-first; real hook via models integration)
-- **Improve core:** repeated lessons (count ≥ 3) auto-promoted into `04-skills/`
-- **API:** `GET /api/v1/learning/overview` · `POST /capture` · `POST /dataset/generate` · `POST /fine-tune` · `POST /improve-core`
-- **UI:** `ui/learning.html` — 4-stage loop with Run buttons + top lessons
-
-## v3.22.0 — Neural Collaboration (#17)
-Agents share through the graph, not point-to-point.
-
-- **Shared bus:** `scripts/collab_engine.py` — 27 agents (core engines + company + personal + persona), send/read messages, validate each other, edge stats
-- **Live edges:** `06-data/collab.db` edges table — message counts + last activity per sender→recipient
-- **API:** `GET /api/v1/collab/graph` · `GET /agents` · `POST /message` · `GET /inbox/{agent}` · `POST /validate`
-- **UI:** `ui/collab.html` — live collaboration edges, message composer, validation, agent inbox
-
-## v3.22.0 — Neural Collaboration (#17)
-Agents share through the graph, not point-to-point.
-
-- **Shared bus:** `scripts/collab_engine.py` — 27 agents (core engines + company + personal + persona), send/read messages, validate each other, edge stats
-- **Live edges:** `06-data/collab.db` edges table — message counts + last activity per sender→recipient
-- **API:** `GET /api/v1/collab/graph` · `GET /agents` · `POST /message` · `GET /inbox/{agent}` · `POST /validate`
-- **UI:** `ui/collab.html` — live collaboration edges, message composer, validation, agent inbox
-
-## v3.23.0 — Doc Chat + Vision (#18)
-Upload a document — then ask questions grounded in it.
-
-- **Doc-chat:** `scripts/doc_chat.py` — PDF text extraction (pypdf), text upload, chunking + lexical search, grounded Q&A via `agent_lib.call_llm`
-- **Vision:** image upload → base64 → Model Orchestrator routing (gemini-3.5-flash → gpt-oss-120b → default), honest fallback if no vision-capable model
-- **API:** `POST /api/v1/docchat/upload` (multipart) · `POST /ask` · `GET /docs` · `GET /messages/{id}`
-- **UI:** `ui/docchat.html` — upload zone, doc picker, chat thread with source chunks
-
-## v3.24.0 — Personal Life Trackers (#19) — FINAL LAYER
-Health · Travel · Shopping systems of record, alongside email/tasks/calendar/smart-home.
-
-- **Life agents:** `scripts/life_agents.py` — health (workout/steps/sleep), trips (planned with budget), shopping (open/bought), seeded fake-first
-- **API:** `GET /api/v1/life/overview` · `GET /health|trips|shopping` · `POST /health/add|trip/add|shopping/add|shopping/toggle`
-- **UI:** `ui/life.html` — 3 tracker cards with add-forms + lists
-- **Collab:** health-agent / travel-agent / shopping-agent added to the Neural Collaboration roster (30 agents)
-
-## v3.25.0 — Model Orchestrator (#11/#10)
-Routes every task to the best model — real per-task selection, not a hardcoded default.
-
-- **Orchestrator:** `scripts/model_orchestrator.py` — 11 task types (chat/plan/code/analysis/creative/reasoning/vision/research/summarize/quick/default) → tier (fast/balanced/power) → model + fallback chain
-- **Wired everywhere:** `agent_lib.call_llm(prompt, task_type=..., agent=...)` routes through the orchestrator by default; per-agent overrides supported
-- **API:** `GET /api/v1/models/status` · `GET /available` · `GET /route/{task_type}?agent=` · `POST /route` (set)
-- **UI:** `ui/models.html` — routing table with live availability + per-task route editor
-
-## v3.26.0 — PWA + Mobile Drawer (#18 mobile)
-Richard OS is now installable and phone-navigable.
-
-- **PWA:** `ui/manifest.json` (standalone, theme #0A101F) + `ui/sw.js` service worker (cache shell, offline fallback) + icons 192/512
-- **Mobile drawer:** at ≤600px the sidebar becomes a slide-in drawer with ☰ hamburger in the topbar + backdrop tap-to-close
-- **Registration:** shell.js injects the manifest link + registers the SW on every shell page
-
-## v3.27.0 — Real Fine-Tune Hook (#16)
-The learning loop's fine-tune stage now actually trains.
-
-- **Real trainer:** `scripts/train_lora.py` — trains a tiny causal LM (sshleifer/tiny-gpt2) on our JSONL dataset (instruction/input/output) with real loss/gradients, checkpoints to `06-data/models/`, logs to `06-data/train_logs/`
-- **Wired:** `learning_engine.fine_tune()` runs the trainer via subprocess (status training → done/error, real checkpoint path)
-- **Auto-device:** uses CUDA automatically when the NVIDIA driver is present (RTX 3050 in this laptop — driver pending), CPU otherwise
-- **Honest:** tiny model + small steps = real but modest (fits CPU/15GB); scale model+steps when GPU is live
-
-## v3.28.0 — Resource Registry (#13)
-Unified view of every resource the OS can reach.
-
-- **Aggregator:** `scripts/registry.py` — tools (tools_config.json), MCP tools (mcp_tools.status), repos (live-github/repos.json), resource packages, plugins
-- **API:** `GET /api/v1/registry` · `GET /api/v1/registry/{category}`
-- **UI:** `ui/registry.html` — 5 category cards (Tools/MCP/Repos/Packages/Plugins) with counts + statuses
-
-## v3.29.0 — Task Manager Assign Service (#10)
-Real assignment: a task title → the best agent from the 30-agent roster.
-
-- **Assigner:** `scripts/task_assigner.py` — keyword/skill matching (email→email-agent, code→backend, frontend→frontend, strategy→planner-ai, shopping→shopping-agent…) + explicit dept override + word-overlap fallback
-- **API:** `POST /api/v1/tasks/assign` (title, dept?) · `GET /api/v1/tasks/assignments`
-- **UI:** Assign bar on `ui/tasks.html` — type a task, see who owns it + why
-
-## v3.30.0 — Local Inference (#11 final)
-The Model Orchestrator now has a real LOCAL tier — the RTX 3050 serves completions.
-
-- **Local engine:** `scripts/local_inference.py` — loads the fine-tuned checkpoint on CUDA (model cached once), `generate(prompt)` → real completion
-- **API:** `GET /api/v1/models/local/status` · `POST /api/v1/models/local/generate`
-- **UI:** Local Inference panel on `ui/models.html` — status + prompt box + output
-- **Honest:** tiny model (fine-tuned on our dataset) = real local GPU inference, modest quality; swap in a bigger checkpoint anytime
-
-## v3.31.0 — Repository Intelligence (v4.0 flagship)
-GitHub repos become part of Richard OS — not external references.
-
-- **Pipeline:** `scripts/repo_intel.py` — shallow clone → README/docs → detect language/framework/type → extract skills/knowledge/workflows/templates/folder-structure/MCP/APIs → persist → register → dept-available
-- **Ingested for real:** awesome-claude-skills (Skill Library, 10 skills) · BlueTeam-Tools (Tool Collection, 11 skills) · superpowers (Skill Library)
-- **API:** `POST /api/v1/repo/ingest` · `GET /api/v1/repo/intel` · `GET /api/v1/repo/intel/{name}`
-- **UI:** `ui/repo-intel.html` — ingest box + repo cards with extraction tree + dept mapping
-
-## v3.32.0 — Execution Engine (v4.0 #2)
-Workflow says WHAT. Execution does it — queue, retry, parallel, dependencies, progress.
-
-- **Engine:** `scripts/execution_engine.py` — job queue (execution.db), background threads, dependency resolution (steps wait for deps), parallel step groups, auto-retry (max_retries), progress %, completion
-- **API:** `POST /api/v1/execution/run` · `GET /status/{job_id}` · `GET /queue` · `POST /retry/{job_id}`
-- **UI:** `ui/execution.html` — live queue with progress bars, step diagrams (parallel + deps), retry buttons
-
-## v3.33.0 — Validation Engine (v4.0 #3)
-Everything generated must pass validation — 10 dimensions, composite score, gate.
-
-- **Validator:** `scripts/validation_engine.py` — code_review, security, performance, accessibility, UI, testing, linting, documentation, standards → weighted composite (0-100) + pass/fail gate + report history
-- **API:** `POST /api/v1/validation/run` (path, name, threshold) · `GET /report/{id}` · `GET /history`
-- **UI:** `ui/validation.html` — dimension bars, gate badge, history
-- **Works on:** Project Engine output, repo intel, any generated deliverable
-
-## v3.34.0 — Agent Lifecycle (v4.0 #4)
-Every agent now has a full lifecycle state machine.
-
-- **Lifecycle:** `scripts/agent_lifecycle.py` — created → assigned → thinking → uses_models → uses_skills → uses_tools → uses_knowledge → returns_result → reviewer_checks → memory_updated → sleeps (then wraps to a new cycle)
-- **API:** `POST /api/v1/lifecycle/start/{agent}` · `POST /advance/{agent}` · `GET /{agent}` · `GET /`
-- **UI:** `ui/lifecycle.html` — per-agent timeline dots, current state badge, advance/restart buttons
-
-## v3.35.0 — Memory System (v4.0 #5)
-The 11-type memory hierarchy — every memory has a home.
-
-- **Store:** `scripts/memory_system.py` — user, conversation, project, department, agent, tool, workflow, knowledge, experience, long-term, temporary (memory.db) · add/get/search per type · promote temporary → long-term · seeds from second_brain
-- **API:** `GET /api/v1/memory` · `GET /{type}` · `POST /{type}` (add) · `POST /search` · `POST /promote/{id}`
-- **UI:** `ui/memory.html` — 11-type cards with counts, add bar, search, promote
-
-## v3.36.0 — Plugin Store (v4.0 #6)
-Every resource is an installable plugin — catalog + lifecycle.
-
-- **Store:** `scripts/plugin_store.py` — catalog from repo-intel repos (community) + tools + MCP + skills (local), install/uninstall persisted to plugins.db
-- **API:** `GET /api/v1/plugins` · `POST /install/{name}` · `POST /uninstall/{name}` · `GET /status`
-- **UI:** `ui/plugins.html` — storefront with All/Installed/Community/Local tabs + install buttons
-
-## v3.37.0 — Infrastructure + System Services (v4.0 #7)
-Health · Metrics · Event Bus — the layer that keeps Richard OS alive.
-
-- **Services:** `scripts/system_services.py` — live health monitor (database, integrations, GPU, model-proxy, scheduler, queue-manager, event-bus), GPU/CPU metrics, event bus (emit/feed)
-- **API:** `GET /api/v1/system/health` · `GET /metrics` · `POST /event` · `GET /events`
-- **UI:** `ui/system.html` — service grid with green/amber/red, metrics row, event feed (auto-refresh)
-
-## v3.38.0 — Department 2.0 (v4.0 #8) — v4.0 CAPSTONE
-Sub-department standardization — every sub-dept owns its full operating manual.
-
-- **20-item spine:** added project-structures, examples, evaluation, output-formats, plugins, tools to the department template
-- **Sub-departments:** web → frontend/backend/database/api/auth/devops/testing/security/docs, each scaffolded with the 21-item standardized template (knowledge/skills/agents/project-structures/templates/rules/standards/prompts/workflows/git/mcp/docs/memory/datasets/training/examples/evaluation/output-formats/plugins/tools)
-- **Scale:** web went 15 → 204 files; the same template standardizes every department + sub-department
-
-## v3.39.0 — Intelligent Escalation (Phase F) — Local First, Cloud Assisted, Continuous Learning
-The architecture's core loop, running end-to-end.
-
-- **F1 Context Assembly:** `context_assembly.py` packs all 14 resources (dept knowledge, skills, user+long-term memory, repo intel, plugins, MCP, structures, templates, standards, rules, projects, workflows) into ONE envelope before any model call — wired into `call_llm(context=True)`
-- **F2 Capability-gap:** `capability_gap.py` classifies why local can't complete (coding/vision/reasoning/knowledge/speed) → specialist (DeepSeek/Gemini/Claude/GPT/Groq)
-- **F3 Escalation:** `escalation_engine.py` — local first → gap detect → escalate to specialist via 8-provider chain → auto-learn
-- **F4 Auto-merge:** `auto_merge.py` merges local + cloud outputs (cloud fills the gap, local kept when cloud empty)
-- **F5 Learn-from-cloud:** `learn_from_cloud.py` — every cloud success → quality check → experience memory → training dataset (cloud-assisted.jsonl) → future fine-tunes
-- **F6 Provider chain:** 8 providers (local, DeepSeek, Gemini, Groq, Claude, GPT, Qwen, Mistral) with live availability
-- **API:** `GET /api/v1/models/providers` · `POST /api/v1/escalation/execute` · `GET /api/v1/context`
-
-## v3.40.0 — Vector DB (Phase G1)
-Semantic retrieval across memory, repo intel, and skills.
-
-- **Vector DB:** `scripts/vector_db.py` — sklearn TF-IDF cosine index over 54 docs (memory/repo-intel/skills), build + search by similarity (pluggable to sentence-transformers later)
-- **API:** `POST /api/v1/vector/build` · `POST /api/v1/vector/search`
-- **UI:** semantic vector search added to Memory page (rebuild + results)
-
-## v3.41.0 — Knowledge Graph (Phase G2)
-Entities + relations — semantic depth over the structural brain graph.
-
-- **Graph:** `scripts/knowledge_graph.py` — subject-relation-object triple extraction (heuristic patterns: is-a/uses/builds/runs-on/contains/depends-on/belongs-to), node+edge store (knowledge_graph.db), neighbor/relation queries
-- **API:** `GET /api/v1/knowledge-graph` · `GET /neighbors/{node}` · `POST /triple` · `POST /extract`
-- **UI:** `ui/kg.html` — node cards, click-to-query neighbors, extract button
-
-## v3.42.0 — RAG Doc-Chat (Phase G3)
-Doc-chat now retrieves via vectors, not just keywords.
-
-- **RAG:** `doc_chat._search_chunks` upgraded from keyword-overlap to TF-IDF cosine over the doc's chunks (sklearn, same technique as vector_db) with lexical fallback
-- **Verified:** "What hardware for ML?" → retrieved the RTX chunk → grounded answer "NVIDIA RTX 3050"
-
-## v3.43.0 — Vision Feedback Pipeline (Phase G4) — Phase G COMPLETE
-Image → vision analyze → structured UI spec → knowledge → local retry.
-
-- **Pipeline:** `scripts/vision_pipeline.py` — analyze image (vision-capable models) → extract spec (layout/components/colors/nav) → store experience memory + knowledge-graph triples (image →represents→ component, →uses-layout→) → return retry_prompt for the local model
-
-## v3.44.0 — Settings (Phase H4)
-User preferences, persisted + consumed by agents.
-
-- **Store:** `scripts/settings.py` — name/city/timezone/preferred_dept/default_model/theme/notifications/morning_brief/voice_enabled/autonomy_level → 06-data/settings.json (gitignored), type-coerced
-- **API:** `GET /api/v1/settings` · `POST /api/v1/settings` · `POST /reset`
-- **UI:** `ui/settings.html` — profile + AI preferences + system toggles
-
-## v3.45.0 — Automation Center (Phase H5)
-Manage every scheduled job from the UI.
-
-- **Center:** `scripts/automation_center.py` — registry of scheduler agents (8) + execution jobs + user automations (automations.json); enable/disable, run-now (launches agent), create scheduled jobs
-- **API:** `GET /api/v1/automations` · `POST /` (create) · `POST /{id}/toggle` · `POST /{id}/run`
-- **UI:** `ui/automations.html` — job list with run + enable/disable, create form
-
-## v3.46.0 — Model Registry (Phase E4)
-Versioned fine-tuned checkpoints — register, promote, deploy, rollback.
-
-- **Registry:** `scripts/model_registry.py` — model_registry.db (name/path/dataset/samples/eval_score/version/status), register (auto version bump), promote→active, deploy (writes ACTIVE.txt pointer), rollback; `active_model()` feeds local_inference (deploy actually takes effect)
-- **API:** `GET /api/v1/model-registry` · `POST /register` · `POST /promote/{id}` · `POST /rollback/{id}` · `POST /deploy`
-- **UI:** `ui/models-registry.html` — model cards with version/eval/status, promote + deploy buttons
-
-## v3.47.0 — Basic Auth (Phase I1)
-The server now requires sign-in.
-
-- **Auth:** `scripts/auth.py` — pbkdf2-hashed users (users.json), token sessions (sessions.json), login/logout/verify
-- **API:** `POST /api/v1/auth/login` · `POST /logout` · `GET /me` · `GET /verify`
-- **UI:** `ui/login.html` — sign-in form (sets token cookie) · shell redirects to login without a token
-- **Setup:** `python3 scripts/auth.py --setup <user> <pass>`
-
-## v3.48.0 — Secret Vault (Phase I3)
-API keys and tokens encrypted at rest (Fernet), decrypt-on-use.
-
-- **Vault:** `scripts/vault.py` — Fernet (AES-128-CBC + HMAC), key derived from PBKDF2/200k, key file or RICHARD_MASTER_KEY env; save/get/list/delete; integrations connectors read gmail/github secrets from the vault
-- **API:** `GET /api/v1/vault` · `POST /` (store) · `GET /{name}` · `POST /{name}/delete`
-
-## v3.49.0 — Memory Lifecycle (Phase D4)
-Temporary memories auto-promote to long-term; stale ones decay.
-
-- **Lifecycle:** `scripts/memory_lifecycle.py` — promote temp → long-term by importance (≥2) or age (≥24h), delete stale temps (TTL 7d)
-- **API:** `POST /api/v1/memory/lifecycle/run` (dry_run opt) · `GET /stats`
-
-## v3.50.0 — Project Structure Repository (Phase B6)
-Blueprint catalog — 12 structures (react/nextjs/vue/fastapi/django/express/postgres/mongodb/rest/graphql/docker/jwt) with alias + keyword resolution; project_engine routing is blueprint-aware.
-- **API:** `GET /api/v1/structures` · `GET /{name}` · `POST /scaffold` · **UI:** `ui/structures.html`
-
-## v3.51.0 — Audit Logs (Phase I4)
-Every API action logged (method, path, user, status) to audit.db + middleware + viewer endpoint.
-
-- **Audit:** `scripts/audit.py` · **Middleware:** all requests logged automatically · **API:** `GET /api/v1/audit`
-
-## v3.52.0 — User Management (Phase I2)
-Add/list/remove users.
-
-- **Auth:** `auth.py` list_users/remove_user · **API:** `GET /api/v1/auth/users` · `POST /` (add) · `POST /{user}/remove`
-
-## v3.52.0 — User Management (Phase I2)
-Add/list/remove users.
-
-- **Auth:** `auth.py` list_users/remove_user · **API:** `GET /api/v1/auth/users` · `POST /` (add) · `POST /{user}/remove`
-
-## v3.52.0 — User Management (Phase I2)
-Add/list/remove users. **API:** `GET /api/v1/auth/users` · `POST /` · `POST /{user}/remove`
-
-## v3.53.0 — Deep Security Scan (Phase I5)
-Severity-ranked vuln scan of any project dir (secrets, unsafe eval/exec, SQLi/XSS, CORS/CSRF, debug mode).
-
-- **Scanner:** `scripts/security_scan.py` — OWASP-style patterns, BlueTeam-aware · **API:** `POST /api/v1/security/scan`
-
-## 🏆 v4.0.0 — The Complete AI Operating System (CAPSTONE)
-All phases shipped. Richard OS is a self-hosted, GPU-powered personal AI operating system.
-
-**Phases delivered:** 19 core layers (v3.3–v3.30) · Real-data swap (v3.18) · 8 v4.0 architecture items (v3.31–v3.38) · Phase F Intelligent Escalation (v3.39) · Phase G Knowledge (v3.40–v3.43) · Phase H UX (H1/H4/H5) · E4 Model Registry (v3.46) · Phase I Security complete (I1 auth, I2 users, I3 vault, I4 audit, I5 deep scan) · D4/B6 quick wins · **B5 sub-dept rollout · H2 desktop launcher · H3 voice/video depth · J3 Docker · J2 autonomy · J1 offline model**
-
-**Run:** `python3 scripts/desktop_launcher.py` → sign in (sujith / Richard-OS-2026) → the OS.
-**Container:** `docker compose up`
-**Autonomy:** `python3 scripts/autonomy.py`
-**Offline:** `python3 scripts/offline_model.py --train` then serve local-first.
-
-## v4.1.0 — 100% COMPLETE (52/52 ToDo items)
-The plan is fully shipped. Final four: **A8 kernel boot** (10-subsystem init + retry, kernel_boot.json) · **C5 repo sync** (git pull lifecycle, 20 repos) · **E6 training pipeline 2.0** (clean→label→vectorize→eval split, 396 samples → 317 train/79 eval) · **E5 LoRA on RTX** (peft r=4 adapters, GPU fine-tune in 2s).
 
 ---
 
-## 📋 RICHARD OS — COMPLETE FEATURE INDEX (52/52)
+# 🧩 SYSTEM ARCHITECTURE & TECHNICAL REFERENCE
 
-### Phases A–J
-| Phase | Items | Status |
-|---|---|---|
-| A. Kernel + Brain | System services, model orchestrator, planner, task manager, workflow, execution, collab, **kernel boot** | ✅ 8/8 |
-| B. Departments + Skills + Projects | 20-item dept spine, sub-dept standardization + rollout, skill layer, project engine, **structures repo** | ✅ 6/6 |
-| C. Resource Intel + Validation | Repo intel pipeline, ingested repos (BlueTeam-Tools, awesome-claude-skills), validation 10-dim, vector search, **repo sync** | ✅ 5/5 |
-| D. Memory + Lifecycle + Plugins | Memory 11-type, agent lifecycle, plugin store, **memory auto-promotion** | ✅ 4/4 |
-| E. Continuous Learning | Learning loop, GPU fine-tune, local inference, **model registry, LoRA, training pipeline 2.0** | ✅ 6/6 |
-| F. Intelligent Escalation | Context assembly, capability-gap, escalation, auto-merge, learn-from-cloud, provider chain | ✅ 6/6 |
-| G. Knowledge Depth | Vector DB, knowledge graph, RAG doc-chat, vision feedback | ✅ 4/4 |
-| H. UX + Apps | PWA, settings, automation center, desktop launcher, voice/video | ✅ 5/5 |
-| I. Security | Auth, user mgmt, secret vault, audit, deep security scan | ✅ 5/5 |
-| J. Independence | Offline model, autonomy, Docker | ✅ 3/3 |
+# 🧠 RICHARD OS
 
-**TOTAL: 52/52 · ~35 releases · 500+ files · $0**
+### *Local First · Cloud Assisted · Continuously Learning*
 
-**Run:** `python3 scripts/desktop_launcher.py` → `sujith / Richard-OS-2026`
-**Container:** `docker compose up` (port 8001) · **Autonomy:** `python3 scripts/autonomy.py`
-**Offline:** `python3 scripts/offline_model.py --train`
+![](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20Android%20%7C%20Docker-0A101F)
+![Python](https://img.shields.io/badge/Python-3.12-22D3EE)
+![FastAPI](https://img.shields.io/badge/FastAPI-API-10B981)
+![Docker](https://img.shields.io/badge/Docker-bundle-0891B2)
+![AI](https://img.shields.io/badge/AI-Local%20First-A78BFA)
+![MCP](https://img.shields.io/badge/MCP-Tools-60A5FA)
+![Agents](https://img.shields.io/badge/Agents-30%20registry-F472B6)
+![License](https://img.shields.io/badge/License-MIT-10B981)
+[![CI](https://github.com/Sujith-richard/richard-os/actions/workflows/ci.yml/badge.svg)](https://github.com/Sujith-richard/richard-os/actions)
 
-## v4.2.0 — Brain Graph v4.x Refresh
-The neural brain now maps the complete OS: +24 nodes / +27 links for Phases F/G/I/J + v4 (Intelligent Escalation, Knowledge Depth, Security Layer, Model Ops, System Core clusters + Richard Kernel, LoRA, Vault, etc.). 206 nodes / 219 links / 0 broken.
+A self-hosted **AI operating system** that coordinates local AI models, cloud AI models, skills, tools, MCP servers, plugins, knowledge, memory, departments, agents, workflows, projects, devices, and continuous learning through a unified **Richard Brain**.
 
-## v5.1.0 — AI Runtime Service (v5.0 #1)
-Unified per-call layer: token manager, cost tracker, timeout, output validator — every model call normalized + telemetry.
+Richard OS is **not**:
 
-- **Runtime:** `scripts/ai_runtime.py` — run_call() (timeout + validate + log), estimate_cost (per-model rates), validate_output, recent_calls
-- **Wired:** `agent_lib.call_llm` now logs every real call (tokens/cost/latency)
-- **API:** `GET /api/v1/runtime/calls`
+- 🚫 *just a chat bot* — it plans, executes, validates, and learns.
+- 🚫 *just an LLM wrapper* — it owns 38+ SQLite stores, an event bus, a kernel and a package marketplace.
+- 🚫 *just an API gateway* — it has an orchestrated model pool (Local → DeepSeek → … → OmniRoute).
+- 🚫 *just an agent framework* — it has departments, sub-depts, skills, tool registries, project engines.
+- 🚫 *just a workflow engine* — it has the Brain, memory graph, learning loop, and device agents.
+- 🚫 *just a personal assistant* — it boots like an OS (`kernel.py`), self-heals (`autonomy.py`) and ships installers.
 
-## v5.2.0 — Event Bus Spine (v5.0 #2)
-Every engine publishes to the central bus; subscribers react.
+It combines all of those into an **operating-system-like AI environment**.
 
-- **Bus:** `system_services.py` publish/subscribe/subscriptions (thread-safe, persisted)
-- **Wired:** task_assigner → task.created · workflow_engine → workflow.finished (model.selected, learning.started next)
-- **API:** `POST /api/v1/events/publish` · `GET /api/v1/events` · `GET /api/v1/events/subscriptions`
+---
 
-## v5.3.0 — Package Manager (v5.0 #3)
-Everything is an installable package — departments, skills, workflows, structures.
+## Status legend (every feature is labeled from the repo)
 
-- **Manager:** `scripts/package_manager.py` — discovers all local packages (16+), install/uninstall with version + manifest, publishes package.installed events
-- **API:** `GET /api/v1/packages` · `POST /install/{name}` · `POST /uninstall/{name}` · `GET /installed`
-
-## v5.4.0 — AI Observability (v5.0 #4)
-Per-model-call telemetry: cost, tokens, latency, error rate.
-
-- **Observability:** `ai_runtime.observability()` — aggregate by model + summary + recent calls
-- **API:** `GET /api/v1/observability`
-
-## v5.5.0 — Agent Runtime service (v5.0 #5)
-Unified agent runtime: registry + on-demand/scheduled runs + logging.
-
-- **Runtime:** `scripts/agent_runtime.py` — 30-agent registry, run_agent (logs + agent.started event), schedule, recent_runs
-- **API:** `GET /api/v1/agent-runtime/registry` · `POST /run` · `POST /schedule` · `GET /runs`
-
-## v5.6.0 — Version Manager (v5.0 #6)
-Everything versioned — skills, knowledge, departments.
-
-- **Versioning:** `scripts/version_manager.py` — snapshot + hash + version bump + history + rollback for skills/departments/knowledge
-- **API:** `POST /api/v1/versions/{kind}/{name}` · `GET /api/v1/versions` · `POST /{kind}/{name}/rollback/{v}`
-
-## 🏆 v5.0.0 — Platform Architecture (all 7 v5 gaps)
-1. **AI Runtime** (v5.1) — unified per-call layer: tokens/cost/timeout/validate
-2. **Event Bus spine** (v5.2) — publish/subscribe central bus, engines wired
-3. **Package Manager** (v5.3) — everything installable (depts/skills/workflows/structures)
-4. **AI Observability** (v5.4) — per-model cost/tokens/latency/errors
-5. **Agent Runtime** (v5.5) — unified registry + run/schedule/logging
-6. **Version Manager** (v5.6) — version everything + rollback
-7. **Kernel managers** (v5.7) — config/process/storage services
-
-The platform vision: Richard Core (kernel) · Richard Engine (brain+models) · Richard Studio (UI) · Richard SDK · Richard Hub — built on packages + events.
-
-## 🏆 v5.0.0 — Platform Architecture (all 7 v5 gaps)
-1. **AI Runtime** (v5.1) — unified per-call layer: tokens/cost/timeout/validate
-2. **Event Bus spine** (v5.2) — publish/subscribe central bus, engines wired
-3. **Package Manager** (v5.3) — everything installable (depts/skills/workflows/structures)
-4. **AI Observability** (v5.4) — per-model cost/tokens/latency/errors
-5. **Agent Runtime** (v5.5) — unified registry + run/schedule/logging
-6. **Version Manager** (v5.6) — version everything + rollback
-7. **Kernel managers** (v5.7) — config/process/storage services
-
-The platform vision: Richard Core (kernel) · Richard Engine (brain+models) · Richard Studio (UI) · Richard SDK · Richard Hub — built on packages + events.
-
-
-## Version history (shipped)
-| Tag | What |
+| Mark | Meaning |
 |---|---|
-| v5.8.0 | OmniRoute gateway (Pool #3) — keyless `auto` router, capability escalation, learn-from-OmniRoute |
-| v5.9.0 | Richard Hub — registry, `/api/v1/hub/*`, Studio marketplace page, remote index |
-| v6.0.0 | Richard SDK — authoring CLI + API + Studio SDK page (scaffold/validate/pack/publish) |
+| 🟢 | **IMPLEMENTED** — confirmed in code and exercised |
+| 🟡 | **PARTIALLY IMPLEMENTED** — core exists, edges planned |
+| 🔵 | **EXPERIMENTAL** — exists but not production-hardened |
+| 🟠 | **PLANNED** — architectural target |
+| ⚪ | **OPTIONAL** — install/integrate when you run it |
+| 🔴 | **NOT IMPLEMENTED** — future capability |
 
-## Stats
-- **52/52** phase plan complete + all **7 v5 platform gaps**
-- **46** Studio pages · **198** API endpoints · **6** systems of record
-- **28** GitHub releases tagged (v1.0.0 → v6.0.0) · MIT · free · $0 infra
+For every capability below I use the most accurate label for this repository today. Where a cool concept exists only in `docs/ROADMAP_V7.md`, it is **🟠 PLANNED**, never listed as done.
+
+---
+
+## One-screen system overview
+
+```text
+ USER (chat · voice · vision · doc-chat · terminal · API · desktop · mobile · wearables)
+   │
+   ▼
+ CONVERSATION LAYER  (Chat, Avatar, Voice, Doc Chat, Model Registry)
+   │
+   ▼
+ RICHARD BRAIN (Executive · Planner · Task Manager · Workflow · Orchestrator · Memory ·
+                Knowledge Graph · Neural Com · Context · Decision · Learning · Dept · Security)
+   │
+   ▼
+ RESOURCE INTELLIGENCE (skills · tools · MCP · plugins · repos · knowledge · memory)
+   │
+   ▼
+ MODEL ORCHESTRATOR (Local first → DeepSeek → Gemini → Groq → … → OmniRoute)  [capability-aware]
+   │
+   ▼
+ EXECUTION → VALIDATION → SECURITY → DELIVERY
+   │
+   ▼
+ CONTINUOUS LEARNING (capture→clean→label→vector→eval→LoRA→registry→deploy)
+   │
+   ▼
+ RICHARD LOCAL MODEL  (next attempt better)
+```
+
+Mermaid equivalent:
+
+```mermaid
+flowchart TD
+  U[User] --> C[Conversation: Chat / Voice / Vision / Doc-Chat / Terminal / API]
+  C --> B[RICHARD BRAIN]
+  B --> R[Resource Intelligence: Skills / Tools / MCP / Plugins / Knowledge / Memory]
+  R --> M[Model Orchestrator]
+  M --> Ex[Execution]
+  Ex --> V[Validation → Security → Delivery]
+  V --> L[Continuous Learning / Dataset / LoRA]
+  L --> B
+```
+
+---
+
+## Philosophy
+
+1. **Local First** — Richard Local is the first attempt on every request.
+2. **Cloud Assisted** — DeepSeek / Gemini / Groq / … / OmniRoute *assist*, they never replace.
+3. **Continuously Learning** — every assisted success can become training data (quality-gated).
+4. **Capability-Aware Routing** — model chosen by task type: coding→deepseek, vision→gemini, fast→groq, reasoning→claude.
+5. **Tool-Augmented & Skill-Driven** — the Brain decides, the Skill explains, the Tool performs.
+6. **Department Ownership** — departments own knowledge, skills, agents, structures, standards.
+7. **Validation Before Delivery** — 10-dim validation + security scan gate project delivery.
+8. **Security by Default** — auth, vault, audit, least-privilege connectors.
+9. **Observable** — event bus + AI Runtime telemetry + observability endpoint.
+10. **Portable** — 38+ SQLite/JSON stores, MIT, $0 infra.
+
+---
+
+## The Richard OS tree (deep, but source-true at v7.6.4)
+
+```text
+RICHARD OS
+├── Kernel                 scripts/kernel.py (10-subsystem boot, health, retry)
+├── Root Spine             02-blocks/company · web-dev.yml · departments.yaml · personas/
+├── Departments            web·ai·data·cyber·cloud·robotics·finance·hr (+sub-depts, 20-item spines)
+├── Agents                 agent_runtime.py (30-agent registry, lifecycle)
+├── Skills                 04-skills + department skills
+├── Memory                 memory_system.py (11-type) + memory_lifecycle (promote/TTL)
+├── Knowledge              knowledge_graph.py, vector_db.py, RAG doc-chat, vision feedback
+├── Tools                  tools_config.json → registry (4 tools), MCP bridge, dev tools
+├── MCP                    mcp_tools.status() (6 MCP servers, incl FreeCAD/WebToApp)
+├── Plugins                plugins.db store (community/local/tools/skills)
+├── Models                 model_orchestrator, model_registry, local_inference, LoRA
+├── Brain                  planner/task-assigner/context assembly/escalation/auto-merge/governance
+├── OmniRoute              script-based gateway (external, optional, separate from DeepSeek pool)
+├── Project Engine         project_engine.py + 12 blueprints (Next.js, FastAPI, Docker…)
+├── Execution              execution_engine.py (queue, deps, parallel, retry)
+├── Validation             validation_engine.py (10-dim) · security_scan.py (OWASP-pattern)
+├── Security               auth · vault · audit · sessions · deep scan · credentials-change
+├── Learning               learn_from_cloud.py, training_pipeline.py, train_lora.py
+├── Personal Assistant     personal_agents.py, voice_bridge, mobile_agent, home_agent
+├── Mobile Assistant       mobile_bridge + device_registry (proxy to remote node)
+├── Home Assistant         home_bridge.py (smart-home gateway, devices)
+├── Active Voice           voice_engine.py (wake-first, TTS espeak-ng) + persona_engine
+├── Studio (UI)            ui/*.html (~47 pages incl. 3D avatar/hub/sdk/voice/settings…)
+├── SDK / Hub              scripts/sdk.py + scripts/hub.py (marketplace with remote index)
+├── API                    FastAPI app (server.py — 198+ routes under /api/v1 etc.)
+├── DBs                    06-data/*.db (memory, graph, execution, projects, works…)
+├── Deployment             Dockerfile, docker-compose, install scripts, Tauri desktop
+└── Runtime                host :8000 · container :8001 · desktop_launcher · native_launcher
+```
+
+---
+
+## Kernel (🟢 IMPLEMENTED)
+
+`scripts/kernel.py` boots Richard in dependency order and records `06-data/kernel_boot.json`:
+
+```text
+storage → memory → knowledge → skills → tools → departments → models → services → brain → conversation
+```
+
+- 10 subsystems, retry-once on failure, honest ok/fail per step.
+- Kernel lifecycle: `boot(detecting) → boot(booting) → boot(ready) → crash(restart) → boot(retry)`.
+
+Mermaid (lifecycle):
+
+```mermaid
+stateDiagram-v2
+  [*] --> Starting
+  Starting --> Dependency_Map
+  Dependency_Map --> Subsystem_i
+  Subsystem_i --> Failed : retry-exhausted
+  Failed --> Stopping
+  Subsystem_i --> Next : ok
+  Next --> Starting : more deps
+  Next --> Ready : all ok
+  Ready --> Crash : health red
+  Crash --> Starting : autonomy restarts
+```
+
+**Kernel ≠ Brain ≠ Services ≠ Agents ≠ Tools**
+| Layer | What it is |
+|---|---|
+| **Kernel** | boot/lifecycle/heality of the OS process |
+| **Brain** | cognitive orchestrator (plan, assign, escalate, decide) |
+| **System Services** | event bus, scheduler, health, kernel managers, await |
+| **Agents** | autonomous executors with roles |
+| **Tools** | do one action (file, git, MCP, API, DB) |
+
+---
+
+## Root spine & department configuration (🟢 IMPLEMENTED)
+
+`02-blocks/company/departments-spec.yaml` defines departments as **config/spec** (not hard-coded AI):
+
+- web-dev (frontend/backend/db/api/auth/devops/testing/security/docs)
+- ai (ml / llm / vision), data (engineering / analytics)
+- cyber (offense / defense), cloud (infra / devs), robotics (embedded / autonomy)
+- finance (accounting / treasury), hr (recruiting / people ops)
+
+Global → Department → Subdepartment → Project → Task → Agent inheritance grid.
+
+## Department spine (20 directories per department)
+
+`knowledge skills agents prompts templates project-structures rules standards git mcp plugins tools workflows docs examples datasets memory training evaluation output-formats`
+
+Each directory has a stated purpose (e.g., `project-structures/` holds default starter trees; `training/` holds per-dept LoRA-ready data; `output-formats/` = JSON/Markdown/Diagram standards).
+
+---
+
+*Assembled by **parts 2–6** (models / orchestration / learning / UI / deployment / status matrix / examples / license). Legend applies throughout — nothing invented.*
 
 
-## Run / Get Richard OS
+---
+
+---
+
+# 🧠 02 · Models · Orchestration · Skills · Memory · Agents
+
+## Model layer (🟢 IMPLEMENTED — capability-aware, local-first)
+
+Priority is **Local Model first**, then cloud **assist** (not blind fallback):
+local → deepseek → gemini → groq → claude → gpt → qwen → mistral (+ OmniRoute optional gateway).
+
+```mermaid
+flowchart LR
+  U[User task] --> O[Model Orchestrator]
+  O --> L[Richard Local]
+  L -->|can do| R[Result] --> V[Validate] --> D[Deliver]
+  L -->|capability gap| C[Context Assembly]
+  C --> Cloud[DeepSeek / Gemini / Groq / ...]
+  Cloud --> M[Auto-Merge] --> V
+  V --> Learn[Learning dataset → LoRA → Registry → Deploy]
+  Learn --> L
+```
+
+Why this matters: cloud models are **assistants to Richard Local**, and every assisted success can improve the local model.
+
+## Context Assembly (14-resource envelope) (🟢)
+
+Department knowledge · skills · user memory · long-term memory · knowledge graph · repo intelligence · plugins · MCP · project structures · templates · standards · rules · previous projects · workflows.
+
+## Memory (11-type) (🟢)
+
+user · conversation · project · department · agent · tool · workflow · knowledge · experience · long-term · temporary.
+Lifecycle: capture → classify → store → retrieve → use → update → promote/TTL → evaluate.
+
+## Agents (30-registry + lifecycle) (🟢)
+
+created → assigned → thinking → uses resources → executes → result → reviewer → memory → sleep (lifecycle.db states + logs).
+
+## Departments (spec-driven, user-extensible) (🟢)
+
+web · ai · data · cyber · cloud · robotics · finance · hr, each with 20-item spine:
+knowledge skills agents prompts templates project-structures rules standards git mcp plugins tools workflows docs examples datasets memory training evaluation output-formats.
+Projects scaffold from department defaults (frontend/` `src components pages` …; backend/` `config controllers models routes` …).
+
+---
+
+## Skills · Tools · MCP (🟢 real registry)
+
+- **Skills** (` 04-skills`, department skills) tell HOW — e.g. `skill.md`, `examples.md`.
+- **Tools** (registry) act — model decides; skill explains; tool performs.
+- **MCP** — `tools/mcp_bridge.py` + `mcp_tools.status()` (freecad, WebToApp, OmniCloud …).
+- **Plugins** — install/enable/disable/tier from `plugins.db` + UI.
+
+## Repository intelligence (🟢)
+
+BlueTeam-tools, awesome-claude-skills, Fooocus, Keycloak … are ingested into `06-data/repo_intel/*.json` and surface in the registry (23 repos) + hub packages. Trust is per-repo (scan/classify/extract → register → department).
+
+## External integrations (⚪/🟢 optional where live)
+
+GitHub (live) · Gmail (optional) · Weather (live) · Home (sim) · Models (live on 127.0.0.1:1234) · OmniRoute (:20129) · Fooocus image-gen · Keycloak IdP (setup).
+
+---
+
+
+---
+
+
+---
+
+## 🧠 03 · The Richard Brain (deep)
+
+The Brain is the coordinator. Engines implemented (each 🟢): Planner, Task Assigner, Workflow, Context Assembly, Capability Gap, Escalation, Auto-Merge, Validation, Learning, Department Engine, Model Orchestrator, System Services (event bus, kernel managers), Security (auth/vault), Project Engine, Neural Communication (event bus + graph).
+
+The local model lives in the **model layer**, not the Brain. Executive AI, Planner, Task Manager, Workflow Engine, Knowledge Graph, Memory Engine, Neural Communication and Model Orchestrator connect to the Brain as cognitive services.
+
+## Continuous Learning (🟢 implemented pipeline)
+
+Cloud assist → useful interaction → capture → clean/label/validate → dataset → LoRA → model registry → deploy → future local attempt better. Not automatic: gated by quality, privacy, dedup, review.
+
+```mermaid
+flowchart LR
+  T[Task] --> R[Result] --> C[Capture] --> Cl[Clean/Label] --> E[Evaluate]
+  E --> D[Dataset] --> L[LoRA] --> M[Registry] --> Dp[Deploy] --> N[Richard Local] --> T2[Next Task]
+```
+
+## Learning artifacts
+- `learn_from_cloud.py` — captures cloud-assisted successes → `dataset/cloud-assisted.jsonl` (quality-gated).
+- `training_pipeline.py` — clean → label → vectorize → eval.
+- `train_lora.py` — real LoRA (RTX-verified).
+- `model_registry.py` — register/promote/rollback/deploy.
+
+## Security (🟢)
+auth (login/sessions/change-credentials) · vault (encrypted) · audit.db · `security_scan.py` (secrets/unsafe-code/injection patterns) · validation engine (10-dim: code/security/performance/accessibility/ui/testing/lint/docs/standards).
+
+## Observability & Events (🟢 on local, partial for deep metrics)
+`/api/v1/runtime/calls` · `/api/v1/observability` · event bus (`/api/v1/events`) with task.created, model.selected, workflow.completed etc.
+
+---
+
+
+---
+
+
+---
+
+## 🧠 04 · Studio UI · Deployment · Runtime
+
+### Studio (🟢, ~47 pages)
+Chat · Brain · Agents · Tasks · Skills · Approvals · Workflows · Execution · Validation · Lifecycle · Memory · Knowledge Graph · Plugins · Model Registry · System · Settings · Automations · Integrations · Repo Intel · Registry · Structures · Project Gen · Doc Chat · ML · Voice · Mobile · Home · Avatar (3D) · Hub · SDK …
+
+### Deployment (🟢)
+- Host: `uvicorn scripts.server:app --port 8000`
+- Docker: `docker compose up` (:8001→8000, volume 06-data)
+- Desktop launcher: `scripts/desktop_launcher.py` (browser) · `native_launcher.py` (pywebview → Tauri)
+- Tauri `.deb/.rpm/.AppImage` build (linux) · Windows .msi/.exe via Actions
+- Installers: `install/linux/install.sh` (one-command) · `install/windows/setup.cmd` (3-stage) · Inno `.iss`
+
+### Runtime instances
+- Host :8000 (FastAPI + uvicorn)
+- Container :8001
+- Autonomy daemon (`autonomy.py`) health checks + self-heal (NOT unsupervised decision-making)
+- kernel_boot.json for boot state
+
+---
+
+
+---
+
+
+---
+
+## 🧺 05 · Status matrix (source-true at v8.1)
+
+| Feature | Status | Implementation |
+|---|---|---|
+| Kernel boot | 🟢 | scripts/kernel.py |
+| Departments + 20-spine | 🟢 | 02-blocks yaml |
+| Agents (30) + lifecycle | 🟢 | agent_runtime.py |
+| Skills | 🟢 | 04-skills |
+| Memory 11-type | 🟢 | memory_system.py |
+| Knowledge graph | 🟢 | knowledge_graph.py |
+| Vector/RAG | 🟢 | docchat, vector_db |
+| Tools/MCP | 🟢 | tools bridge |
+| Plugins | 🟢 | plugins.db |
+| Model orchestration | 🟢 | model_orchestrator |
+| Local inference | 🟢 | local_inference.py |
+| LoRA training | 🟢 | train_lora.py |
+| Learning | 🟢 | learn_from_local.py / training_pipeline |
+| Validation 10-dim | 🟢 | validation_engine.py |
+| Security (auth/vault/audit/scan) | 🟢 | auth/vault/audit/security_scan |
+| Project engine (+12 blueprints) | 🟢 | project_engine.py |
+| Execution engine | 🟢 | execution_engine.py |
+| Voice (active-listen + TTS/STT) | 🟢 | voice_engine.py |
+| Mobile agent | 🟡 | device_registry + proxy; phone app (android) |
+| Home assistant | 🟡→🟢 | home_bridge.py (sim) + plans |
+| OmniRoute gateway | ⚪ optional | omni_route.py (external) |
+| Fooocus image-gen | ⚪ optional | image_gen.py bridge |
+| Keycloak IdP | ⚪ optional | integrations keycloak |
+| Tauri desktop | 🟢 linux / 🟡 windows CI | src-tauri |
+| Docker image | 🟢 | Dockerfile/compose |
+| Modeling as “real” GPU training | 🟡 experimental | RTX LoRA tiny |
+
+## Examples & data flow
+
+- Example (voice): “Hey Richard, turn on the living room light.” → wake → Brain → Home Assistant → Tool → device → verify → voice.
+- Example (project): “Build a fitness app” → Brain → Web Dept → frontend/backend → skills → models → execution → validation → security → deliver.
+
+## Roadmap (🟠 PLANNED, from docs/ROADMAP_V7.md)
+v7.x remote nodes · offline-first (STT/TTS local) · multi-repo hub signatures (partial live) · cluster/self-managing (partial) · v8 native mobile (Flutter shell, in progress) · v9 deep training.
+
+
+---
+
+# 🚀 Run / Get Richard OS
+
+
 
 - Quick demo: `git clone ... && bash scripts/demo.sh`
 - Linux one-command: `curl -fsSL .../install/linux/install.sh | bash`  (just worked for you ✓)

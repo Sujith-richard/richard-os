@@ -1,0 +1,13 @@
+name: richard_os_assistant
+description: Richard OS Assistant - premium AI companion mobile shell
+version: 0.2.0
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  webview_flutter: ^4.4.4
+  shared_preferences: ^2.2.2
+flutter:
+  uses-material-design: true

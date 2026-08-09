@@ -1,0 +1,2 @@
+rootProject.name = "RichardOsDevice"
+include ':app'

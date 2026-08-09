@@ -103,7 +103,7 @@ def index(include_remote=True):
         n = p.get("name")
         if n in rows:
             x = rows[n]
-            p.update({k: x.get(k) for k in ("status", "downloads", "installed_at", "published_at", "version", "featured") if x.get(k) is not None})
+            p.update({k: x.get(k) for k in ("status", "downloads", "installed_at", "published_at", "version", "featured", "signature", "repo") if x.get(k) is not None})
     return {"ok": True, "count": len(pkgs), "packages": pkgs}
 
 def search(q=""):
@@ -116,8 +116,12 @@ def search(q=""):
 
 def publish(name, kind="package", version="1.0.0", desc="", author="Developer-os", tier="community", repo="", featured=False):
     init_db(); MANIFEST_DIR.mkdir(exist_ok=True)
+    import hashlib
+    _core = json.dumps({"name": name, "kind": kind, "version": version, "desc": desc,
+                        "author": author, "tier": tier, "repo": repo or "", "published_at": _now()}, sort_keys=True)
     manifest = {"name": name, "kind": kind, "version": version, "desc": desc,
-                "author": author, "tier": tier, "repo": repo or "", "published_at": _now()}
+                "author": author, "tier": tier, "repo": repo or "", "published_at": _now(),
+                "signature": hashlib.sha256(_core.encode()).hexdigest()[:16]}
     path = MANIFEST_DIR / f"{name}.json"
     path.write_text(json.dumps(manifest, indent=2))
     c = _conn()
@@ -133,6 +137,14 @@ def publish(name, kind="package", version="1.0.0", desc="", author="Developer-os
     except Exception:
         pass
     return {"ok": True, "published": name, "kind": kind, "version": version, "manifest": str(path)}
+
+def sign(name):
+    """Return the signature for a package (for multi-repo verification)."""
+    mf = MANIFEST_DIR / f"{name}.json"
+    if not mf.exists():
+        return {"ok": False, "error": "no manifest"}
+    d = json.loads(mf.read_text())
+    return {"ok": True, "name": name, "signature": d.get("signature"), "repo": d.get("repo"), "kind": d.get("kind")}
 
 def pull(name, kind=None):
     init_db()
@@ -232,6 +244,7 @@ def export_index():
             "version": p.get("version") or "1.0.0", "desc": (p.get("desc") or "")[:200],
             "author": p.get("author") or "Developer-os", "tier": p.get("tier") or "community",
             "repo": p.get("repo") or "", "status": "available", "featured": bool(p.get("featured")),
+            "signature": p.get("signature") or "",
             "updated_at": p.get("published_at") or _now(),
         })
     out = {"hub": "hub-index", "version": 1, "generated_at": _now(), "count": len(pkgs), "packages": pkgs}

@@ -2,9 +2,10 @@
   "name": "data-pipeline",
   "kind": "skill",
   "version": "1.0.0",
-  "desc": "ETL/ELT: validation, schedules, backfills",
+  "desc": "ETL/ELT patterns",
   "author": "Richard Core",
   "tier": "official",
-  "repo": "",
-  "published_at": "2026-08-08 17:00:38"
+  "repo": "github.com/Sujith-richard/richard-os",
+  "published_at": "2026-08-09 09:12:49",
+  "signature": "a82e03128ab7e1cb"
 }

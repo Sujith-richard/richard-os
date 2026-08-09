@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'screens/splash.dart';
-import 'screens/home_shell.dart';
-import 'screens/security_screen.dart';
 
 void main() => runApp(const RichardApp());
 

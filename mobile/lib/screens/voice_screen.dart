@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../api_client.dart';
 import '../widgets/richard_orb.dart';
+
 
 class VoiceScreen extends StatefulWidget {
   const VoiceScreen({super.key});
@@ -30,7 +32,7 @@ class _VoiceScreenState extends State<VoiceScreen> {
     var acc = Duration.zero;
     for (final (s, m, d) in steps) {
       acc += d;
-      Future.delayed(acc, () { if (mounted) _status(s, m); });
+      Future.delayed(acc, () { if (mounted) _cycle(s, m); });
     }
   }
 
@@ -47,7 +49,7 @@ class _VoiceScreenState extends State<VoiceScreen> {
           Text('Voice', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
         ]),
         const Spacer(flex: 2),
-        RichardOrb(size: 230, state: _state, progress: _state == OrbState.executing ? 0.7 : 0),
+        SizedBox(width: 230, height: 230, child: RichardOrb(size: 230, state: _state, progress: _state == OrbState.executing ? 0.7 : 0)),
         const Spacer(),
         Text(_msg, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, height: 1.4, color: dark ? Colors.white : RColors.ink)),
         const SizedBox(height: 10),
@@ -59,7 +61,7 @@ class _VoiceScreenState extends State<VoiceScreen> {
         const Spacer(flex: 2),
         // mic
         GestureDetector(
-          onTap: () { setState(() => _active = !_active); if (_active) _runDemo(); },
+          onTap: () async { setState(() => _active = !_active); if (_active) { _runDemo(); try { await RichardApi.I.voice('hey richard turn on the bedroom light'); } catch (_) {} } },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             width: 74, height: 74,

@@ -28,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _tile('Server URL', _server, Icons.dns, () => _prompt('Server URL', _server, (v) => setState(() => _server = v))),
         _tile('Wake word', _wake, Icons.keyboard_voice, () => _prompt('Wake Word', _wake, (v) => setState(() => _wake = v))),
         switchTile('Active Listening', _activeMic, (v) => setState(() => _activeMic = v)),
-        _personaRow(),
+        _personaListTile(),
         switchTile('Dark theme', _dark, (v) => setState(() => _dark = v)),
         const Divider(height: 28),
         for (final g in _groups.keys) ...[

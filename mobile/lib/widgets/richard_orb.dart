@@ -21,7 +21,6 @@ class _P {
 
 class _RichardOrbState extends State<RichardOrb> with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat();
-  final Random _r = Random();
   final List<_P> _ps = List.generate(44, (_) => _P());
 
   Color get _col {

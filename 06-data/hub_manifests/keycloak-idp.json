@@ -1,0 +1,11 @@
+{
+  "name": "keycloak-idp",
+  "kind": "plugin",
+  "version": "1.0.0",
+  "desc": "Keycloak identity & access provider",
+  "author": "Developer-os",
+  "tier": "community",
+  "repo": "github.com/keycloak/keycloak",
+  "published_at": "2026-08-09 10:24:50",
+  "signature": "c86ddfb4a2eecd5a"
+}

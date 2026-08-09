@@ -34,6 +34,7 @@ def _http_json(url, headers=None, timeout=12):
 DEFAULTS = {
     "github":  {"owner": "Sujith-richard", "repo": "richard-os", "token": ""},
     "gmail":   {"email": "", "app_password": "", "imap_host": "imap.gmail.com", "max": 20},
+    "keycloak": {"base_url": "http://127.0.0.1:8080", "realm": "richard", "client_id": "richard-client", "mode": "fake"},
     "weather": {"lat": "12.9716", "lon": "77.5946", "city": "Bangalore"},
     "home":    {"url": "http://homeassistant.local:8123", "token": "", "mode_env": "HOME_MODE"},
     "models":  {"base_url": "http://127.0.0.1:1234/v1", "api_key": "not-needed"},

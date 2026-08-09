@@ -28,7 +28,6 @@ def generate(prompt, size="1152x896"):
             return {"ok": True, "image": d.get("image"), "prompt": prompt}
     except Exception as e:
         return {"ok": False, "error": str(e)[:120], "hint": "start Fooocus then enable image_gen.json"}
-PQ
 
 if __name__ == '__main__':
     import sys

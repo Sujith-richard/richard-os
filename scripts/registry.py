@@ -39,6 +39,20 @@ def _repos():
             return [{"name": r} for r in d.get("repos", [])]
         except Exception:
             pass
+    # NEW v7.6: include repo_intel entries (Fooocus, Keycloak, etc.)
+    intel_dir = ROOT / "06-data" / "repo_intel"
+    intel_repos = []
+    if intel_dir.exists():
+        for f in sorted(intel_dir.glob("*.json")):
+            try:
+                d = json.loads(f.read_text())
+                name = d.get("name") or f.stem
+                intel_repos.append({"name": name, "status": "intel"})
+            except Exception:
+                pass
+    if intel_repos or not (live.exists() and json.loads(live.read_text()).get("repos")):
+        if intel_repos:
+            return intel_repos
     if REPOS_JSON.exists():
         try:
             d = json.loads(REPOS_JSON.read_text())

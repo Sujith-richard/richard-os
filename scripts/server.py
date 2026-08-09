@@ -2217,3 +2217,17 @@ def _devices_add(payload: dict = None):
     _dv.path.insert(0, str(_dp.Path(__file__).resolve().parent))
     from device_registry import register
     return register(payload.get("name", ""), payload.get("kind", "mobile"), payload.get("url"))
+
+# ===== v7.4 cluster endpoint =====
+@app.get("/api/v1/cluster/health")
+def _cluster_health():
+    import sys as _cl, pathlib as _cp
+    _cl.path.insert(0, str(_cp.Path(__file__).resolve().parent))
+    from cluster import health
+    return health()
+@app.get("/api/v1/cluster/failover")
+def _cluster_failover(kind: str = "mobile"):
+    import sys as _cl, pathlib as _cp
+    _cl.path.insert(0, str(_cp.Path(__file__).resolve().parent))
+    from cluster import failover
+    return failover(kind)

@@ -1,6 +1,6 @@
+
 import 'package:flutter/material.dart';
 
-/// Richard OS color system — light glass + dark Studio palette.
 class RColors {
   static const bg = Color(0xFFF4F6FA);
   static const surface = Color(0xEFFFFFFF);
@@ -14,21 +14,26 @@ class RColors {
   static const inkSoft = Color(0xFF6B7694);
   static const bgDark = Color(0xFF0A101F);
   static const surfaceDark = Color(0xFF121A2E);
+
+  static const appGrad = LinearGradient(
+    begin: Alignment.topLeft, end: Alignment.bottomRight,
+    colors: [lavenderDeep, accent],
+  );
+  static const orbGlow = RadialGradient(colors: [lavender, Color(0x00A78BFA)]);
 }
 
 class RTheme {
-  static ThemeData light() {
-    final cs = ColorScheme.light(primary: RColors.lavenderDeep, secondary: RColors.accent);
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: cs,
-      scaffoldBackgroundColor: RColors.bg,
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true),
-    );
-  }
-  static ThemeData dark() {
-    final cs = ColorScheme.dark(primary: RColors.lavender, secondary: RColors.accent);
-    return ThemeData(useMaterial3: true, brightness: Brightness.dark, colorScheme: cs, scaffoldBackgroundColor: RColors.bgDark);
-  }
+  static ThemeData light() => ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(primary: RColors.lavenderDeep, secondary: RColors.accent),
+        scaffoldBackgroundColor: RColors.bg,
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true),
+      );
+  static ThemeData dark() => ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(primary: RColors.lavender, secondary: RColors.accent),
+        scaffoldBackgroundColor: RColors.bgDark,
+      );
 }

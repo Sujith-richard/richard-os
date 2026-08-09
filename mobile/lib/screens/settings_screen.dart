@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../api_client.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,7 +12,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _dark = false;
   String _wake = 'hey richard';
   String _persona = 'jarvis';
-  String _server = 'http://127.0.0.1:8000';
+  String _server = RichardApi.baseUrl;
 
   final _groups = <String, List<String>>{
     'AI': ['Models', 'Wake Word', 'Persona', 'Active Microphone', 'Notifications'],
@@ -25,7 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(padding: const EdgeInsets.all(22), children: [
-        _tile('Server URL', _server, Icons.dns, () => _prompt('Server URL', _server, (v) => setState(() => _server = v))),
+        _tile('Server URL', _server, Icons.dns, () => _prompt('Server URL', _server, (v) async { setState(() => _server = v); await RichardApi.setBase(v); })),
         _tile('Wake word', _wake, Icons.keyboard_voice, () => _prompt('Wake Word', _wake, (v) => setState(() => _wake = v))),
         switchTile('Active Listening', _activeMic, (v) => setState(() => _activeMic = v)),
         _personaListTile(),

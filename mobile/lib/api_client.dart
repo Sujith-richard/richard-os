@@ -1,9 +1,20 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RichardApi {
   static String baseUrl = 'http://127.0.0.1:8000';
+  static Future<void> setBase(String url) async {
+    baseUrl = url;
+    final p = await SharedPreferences.getInstance();
+    await p.setString('richard_base', url);
+  }
+  static Future<void> loadBase() async {
+    final p = await SharedPreferences.getInstance();
+    final u = p.getString('richard_base');
+    if (u != null && u.isNotEmpty) baseUrl = u;
+  }
   static final RichardApi I = RichardApi._();
   RichardApi._();
 

@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import 'settings_screen.dart';
 import '../widgets/richard_orb.dart';
 
 class HomeDashboard extends StatelessWidget {
@@ -89,6 +90,25 @@ class HomeDashboard extends StatelessWidget {
               onNavigate?.call(tab);
             });
               }).toList(),
+            ),
+            const SizedBox(height: 16),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                borderRadius: BorderRadius.circular(18),
+                child: Ink(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: dark ? RColors.surfaceDark.withValues(alpha: .55) : Colors.white.withValues(alpha: .92), borderRadius: BorderRadius.circular(18), border: Border.all(color: RColors.lavender.withValues(alpha: dark ? .18 : .12))),
+                  child: Row(children: [
+                    const Icon(Icons.settings_rounded, color: RColors.lavenderDeep),
+                    const SizedBox(width: 12),
+                    Text('Settings', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: dark ? Colors.white : RColors.ink)),
+                    const Spacer(),
+                    const Icon(Icons.chevron_right_rounded, color: RColors.inkSoft),
+                  ]),
+                ),
+              ),
             ),
           ],
         ),

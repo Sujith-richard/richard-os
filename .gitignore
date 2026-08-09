@@ -71,3 +71,4 @@ vendor/
 06-data/kernel_boot.json
 06-data/ai_runtime.db
 src-tauri/target/
+artifacts/

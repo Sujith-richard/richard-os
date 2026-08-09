@@ -79,7 +79,15 @@ class HomeDashboard extends StatelessWidget {
               children: _actions.asMap().entries.map((e) {
                 final tab = switch (e.key) { 0 => 3, 1 => 2, 2 => 2, 3 => 1, 4 => 4, 5 => 4, 6 => 1, _ => 4 };
                 final a = e.value;
-                return _QuickAction(icon: a.$1, label: a.$2, dark: dark, onTap: () => onNavigate?.call(tab));
+                return _QuickAction(icon: a.$1, label: a.$2, dark: dark, onTap: () {
+              // visible: open a dialog with the action
+              showDialog(context: context, builder: (_) => AlertDialog(
+                title: Text(a.$2),
+                content: const Text('Routing to Richard Brain…'),
+                actions: [ TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')) ],
+              ));
+              onNavigate?.call(tab);
+            });
               }).toList(),
             ),
           ],

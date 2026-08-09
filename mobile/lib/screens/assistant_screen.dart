@@ -1,6 +1,16 @@
 
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../api_client.dart';
+
+String? _endpoint(String label) => switch (label) {
+      'Home Assistant' => '/api/v1/home/state',
+      'Memory' => '/api/v1/memory/counts',
+      'Tasks' => '/api/v1/tasks/assignments',
+      'Automations' => '/api/v1/automations',
+      'Mobile' => '/api/v1/devices',
+      _ => null,
+    };
 
 class AssistantScreen extends StatelessWidget {
   const AssistantScreen({super.key});
@@ -68,7 +78,18 @@ class _ModuleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
-      onTap: () {},
+      onTap: () async {
+        try {
+          final api = _endpoint(label);
+          if (api != null) {
+            final r = await RichardApi.I.get(api);
+            if (!context.mounted) return;
+            showDialog(context: context, builder: (_) => AlertDialog(title: Text(label), content: Text(r.toString()), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))]));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label — coming soon in Richard Brain'), duration: const Duration(milliseconds: 900), behavior: SnackBarBehavior.floating));
+          }
+        } catch (_) {}
+              },
       child: Ink(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(

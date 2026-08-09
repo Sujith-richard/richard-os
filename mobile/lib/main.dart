@@ -1,8 +1,15 @@
+import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'screens/splash.dart';
 
-void main() => runApp(const RichardApp());
+void main() {
+  runZonedGuarded(() => runApp(const RichardApp()), (e, st) {
+    // crash guard: print to console + show in UI (debug surface)
+    debugPrint('RICHARD OS ERROR: $e\n$st');
+  });
+}
 
 class RichardApp extends StatelessWidget {
   const RichardApp({super.key});

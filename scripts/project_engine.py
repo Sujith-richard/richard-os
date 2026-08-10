@@ -278,3 +278,56 @@ if __name__ == "__main__":
     main()
 
 
+
+
+def auto_build(brief, client="self"):
+    """v10: generate -> write start.sh (auto-test seed)."""
+    _pid, _title, slug, dept = create_project(brief, client)
+    pid = _pid
+    proj = ROOT / "06-data" / "generated_projects" / slug
+    scaffold(pid, slug, dept, brief)
+    review_fix(pid, dept)
+    security_scan(pid)
+    quality_check(pid, dept)
+    package_project(pid, slug)
+    script = (
+        "#!/usr/bin/env bash\n"
+        "# Richard OS generated app - auto-start\n"
+        'cd "$(dirname "$0")"\n'
+        "[ -d .venv ] || python3 -m venv .venv\n"
+        ".venv/bin/pip install -q -r requirements.txt\n"
+        "nohup .venv/bin/uvicorn app.main:app --port 8002 > /tmp/" + slug + ".log 2>&1 &\n"
+        'echo "backend: http://127.0.0.1:8002"\n'
+        "npm install >/dev/null 2>&1\n"
+        "nohup npm run dev > /tmp/" + slug + "-web.log 2>&1 &\n"
+        'echo "frontend: see /tmp/' + slug + '-web.log for port"\n'
+    )
+    start = proj / "start.sh"
+    start.write_text(script)
+    start.chmod(0o755)
+    deliver(pid)
+    # v10 auto-test: run start.sh, curl backend health, check frontend renders
+    test = {"backend": False, "frontend": False}
+    import subprocess, time
+    subprocess.Popen(["bash", str(start)], cwd=str(proj), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(20):
+        time.sleep(1)
+        try:
+            import urllib.request
+            r = urllib.request.urlopen("http://127.0.0.1:8002/health", timeout=2)
+            if r.status < 400:
+                test["backend"] = True
+                break
+        except Exception:
+            pass
+    for _ in range(20):
+        time.sleep(1)
+        try:
+            import urllib.request
+            r = urllib.request.urlopen("http://127.0.0.1:5173/", timeout=2)
+            if r.status < 400:
+                test["frontend"] = True
+                break
+        except Exception:
+            pass
+    return {"ok": True, "project": slug, "pid": pid, "start": str(start), "auto_test": test}

@@ -561,6 +561,19 @@ def chat(msg: str = ""):
     if not msg.strip():
         return {"reply": "Say something — e.g. \"what's my morning brief?\" or \"run the agents\"."}
 
+    # v10: build/create <X> -> auto-generate project + start.sh
+    low = msg.lower().strip()
+    if low.startswith(("build ", "create ", "make ")):
+        try:
+            import sys as _ab, pathlib as _abp
+            _ab.path.insert(0, str(_abp.Path(__file__).resolve().parent))
+            from project_engine import auto_build
+            brief = msg.split(" ", 1)[1] if " " in msg else msg
+            r = auto_build(brief)
+            return {"reply": f"Built \"{brief}\". Project: {r['project']}. Start: {r['start']}. Auto-test: {r.get('auto_test')} — run ./start.sh to launch."}
+        except Exception as e:
+            return {"reply": f"Build failed: {str(e)[:120]}"}
+
     # ── 1. Gather live OS state (grounding) ──
     state = {}
     try:
@@ -1001,6 +1014,14 @@ app.mount("/reports", StaticFiles(directory=str(ROOT / "06-data" / "reports")), 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
 from project_engine import run_pipeline, init_db, _conn
+
+@app.post("/api/v1/project/auto-build")
+def api_auto_build(payload: dict = None):
+    payload = payload or {}
+    import sys as _ap, pathlib as _app2
+    _ap.path.insert(0, str(_app2.Path(__file__).resolve().parent))
+    from project_engine import auto_build
+    return auto_build(payload.get("brief",""), payload.get("client","self"))
 
 @app.post("/api/v1/project/generate")
 async def api_project_generate(payload: dict = None):

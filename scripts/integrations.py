@@ -195,12 +195,24 @@ def sync_models(cfg):
     (DATA / "live_models.json").write_text(json.dumps({**r, "synced_at": _now()}, indent=2))
     return r
 
+
+def _keycloak_test(cfg):
+    """Ping Keycloak realm well-known → live if 200."""
+    import urllib.request
+    try:
+        url = (cfg.get("base_url") or "http://127.0.0.1:8081").rstrip("/") + "/realms/" + (cfg.get("realm") or "master") + "/.well-known/openid-configuration"
+        with urllib.request.urlopen(url, timeout=5) as r:
+            return {"ok": r.status < 400, "detail": "Keycloak realm live (%d)" % r.status}
+    except Exception as e:
+        return {"ok": False, "detail": str(e)[:120]}
+
 CONNECTORS = {
     "github":  {"title": "GitHub", "icon": "🐙", "test": test_github, "sync": sync_github},
     "gmail":   {"title": "Gmail", "icon": "📧", "test": test_gmail, "sync": sync_gmail},
     "weather": {"title": "Weather", "icon": "🌦️", "test": test_weather, "sync": sync_weather},
     "home":    {"title": "Home Assistant", "icon": "🏠", "test": test_home, "sync": sync_home},
     "models":  {"title": "AI Models", "icon": "🧠", "test": test_models, "sync": sync_models},
+    "keycloak": {"title": "Keycloak IdP", "icon": "🔐", "test": _keycloak_test},
 }
 
 # ---------------- orchestration API ----------------

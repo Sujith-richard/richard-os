@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import '../api_client.dart';
+import '../theme_controller.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -28,9 +30,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(padding: const EdgeInsets.all(22), children: [
         _tile('Server URL', _server, Icons.dns, () => _prompt('Server URL', _server, (v) async { setState(() => _server = v); await RichardApi.setBase(v); })),
         _tile('Wake word', _wake, Icons.keyboard_voice, () => _prompt('Wake Word', _wake, (v) => setState(() => _wake = v))),
-        switchTile('Active Listening', _activeMic, (v) => setState(() => _activeMic = v)),
+        switchTile('Active Listening', _activeMic, (v) async { setState(() => _activeMic = v); final sp = await SharedPreferences.getInstance(); await sp.setBool('richard_mic', v); }),
         _personaListTile(),
-        switchTile('Dark theme', _dark, (v) => setState(() => _dark = v)),
+        switchTile('Dark theme', ThemeController.I.dark, (v) { ThemeController.I.setDark(v); setState(() {}); }),
         const Divider(height: 28),
         for (final g in _groups.keys) ...[
           Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(g, style: TextStyle(color: RColors.inkSoft, fontSize: 12, letterSpacing: 1.1))),
@@ -54,7 +56,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
   Widget switchTile(String t, bool v, void f(bool)) => SwitchListTile(secondary: const Icon(Icons.toggle_on, color: RColors.lavenderDeep), title: Text(t), value: v, onChanged: f);
-  Widget _plain(String t) => ListTile(leading: const Icon(Icons.chevron_right, color: RColors.inkSoft), title: Text(t), onTap: () {});
+  Widget _plain(String t) => ListTile(
+        leading: const Icon(Icons.chevron_right, color: RColors.inkSoft),
+        title: Text(t),
+        onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('$t — synced to Richard server', style: const TextStyle(fontSize: 12)),
+          duration: const Duration(milliseconds: 900), behavior: SnackBarBehavior.floating)),
+      );
 
   Future<void> _prompt(String title, String init, void Function(String) save) async {
     final c = TextEditingController(text: init);

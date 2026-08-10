@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'api_client.dart';
+import 'theme_controller.dart';
 import 'theme.dart';
 import 'screens/splash.dart';
 
@@ -23,6 +24,15 @@ class RichardApp extends StatelessWidget {
       theme: RTheme.light(),
       darkTheme: RTheme.dark(),
       home: const SplashScreen(),
+      builder: (context, child) => ListenableBuilder(
+        listenable: ThemeController.I,
+        builder: (_, __) => MaterialApp(
+          title: 'Richard OS Assistant',
+          theme: RTheme.light(), darkTheme: RTheme.dark(),
+          themeMode: ThemeController.I.dark ? ThemeMode.dark : ThemeMode.light,
+          home: const SplashScreen(),
+        ),
+      ),
     );
   }
 }

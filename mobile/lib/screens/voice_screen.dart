@@ -11,6 +11,9 @@ class VoiceScreen extends StatefulWidget {
 }
 
 class _VoiceScreenState extends State<VoiceScreen> {
+  bool _listening = false;
+
+
   final _ctrl = TextEditingController();
   final _scroll = ScrollController();
   final _msgs = <({bool me, String text})>[];
@@ -85,7 +88,11 @@ class _VoiceScreenState extends State<VoiceScreen> {
         const SizedBox(height: 12),
         Row(children: [
           GestureDetector(
-            onTap: () { setState(() => _active = !_active); if (_active) _runApi(_msgs.isEmpty ? 'turn on the bedroom light' : ''); },
+            onTap: () {
+                setState(() => _active = !_active);
+                if (_active) _cycle(OrbState.listening, 'Tap again to send');
+                else _cycle(OrbState.idle, 'Welcome, Sir.');
+              },
             child: AnimatedContainer(duration: const Duration(milliseconds: 250), width: 60, height: 60,
               decoration: BoxDecoration(shape: BoxShape.circle, color: _active ? RColors.ok : RColors.lavenderDeep,
                 boxShadow: [BoxShadow(color: (_active ? RColors.ok : RColors.lavenderDeep).withValues(alpha: .35), blurRadius: 22, spreadRadius: 2)]),

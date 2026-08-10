@@ -10,6 +10,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  @override void initState() { super.initState(); _loadPrefs(); }
+  Future<void> _loadPrefs() async {
+    final sp = await SharedPreferences.getInstance();
+    setState(() {
+      _wake = sp.getString('richard_wake') ?? 'hey richard';
+      _persona = sp.getString('richard_persona') ?? 'jarvis';
+      _activeMic = sp.getBool('richard_mic') ?? false;
+    });
+  }
+
   bool _activeMic = false;
   bool _dark = false;
   String _wake = 'hey richard';
@@ -29,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(padding: const EdgeInsets.all(22), children: [
         _tile('Server URL', _server, Icons.dns, () => _prompt('Server URL', _server, (v) async { setState(() => _server = v); await RichardApi.setBase(v); })),
-        _tile('Wake word', _wake, Icons.keyboard_voice, () => _prompt('Wake Word', _wake, (v) => setState(() => _wake = v))),
+        _tile('Wake word', _wake, Icons.keyboard_voice, () => _prompt('Wake Word', _wake, (v) async { setState(() => _wake = v); final sp = await SharedPreferences.getInstance(); await sp.setString('richard_wake', v); })),
         switchTile('Active Listening', _activeMic, (v) async { setState(() => _activeMic = v); final sp = await SharedPreferences.getInstance(); await sp.setBool('richard_mic', v); }),
         _personaListTile(),
         switchTile('Dark theme', ThemeController.I.dark, (v) { ThemeController.I.setDark(v); setState(() {}); }),
@@ -52,7 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Persona'), trailing: DropdownButton<String>(
           value: _persona, underline: const SizedBox.shrink(),
           items: const ['jarvis', 'professional', 'friendly', 'minimal'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-          onChanged: (v) => setState(() => _persona = v ?? _persona),
+          onChanged: (v) async { setState(() => _persona = v ?? _persona); final sp = await SharedPreferences.getInstance(); await sp.setString('richard_persona', _persona); },
         ),
       );
   Widget switchTile(String t, bool v, void f(bool)) => SwitchListTile(secondary: const Icon(Icons.toggle_on, color: RColors.lavenderDeep), title: Text(t), value: v, onChanged: f);
